@@ -1,0 +1,1955 @@
+const APP_VERSION='0.1.0';
+const CONTATO='ricardotaveira123@gmail.com';
+const DISC='Ferramenta de apoio. Não substitui julgamento clínico. Confira doses, fórmulas e cortes antes de decisões terapêuticas.';
+/* MedPrumo: aplicação */
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat(String($(id)?.value).replace(',','.'));
+const fmt=(n,d=1)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const S={ok:'var(--ok)',warn:'var(--warn)',bad:'var(--bad)',acc:'var(--accent)'};
+function out(state,big,unit,pill,note,rows){
+  const el=$('out');el.style.setProperty('--state',S[state]);
+  el.innerHTML=`${big===''?'':`<div class="big">${big}<small>${unit||''}</small></div>`}${pill?`<span class="pill">${pill}</span>`:''}${note?`<p class="note">${note}</p>`:''}${rows?`<div class="rows">${rows.map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>`:''}`;
+}
+const unitLab=l=>String(l).replace(/\(([^)]*)\)/g,'<span class="u">($1)</span>');
+/* Campos numéricos como texto: no iPhone o teclado decimal usa vírgula, e type=number do Safari rejeita vírgula */
+const numIn=id=>`<input id="${id}" class="num" type="text" inputmode="${(LIM[id]&&LIM[id][0]<0)?'text':'decimal'}" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" value="">`;
+const field=(id,lab,val,extra='')=>`<label>${unitLab(lab)}${numIn(id)}</label>`;
+const seg=(id,opts,full=true)=>`<div class="${full?'full':''}"><label>Sexo</label><div class="seg" id="${id}">${opts.map((o,i)=>`<button type="button" data-v="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div></div>`;
+const segVal=id=>document.querySelector(`#${id} [aria-pressed="true"]`)?.dataset.v;
+const table=(head,rows)=>`<div class="tbl"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+const radios=(name,legend,opts,checked,keep)=>`<fieldset><legend>${legend}</legend>${opts.map(o=>`<label class="opt"><input type="radio" name="${name}" id="${name}${o[0]}" value="${o[0]}" ${keep&&o[0]===checked?'checked':''}><b>${o[2]??ptsLab(o[0])}</b>${o[1]}</label>`).join('')}</fieldset>`;
+const SEX=[['F','Feminino'],['M','Masculino']];
+const chk0=(id,label)=>`<label class="opt"><input type="checkbox" id="${id}"><span>${label}</span></label>`;
+const chk=(id,label,on)=>`<label class="opt"><input type="checkbox" id="${id}"><b class="pt">+1</b><span>${label}</span></label>`;
+const ptsLab=v=>{if(String(v)[0]==='_')return '';v=String(v).replace(/^(\d+)[a-z]$/,'$1');const n=+v;return v===''?'':isNaN(n)?v:(n>0?'+'+String(v).replace('.',','):String(v).replace('-','−').replace('.',','))};
+const sel=(id,label,opts,def=0,cfg)=>cfg
+ ?`<label>${label}<select id="${id}" data-cfg="1">${opts.map((o,i)=>`<option value="${o[0]}" ${i===def?'selected':''}>${o[1]||o[0]}</option>`).join('')}</select></label>`
+ :`<div class="pick"><div class="pl">${label}</div><div class="po" role="radiogroup" aria-label="${String(label).replace(/<[^>]+>/g,'')}">${opts.map(o=>`<button type="button" role="radio" aria-checked="false" data-for="${id}" data-v="${o[0]}"><span>${o[1]||'Pontuação '+o[0]}</span><b>${ptsLab(o[0])}</b></button>`).join('')}</div><select id="${id}" hidden tabindex="-1"><option value="" selected></option>${opts.map(o=>`<option value="${o[0]}">${o[0]}</option>`).join('')}</select></div>`;
+document.addEventListener('click',e=>{const b=e.target.closest('.po button');if(!b)return;const s=$(b.dataset.for);if(!s)return;
+  b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-checked',x===b));s.value=b.dataset.v;s.dispatchEvent(new Event('change'))});
+const pts=ids=>ids.filter(i=>$(i).checked).length;
+const chkw=(id,label,w,on)=>`<label class="opt"><input type="checkbox" id="${id}" data-w="${w}"><b>${w>0?'+':''}${String(w).replace('.',',')}</b><span>${label}</span></label>`;
+
+/* Martin/Hopkins: tabela original de 180 células (Martin et al., JAMA 2013) */
+const MH_TG=[[7,49],[50,56],[57,61],[62,66],[67,71],[72,75],[76,79],[80,83],[84,87],[88,92],[93,96],[97,100],[101,105],[106,110],[111,115],[116,120],[121,126],[127,132],[133,138],[139,146],[147,154],[155,163],[164,173],[174,185],[186,201],[202,220],[221,247],[248,292],[293,399],[400,13975]];
+const MH_F=[[3.5,3.4,3.3,3.3,3.2,3.1],[4.0,3.9,3.7,3.6,3.6,3.4],[4.3,4.1,4.0,3.9,3.8,3.6],[4.5,4.3,4.1,4.0,3.9,3.9],[4.7,4.4,4.3,4.2,4.1,3.9],[4.8,4.6,4.4,4.2,4.2,4.1],[4.9,4.6,4.5,4.3,4.3,4.2],[5.0,4.8,4.6,4.4,4.3,4.2],[5.1,4.8,4.6,4.5,4.4,4.3],[5.2,4.9,4.7,4.6,4.4,4.3],[5.3,5.0,4.8,4.7,4.5,4.4],[5.4,5.1,4.8,4.7,4.5,4.3],[5.5,5.2,5.0,4.7,4.6,4.5],[5.6,5.3,5.0,4.8,4.6,4.5],[5.7,5.4,5.1,4.9,4.7,4.5],[5.8,5.5,5.2,5.0,4.8,4.6],[6.0,5.5,5.3,5.0,4.8,4.6],[6.1,5.7,5.3,5.1,4.9,4.7],[6.2,5.8,5.4,5.2,5.0,4.7],[6.3,5.9,5.6,5.3,5.0,4.8],[6.5,6.0,5.7,5.4,5.1,4.8],[6.7,6.2,5.8,5.4,5.2,4.9],[6.8,6.3,5.9,5.5,5.3,5.0],[7.0,6.5,6.0,5.7,5.4,5.1],[7.3,6.7,6.2,5.8,5.5,5.2],[7.6,6.9,6.4,6.0,5.6,5.3],[8.0,7.2,6.6,6.2,5.9,5.4],[8.5,7.6,7.0,6.5,6.1,5.6],[9.5,8.3,7.5,7.0,6.5,5.9],[11.9,10.0,8.8,8.1,7.5,6.7]];
+function mhFactor(tg,nh){const t=Math.round(tg);let r=MH_TG.findIndex(([a,b])=>t>=a&&t<=b);if(r<0)r=t<7?0:MH_TG.length-1;const c=nh<100?0:nh<130?1:nh<160?2:nh<190?3:nh<220?4:5;return MH_F[r][c]}
+
+const wsum=ids=>ids.reduce((s,i)=>s+($(i).checked?parseFloat($(i).dataset.w):0),0);
+const dateField=(id,lab,val)=>`<label>${lab}<input id="${id}" type="date" value="${val}"></label>`;
+const isoDay=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const parseDay=v=>{if(!v)return null;const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
+const daysBetween=(a,b)=>Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/864e5);
+const brDate=d=>d.toLocaleDateString('pt-BR');
+const sd=n=>`${Math.floor(n/7)}s ${n%7}d`;
+function ncdf(z){const t=1/(1+.3275911*Math.abs(z)/Math.SQRT2),y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-z*z/2);return .5*(1+(z<0?-y:y))}
+/* OMS: z-score LMS (método oficial do pacote WHO anthro / anthroplus) */
+function lmsAt(key,sex,age,monthly){const t=GS[key][sex];if(!t)return null;
+  if(!monthly){const i=age-t.a0;if(i<0||i*3>=t.v.length)return null;return t.v.slice(i*3,i*3+3)}
+  const lo=Math.floor(age),f=age-lo,i=lo-t.a0;if(i<0||(i+(f>0?1:0))*3>=t.v.length)return null;
+  const a=t.v.slice(i*3,i*3+3);if(!(f>0))return a;const b=t.v.slice(i*3+3,i*3+6);return a.map((x,k)=>x+f*(b[k]-x))}
+function zLMS(y,p,adj){const[l,m,s]=p;let z=(Math.pow(y/m,l)-1)/(s*l);if(adj){const c=k=>m*Math.pow(1+l*s*k,1/l);
+  if(z>3)z=3+(y-c(3))/(c(3)-c(2));else if(z<-3)z=-3+(y-c(-3))/(c(-2)-c(-3))}return Math.round(z*100)/100}
+const sumSel=ids=>ids.reduce((s,i)=>s+(isNaN(+$(i).value)?0:+$(i).value),0);
+
+const TOOLS=[
+/* ---------- RENAL ---------- */
+{id:'tfg',cat:'Nefrologia',name:'TFG (CKD-EPI 2021)',sub:'Filtração glomerular + estágio KDIGO',
+ src:'Inker et al., NEJM 2021, NKF/ASN, KDIGO 2024',
+ form:()=>`<div class="form">${field('cr','Creatinina (mg/dL)','1.2')}${field('age','Idade (anos)','58')}${seg('sex',SEX)}</div>`,
+ calc(){
+  const cr=num('cr'),age=num('age'),s=segVal('sex');
+  if(!(cr>0)||!(age>0))return out('acc','','','','Informe creatinina e idade.');
+  if(age<18)return out('warn','','','Fora da faixa','CKD-EPI 2021 é para adultos. Em pediatria, usar equação de Schwartz.');
+  const k=s==='F'?0.7:0.9,a=s==='F'?-0.241:-0.302,r=cr/k;
+  const g=142*Math.pow(Math.min(r,1),a)*Math.pow(Math.max(r,1),-1.2)*Math.pow(0.9938,age)*(s==='F'?1.012:1);
+  const st=g>=90?['G1','ok']:g>=60?['G2','ok']:g>=45?['G3a','warn']:g>=30?['G3b','warn']:g>=15?['G4','bad']:['G5','bad'];
+  const md=175*Math.pow(cr,-1.154)*Math.pow(age,-0.203)*(s==='F'?.742:1);
+  out(st[1],fmt(g,0),'mL/min/1,73 m²','KDIGO '+st[0],`Cr ${fmt(cr,2)} mg/dL, ${age} anos, ${s==='F'?'feminino':'masculino'}`,[['CKD-EPI 2021',fmt(g,0)],['MDRD (sem raça)',fmt(md,0)+(md>60?', impreciso &gt; 60':'')]]);
+ },
+ how:()=>`<p>Creatinina, sem coeficiente de raça.</p><p><code>142 × min(Cr/κ,1)^α × max(Cr/κ,1)^−1,200 × 0,9938^idade × 1,012 [se F]</code></p><p>κ = 0,7 (F) ou 0,9 (M). α = −0,241 (F) ou −0,302 (M).</p>
+ ${table(['KDIGO','mL/min/1,73 m²'],[['G1','≥ 90'],['G2','60 a 89'],['G3a','45 a 59'],['G3b','30 a 44'],['G4','15 a 29'],['G5','&lt; 15']])}
+ <p>Adultos com creatinina estável. Estadiamento completo de DRC exige alteração por &gt; 3 meses + albuminúria.</p>
+ <p><b>MDRD (IDMS):</b> <code>175 × Cr^−1,154 × idade^−0,203 × 0,742 [se F]</code>. Exibido sem o fator racial. Subestima TFG acima de 60. Cockcroft-Gault fica em ferramenta separada (precisa do peso).</p>`},
+
+/* ---------- LABORATÓRIO ---------- */
+{id:'ag',cat:'Laboratório',name:'Ânion gap',sub:'Com correção pela albumina',
+ src:'AG clássico, correção de Figge (fator 2,5)',
+ form:()=>`<div class="form">${field('na','Na⁺ (mEq/L)','138')}${field('cl','Cl⁻ (mEq/L)','100')}${field('hco3','HCO₃⁻ (mEq/L)','14')}${field('alb','Albumina (g/dL)','2.5')}</div>`,
+ calc(){
+  const na=num('na'),cl=num('cl'),h=num('hco3'),alb=num('alb');
+  if(!(na>0&&cl>0&&h>0))return out('acc','','','','Informe Na, Cl e HCO₃.');
+  const ag=na-(cl+h);const rows=[['AG medido',fmt(ag,1)]];
+  let big=ag,lab='AG';
+  if(alb>0){const c=ag+2.5*(4-alb);rows.push(['AG corrigido (albumina)',fmt(c,1)]);big=c;lab='AG corrigido';}
+  out('acc',fmt(big,1),'mEq/L',lab,'Comparar com a faixa de referência do seu laboratório (varia com o método).',rows);
+ },
+ how:()=>`<p><code>AG = Na⁺ − (Cl⁻ + HCO₃⁻)</code></p><p><code>AG corrigido = AG + 2,5 × (4,0 − albumina g/dL)</code></p><p>Hipoalbuminemia reduz o AG e pode mascarar acidose com AG elevado.</p><p>Faixa normal depende do analisador do laboratório. Usar a referência local.</p>`},
+
+{id:'ca',cat:'Laboratório',name:'Cálcio corrigido',sub:'Pela albumina (Payne)',
+ src:'Payne et al., BMJ 1973',
+ form:()=>`<div class="form">${field('cat','Ca total (mg/dL)','7.8')}${field('alb2','Albumina (g/dL)','2.8')}</div>`,
+ calc(){
+  const c=num('cat'),a=num('alb2');
+  if(!(c>0&&a>0))return out('acc','','','','Informe cálcio total e albumina.');
+  out('acc',fmt(c+0.8*(4-a),1),'mg/dL','Ca corrigido',`Ca ${fmt(c,1)}, albumina ${fmt(a,1)} g/dL`);
+ },
+ how:()=>`<p><code>Ca corrigido = Ca total + 0,8 × (4,0 − albumina g/dL)</code></p><p>Estimativa imprecisa, sobretudo em DRC, UTI e hipoalbuminemia grave. O <b>cálcio iônico</b> é mais preciso nesses casos.</p>`},
+
+{id:'nac',cat:'Laboratório',name:'Sódio corrigido',sub:'Na hiperglicemia',
+ src:'Katz, NEJM 1973, Hillier et al., Am J Med 1999',
+ form:()=>`<div class="form">${field('na2','Na⁺ medido (mEq/L)','128')}${field('gli','Glicemia (mg/dL)','600')}</div>`,
+ calc(){
+  const na=num('na2'),g=num('gli');
+  if(!(na>0&&g>0))return out('acc','','','','Informe sódio e glicemia.');
+  const d=Math.max(g-100,0)/100;const h=na+2.4*d,k=na+1.6*d;
+  out('acc',fmt(h,1),'mEq/L','Hillier (2,4)',`Glicemia ${fmt(g,0)} mg/dL`,[['Hillier (fator 2,4)',fmt(h,1)],['Katz (fator 1,6)',fmt(k,1)]]);
+ },
+ how:()=>`<p><code>Na corrigido = Na + fator × (glicemia − 100) ÷ 100</code></p><p>Fator 1,6 (Katz) ou 2,4 (Hillier). Hillier é mais usado em glicemias altas. Ambos exibidos.</p>`},
+
+{id:'ldl',cat:'Laboratório',name:'LDL-c estimado',sub:'Martin/Hopkins (SBC 2025) + Sampson + Friedewald',
+ src:'Diretriz Brasileira de Dislipidemias SBC 2025, Martin et al., JAMA 2013, Sampson et al., JAMA Cardiol 2020',
+ form:()=>`<div class="form">${field('ct','Colesterol total (mg/dL)','')}${field('hdl','HDL-c (mg/dL)','')}${field('tg','Triglicérides (mg/dL)','')}</div>`,
+ calc(){
+  const ct=num('ct'),hdl=num('hdl'),tg=num('tg');
+  if([ct,hdl,tg].some(isNaN))return out('acc','','','','Informe CT, HDL e TG.');
+  const nh=ct-hdl;if(nh<=0)return out('bad','','','Valores inválidos','HDL maior ou igual ao colesterol total.');
+  const f=mhFactor(tg,nh),mh=nh-tg/f;
+  const sam=ct/0.948-hdl/0.971-(tg/8.56+(tg*nh)/2140-(tg*tg)/16100)-9.44;
+  const fr=nh-tg/5;
+  const rows=[['Não-HDL-c',fmt(nh,0)],['Martin/Hopkins',fmt(mh,0)+` (fator ${fmt(f,1)})`],['Sampson',tg<800?fmt(sam,0):'inválido (TG ≥ 800)'],['Friedewald',tg<400?fmt(fr,0):'inválido (TG ≥ 400)']];
+  if(tg>800)return out('warn',fmt(nh,0),'mg/dL','Usar não-HDL-c','TG &gt; 800 mg/dL: Martin pode subestimar o LDL-c. SBC 2025 usa o não-HDL-c nessa faixa.',rows);
+  out(tg>=400?'warn':'acc',fmt(mh,0),'mg/dL','Martin/Hopkins',tg>=400?'TG ≥ 400: estimativa menos precisa. O LDL direto é mais preciso.':'Método recomendado pela SBC 2025 para todos.',rows);
+ },
+ how:()=>`<p><b>Martin/Hopkins:</b> <code>LDL = CT − HDL − TG ÷ fator</code>. Fator da tabela de 180 células (30 faixas de TG × 6 de não-HDL).</p>
+ <p><b>SBC 2025:</b> Martin/Hopkins recomendado para todos. TG &gt; 800: não-HDL-c. Sem jejum com TG &gt; 440, a estimativa perde precisão.</p>
+ <p><b>Sampson:</b> <code>CT/0,948 − HDL/0,971 − (TG/8,56 + TG×não-HDL/2140 − TG²/16100) − 9,44</code>. Até TG 800.</p>
+ <p><b>Friedewald:</b> <code>CT − HDL − TG/5</code>. Inválida com TG ≥ 400.</p>`},
+{id:'qtc',cat:'Cardiologia',name:'QT corrigido',sub:'Bazett, Fridericia, Framingham, Hodges',
+ src:'AHA/ACCF/HRS 2009 (Rautaharju et al., Circulation)',
+ form:()=>`<div class="form">${field('qt','QT (ms)','400')}${field('fc','FC (bpm)','90')}${seg('sex2',[['M','Masculino'],['F','Feminino']])}</div>`,
+ calc(){
+  const qt=num('qt'),fc=num('fc'),s=segVal('sex2');
+  if(!(qt>0&&fc>0))return out('acc','','','','Informe QT e FC.');
+  const rr=60/fc,baz=qt/Math.sqrt(rr),fri=qt/Math.cbrt(rr),fra=qt+154*(1-rr),hod=qt+1.75*(fc-60);
+  const lim=s==='F'?460:450;
+  const st=baz>=500?['QTc ≥ 500: alto risco','bad']:baz>=lim?['Prolongado','warn']:baz<=390?['Curto','warn']:['Normal','ok'];
+  out(st[1],fmt(baz,0),'ms (Bazett)',st[0],`RR ${fmt(rr,2)} s`+(fc>100||fc<60?', FC fora de 60 a 100: Bazett distorce, comparar com Fridericia':''),
+   [['Bazett',fmt(baz,0)],['Fridericia',fmt(fri,0)],['Framingham',fmt(fra,0)],['Hodges',fmt(hod,0)]]);
+ },
+ how:()=>`<p>RR em segundos = 60 ÷ FC.</p><p><code>Bazett = QT ÷ √RR</code><br><code>Fridericia = QT ÷ ∛RR</code><br><code>Framingham = QT + 154 × (1 − RR)</code><br><code>Hodges = QT + 1,75 × (FC − 60)</code></p>
+ ${table(['QTc (ms)','Interpretação'],[['≥ 450 H / ≥ 460 M','Prolongado'],['≥ 500','Risco de torsades'],['≤ 390','Curto']])}
+ <p>Classificação aplicada ao Bazett. Bazett supercorrige em FC alta e subcorrige em FC baixa.</p>`},
+
+{id:'eixo',cat:'Cardiologia',name:'Eixo cardíaco',sub:'Por DI e aVF',
+ src:'Método do sistema hexaxial, convenção AHA/ACCF/HRS',
+ form:()=>`<div class="form">${field('d1','DI: R − (Q+S) (mm)','6')}${field('avf','aVF: R − (Q+S) (mm)','8')}</div>`,
+ calc(){
+  const i=num('d1'),f=num('avf');
+  if(isNaN(i)||isNaN(f)||(i===0&&f===0))return out('acc','','','','Informe a amplitude líquida em DI e aVF.');
+  const ax=Math.round(Math.atan2(f,i)*180/Math.PI);
+  const st=ax>=-30&&ax<=90?['Normal','ok']:ax<-30&&ax>=-90?['Desvio para a esquerda','warn']:ax>90&&ax<=180?['Desvio para a direita','warn']:['Desvio extremo','bad'];
+  out(st[1],(ax>0?'+':'')+ax+'°','',st[0],`DI ${i>0?'+':''}${i} mm, aVF ${f>0?'+':''}${f} mm`);
+ },
+ how:()=>`<p>DI está em 0° e aVF em +90°. São perpendiculares.</p><p><code>Eixo = arctan2(aVF, DI)</code> usando a amplitude líquida (R menos Q e S) de cada derivação.</p>
+ ${table(['Eixo','Interpretação (adulto)'],[['−30° a +90°','Normal'],['−30° a −90°','Desvio à esquerda'],['+90° a +180°','Desvio à direita'],['−90° a ±180°','Desvio extremo']])}
+ <p>Estimativa. Em crianças, a faixa normal muda com a idade.</p>`},
+
+/* ---------- ANTROPOMETRIA ---------- */
+{id:'imc',cat:'Antropometria',name:'IMC',sub:'Classificação OMS adulto',
+ src:'OMS',
+ form:()=>`<div class="form">${field('wt','Peso (kg)','82')}${field('ht','Altura (cm)','170')}</div>`,
+ calc(){
+  const w=num('wt'),h=num('ht')/100;
+  if(!(w>0&&h>0))return out('acc','','','','Informe peso e altura.');
+  const b=w/(h*h);
+  const c=b<18.5?['Baixo peso','warn']:b<25?['Eutrofia','ok']:b<30?['Sobrepeso','warn']:b<35?['Obesidade grau I','bad']:b<40?['Obesidade grau II','bad']:['Obesidade grau III','bad'];
+  out(c[1],fmt(b,1),'kg/m²',c[0],`${fmt(w,1)} kg, ${fmt(h*100,0)} cm`);
+ },
+ how:()=>`<p><code>IMC = peso (kg) ÷ altura (m)²</code></p>${table(['IMC','Classificação'],[['&lt; 18,5','Baixo peso'],['18,5 a 24,9','Eutrofia'],['25 a 29,9','Sobrepeso'],['30 a 34,9','Obesidade I'],['35 a 39,9','Obesidade II'],['≥ 40','Obesidade III']])}<p>Crianças e adolescentes: usar curvas de IMC por idade (OMS).</p>`},
+
+/* ---------- NEURO ---------- */
+{id:'gcs',cat:'Neurologia',name:'Escala de Coma de Glasgow',sub:'Com NT e ECG-P',
+ src:'Teasdale & Jennett 1974, atualização Glasgow 2014, ECG-P 2018',
+ form:()=>`<div class="stack">
+  ${radios('o','Abertura ocular',[['4','Espontânea'],['3','Ao som'],['2','À pressão'],['1','Ausente'],['NT','Não testável']],'4')}
+  ${radios('v','Resposta verbal',[['5','Orientada'],['4','Confusa'],['3','Palavras'],['2','Sons'],['1','Ausente'],['NT','Não testável']],'4')}
+  ${radios('m','Resposta motora',[['6','Obedece comandos'],['5','Localiza estímulo'],['4','Flexão normal'],['3','Flexão anormal'],['2','Extensão'],['1','Ausente'],['NT','Não testável']],'6')}
+  ${radios('p','Reatividade pupilar (opcional)',[['X','Não avaliada',''],['0','Ambas reagem'],['1','Uma não reage'],['2','Nenhuma reage']],'X',1)}</div>`,
+ calc(){
+  const v=n=>document.querySelector(`input[name="${n}"]:checked`).value;
+  const O=v('o'),V=v('v'),M=v('m'),P=v('p'),comp=`O${O} V${V} M${M}`;
+  if([O,V,M].includes('NT'))return out('acc','NT','','Incompleto',`${comp}, reportar componentes sem somar.`);
+  const t=+O+ +V+ +M,g=t>=13?['Leve','ok']:t>=9?['Moderado','warn']:['Grave','bad'];
+  out(g[1],t,'/ 15','TCE '+g[0],comp+(P==='X'?'':`, ECG-P ${t-(+P)}`));
+ },
+ how:()=>`<p><b>ECG = O + V + M</b> (3 a 15). Registrar componentes, ex.: <code>O4 V4 M6</code>.</p><p><b>ECG-P</b> = ECG − escore pupilar (0 a 2). Faixa 1 a 15.</p><p>NT: componente não testável (intubação, edema palpebral). Não somar.</p>${table(['ECG','Gravidade no TCE'],[['13 a 15','Leve'],['9 a 12','Moderado'],['3 a 8','Grave']])}`},
+
+/* ---------- LOTE 3: ESCORES ---------- */
+{id:'qsofa',cat:'Terapia intensiva',name:'qSOFA',sub:'Risco de mau desfecho na infecção',
+ src:'Sepsis-3 (Singer et al., JAMA 2016), SSC 2021',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('q1','FR ≥ 22 irpm',1)}${chk('q2','Alteração do nível de consciência (ECG &lt; 15)')}${chk('q3','PAS ≤ 100 mmHg',1)}</fieldset>`,
+ calc(){
+  const t=pts(['q1','q2','q3']);
+  out(t>=2?'bad':'ok',t,'/ 3',t>=2?'Positivo':'Negativo',t>=2?'≥ 2: maior risco de mortalidade.':'Negativo não exclui sepse.');
+ },
+ how:()=>`<p>1 ponto por critério. <b>≥ 2</b>: maior risco de desfecho desfavorável.</p><p><b>SSC 2021:</b> recomenda <b>contra</b> usar qSOFA como ferramenta única de triagem de sepse (comparado a SIRS, NEWS ou MEWS).</p><p>qSOFA é prognóstico. Não é critério diagnóstico de sepse.</p><p><b>Brasil (ILAS):</b> triagem por SIRS ou disfunção orgânica. Ver ferramenta <b>Sepse (ILAS)</b>.</p>`},
+
+{id:'curb',cat:'Pneumologia',name:'CURB-65',sub:'Gravidade da PAC + CRB-65',
+ src:'Lim et al., Thorax 2003, SBPT (PAC 2018)',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('c1','<b>C</b>onfusão mental')}${chk('c2','<b>U</b>reia &gt; 50 mg/dL',1)}${chk('c3','<b>R</b>: FR ≥ 30 irpm')}${chk('c4','<b>B</b>: PAS &lt; 90 ou PAD ≤ 60 mmHg')}${chk('c5','Idade ≥ <b>65</b> anos',1)}</fieldset>`,
+ calc(){
+  const t=pts(['c1','c2','c3','c4','c5']),crb=pts(['c1','c3','c4','c5']);
+  const g=t<=1?['Baixo risco','ok','Mortalidade em 30 dias de 1,5% no estudo original.']:t===2?['Risco intermediário','warn','Mortalidade em 30 dias de 9,2% no estudo original.']:['Alto risco','bad','Mortalidade em 30 dias de 22% no estudo original.'];
+  out(g[1],t,'/ 5',g[0],g[2],[['CURB-65',t],['CRB-65 (sem ureia)',crb]]);
+ },
+ how:()=>`<p>1 ponto por critério. CRB-65 exclui a ureia (uso na atenção primária).</p>${table(['CURB-65','Risco','Mortalidade 30 dias'],[['0 a 1','Baixo','1,5%'],['2','Intermediário','9,2%'],['3 a 5','Alto','22%']])}<p>O escore não avalia hipoxemia, comorbidade descompensada nem condição social.</p>`},
+
+{id:'heart',cat:'Cardiologia',name:'HEART',sub:'Dor torácica na emergência',
+ src:'Six et al., Neth Heart J 2008, Backus et al. 2013',
+ form:()=>`<div class="stack">
+  ${sel('h1','História',[['0','Pouco suspeita'],['1','Moderadamente suspeita'],['2','Muito suspeita']],1)}
+  ${sel('h2','ECG',[['0','Normal'],['1','Repolarização inespecífica, BRE, HVE, marcapasso'],['2','Infra/supra de ST significativo']])}
+  ${sel('h3','Idade',[['0','&lt; 45 anos'],['1','45 a 64 anos'],['2','≥ 65 anos']],1)}
+  ${sel('h4','Fatores de risco',[['0','Nenhum'],['1','1 a 2 fatores'],['2','≥ 3 fatores ou aterosclerose conhecida']],1)}
+  ${sel('h5','Troponina',[['0','≤ limite normal'],['1','1 a 3× o limite'],['2','&gt; 3× o limite']])}</div>`,
+ calc(){
+  const t=sumSel(['h1','h2','h3','h4','h5']);
+  const g=t<=3?['Baixo risco','ok','MACE ≈ 0,9 a 1,7% em 6 semanas.']:t<=6?['Risco moderado','warn','MACE ≈ 12 a 16,6% em 6 semanas.']:['Alto risco','bad','MACE ≈ 50 a 65% em 6 semanas.'];
+  out(g[1],t,'/ 10',g[0],g[2]);
+ },
+ how:()=>`<p>Cinco componentes, 0 a 2 pontos cada.</p>${table(['HEART','Risco de MACE'],[['0 a 3','Baixo: 0,9 a 1,7%'],['4 a 6','Moderado: 12 a 16,6%'],['7 a 10','Alto: 50 a 65%']])}<p>Fatores de risco: HAS, DM, dislipidemia, tabagismo, obesidade, história familiar. Faixas de MACE das coortes de derivação e validação.</p>`},
+
+{id:'timi',cat:'Cardiologia',name:'TIMI (AI/IAMSSST)',sub:'Risco em 14 dias',
+ src:'Antman et al., JAMA 2000',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('t1','Idade ≥ 65 anos',1)}${chk('t2','≥ 3 fatores de risco para DAC',1)}${chk('t3','Estenose coronariana prévia ≥ 50%')}${chk('t4','Desvio de ST no ECG de admissão')}${chk('t5','≥ 2 episódios de angina em 24 h',1)}${chk('t6','Uso de AAS nos últimos 7 dias')}${chk('t7','Marcadores de necrose elevados')}</fieldset>`,
+ calc(){
+  const t=pts(['t1','t2','t3','t4','t5','t6','t7']);
+  const r=t<=1?'4,7%':t===2?'8,3%':t===3?'13,2%':t===4?'19,9%':t===5?'26,2%':'40,9%';
+  out(t<=2?'ok':t<=4?'warn':'bad',t,'/ 7',t<=2?'Baixo':t<=4?'Intermediário':'Alto',`Morte, IAM ou revascularização urgente em 14 dias: ${r}`);
+ },
+ how:()=>`<p>1 ponto por critério.</p>${table(['TIMI','Eventos em 14 dias'],[['0 a 1','4,7%'],['2','8,3%'],['3','13,2%'],['4','19,9%'],['5','26,2%'],['6 a 7','40,9%']])}`},
+
+{id:'meld',cat:'Hepatologia',name:'MELD',sub:'MELD (Brasil) + MELD 3.0 (OPTN)',
+ src:'MELD: Kamath 2001, regra brasileira Portaria MS 2.600/2009, MELD 3.0: Kim et al., Gastroenterology 2021',
+ form:()=>`<div class="form">${field('bil','Bilirrubina (mg/dL)','')}${field('crm','Creatinina (mg/dL)','')}${field('inr','INR','')}${field('nam','Na⁺ (mEq/L), para MELD 3.0','')}${field('albm','Albumina (g/dL), para MELD 3.0','')}${seg('sexm',SEX)}<div class="full">${chk0('dial','Diálise ≥ 2× na última semana (ou CVVHD 24 h)')}</div></div>`,
+ calc(){
+  let b=num('bil'),c=num('crm'),i=num('inr'),n=num('nam'),a=num('albm');
+  if([b,c,i].some(isNaN))return out('acc','','','','Informe bilirrubina, creatinina e INR.');
+  const dl=$('dial').checked;
+  const b1=Math.max(b,1),i1=Math.max(i,1),c1=dl?4:Math.min(Math.max(c,1),4);
+  const meld=Math.round(10*(0.957*Math.log(c1)+0.378*Math.log(b1)+1.120*Math.log(i1)+0.643));
+  const rows=[['MELD (usado no Brasil)',meld]];
+  if(!isNaN(n)&&!isNaN(a)){
+   const f=segVal('sexm')==='F'?1:0,c3=dl?3:Math.min(Math.max(c,1),3),n3=Math.min(Math.max(n,125),137),a3=Math.min(Math.max(a,1.5),3.5),lb=Math.log(b1),lc=Math.log(c3);
+   let m=1.33*f+4.56*lb+0.82*(137-n3)-0.24*(137-n3)*lb+9.09*Math.log(i1)+11.14*lc+1.85*(3.5-a3)-1.83*(3.5-a3)*lc+6;
+   rows.push(['MELD 3.0 (OPTN/EUA)',Math.min(Math.max(Math.round(m),6),40)]);
+  }else rows.push(['MELD 3.0','informe Na e albumina']);
+  out(meld<15?'ok':meld<25?'warn':'bad',meld,'','MELD','Brasil: lista de fígado usa o MELD original.',rows);
+ },
+ how:()=>`<p><b>MELD:</b> <code>10 × (0,957 × ln Cr + 0,378 × ln Bil + 1,120 × ln INR + 0,643)</code>. Valores &lt; 1 viram 1. Cr máxima 4. Diálise ≥ 2×/semana: Cr 4.</p>
+ <p><b>Brasil:</b> o MELD-Na e o MELD 3.0 não foram adotados na alocação (dados até 2019, Portaria 2.600/2009). Conferir regra vigente do SNT.</p>
+ <p><b>MELD 3.0</b> (OPTN desde jul/2023): <code>1,33×(mulher) + 4,56×ln Bil + 0,82×(137−Na) − 0,24×(137−Na)×ln Bil + 9,09×ln INR + 11,14×ln Cr + 1,85×(3,5−Alb) − 1,83×(3,5−Alb)×ln Cr + 6</code>. Cr máx. 3. Na 125 a 137. Alb 1,5 a 3,5. Faixa 6 a 40.</p>`},
+{id:'nihss',cat:'Neurologia',name:'NIHSS',sub:'Gravidade do AVC',
+ src:'NIH Stroke Scale (Brott et al., Stroke 1989)',
+ form:()=>`<div class="stack">
+  ${sel('n1a','1a. Nível de consciência',[['0','Alerta'],['1','Desperta com estímulo leve'],['2','Desperta só com estímulo intenso'],['3','Sem resposta ou só reflexa']])}
+  ${sel('n1b','1b. Perguntas (mês, idade)',[['0','Ambas corretas'],['1','Uma correta'],['2','Nenhuma correta']])}
+  ${sel('n1c','1c. Comandos (olhos, mão)',[['0','Ambos corretos'],['1','Um correto'],['2','Nenhum correto']])}
+  ${sel('n2','2. Melhor olhar',[['0','Normal'],['1','Paresia parcial'],['2','Desvio forçado']])}
+  ${sel('n3','3. Campos visuais',[['0','Sem perda'],['1','Hemianopsia parcial'],['2','Hemianopsia completa'],['3','Hemianopsia bilateral / cegueira']],2)}
+  ${sel('n4','4. Paralisia facial',[['0','Normal'],['1','Mínima'],['2','Parcial'],['3','Completa']],2)}
+  ${['5a. Braço esquerdo','5b. Braço direito'].map((l,k)=>sel('n5'+'ab'[k],l,[['0','Sem queda em 10 s'],['1','Queda parcial'],['2','Algum esforço contra gravidade'],['3','Sem esforço contra gravidade'],['4','Sem movimento'],['UN','Amputação / anquilose']],k?3:0)).join('')}
+  ${['6a. Perna esquerda','6b. Perna direita'].map((l,k)=>sel('n6'+'ab'[k],l,[['0','Sem queda em 5 s'],['1','Queda parcial'],['2','Algum esforço contra gravidade'],['3','Sem esforço contra gravidade'],['4','Sem movimento'],['UN','Amputação / anquilose']],k?2:0)).join('')}
+  ${sel('n7','7. Ataxia de membros',[['0','Ausente'],['1','Em 1 membro'],['2','Em 2 membros'],['UN','Amputação / anquilose']])}
+  ${sel('n8','8. Sensibilidade',[['0','Normal'],['1','Perda leve a moderada'],['2','Perda grave ou total']],1)}
+  ${sel('n9','9. Linguagem',[['0','Sem afasia'],['1','Afasia leve a moderada'],['2','Afasia grave'],['3','Mutismo / afasia global']],2)}
+  ${sel('n10','10. Disartria',[['0','Normal'],['1','Leve a moderada'],['2','Grave'],['UN','Intubado / barreira física']],1)}
+  ${sel('n11','11. Extinção / desatenção',[['0','Normal'],['1','Em 1 modalidade'],['2','Profunda ou &gt; 1 modalidade']])}</div>`,
+ calc(){
+  const ids=['n1a','n1b','n1c','n2','n3','n4','n5a','n5b','n6a','n6b','n7','n8','n9','n10','n11'];
+  const t=sumSel(ids),un=ids.filter(i=>$(i).value==='UN').length;
+  const g=t===0?['Sem déficit','ok']:t<=4?['AVC menor','ok']:t<=15?['Moderado','warn']:t<=20?['Moderado a grave','bad']:['Grave','bad'];
+  out(g[1],t,'/ 42',g[0],un?`${un} item(ns) UN não somado(s). Registrar como UN.`:'');
+ },
+ how:()=>`<p>15 itens. Soma de 0 a 42. Pontuar o que o paciente <b>faz</b>, não o que o examinador acha que ele consegue.</p>${table(['NIHSS','Gravidade'],[['0','Sem sintomas'],['1 a 4','Menor'],['5 a 15','Moderado'],['16 a 20','Moderado a grave'],['21 a 42','Grave']])}<p>UN: não testável (amputação, anquilose, intubação). Não entra na soma.</p><p>Elegibilidade para trombólise não depende só do NIHSS. Seguir protocolo institucional.</p>`},
+
+{id:'apgar',cat:'Neonatologia',name:'Apgar',sub:'Vitalidade do recém-nascido',
+ src:'Apgar 1953, AAP/ACOG',
+ form:()=>`<div class="stack">
+  ${sel('a1','Frequência cardíaca',[['0','Ausente'],['1','&lt; 100 bpm'],['2','≥ 100 bpm']],2)}
+  ${sel('a2','Respiração',[['0','Ausente'],['1','Irregular, choro fraco'],['2','Regular, choro forte']],1)}
+  ${sel('a3','Tônus muscular',[['0','Flácido'],['1','Alguma flexão'],['2','Movimento ativo']],1)}
+  ${sel('a4','Irritabilidade reflexa',[['0','Ausente'],['1','Careta'],['2','Choro, tosse, espirro']],2)}
+  ${sel('a5','Cor',[['0','Cianose ou palidez'],['1','Extremidades cianóticas'],['2','Rosado']],1)}</div>`,
+ calc(){
+  const t=sumSel(['a1','a2','a3','a4','a5']);
+  const g=t>=7?['Tranquilizador','ok']:t>=4?['Moderadamente anormal','warn']:['Baixo','bad'];
+  out(g[1],t,'/ 10',g[0],'Avaliar no 1º e 5º minuto. Se &lt; 7 no 5º, repetir a cada 5 min até 20 min.');
+ },
+ how:()=>`<p>Cinco sinais, 0 a 2 pontos cada.</p>${table(['Apgar','Interpretação'],[['7 a 10','Tranquilizador'],['4 a 6','Moderadamente anormal'],['0 a 3','Baixo']])}<p><b>Não usar para decidir reanimação.</b> Início da reanimação se baseia em respiração, tônus e FC, conforme protocolo de reanimação neonatal.</p>`},
+
+/* ---------- LOTE 4: OBSTETRÍCIA + PEDIATRIA ---------- */
+{id:'ig',cat:'Obstetrícia',name:'IG e DPP',sub:'Pela DUM e pelo USG',
+ src:'ACOG Committee Opinion 700 (2017), Practice Bulletin 175',
+ form:()=>{const t=new Date();return `<div class="form">${dateField('dum','DUM','')}${dateField('dref','Data de referência',isoDay(t))}</div>
+  <fieldset><legend>USG (opcional)</legend><div class="form">${dateField('dus','Data do USG','')}<div></div>${field('usw','IG no USG: semanas','7','min="4" max="42"')}${field('usd','IG no USG: dias','3','min="0" max="6"')}</div></fieldset>`},
+ calc(){
+  const dum=parseDay($('dum').value),ref=parseDay($('dref').value);
+  if(!dum||!ref)return out('acc','','','','Informe DUM e data de referência.');
+  const ig=daysBetween(dum,ref),dpp=addDays(dum,280);
+  if(ig<0)return out('bad','','','Data inválida','DUM posterior à data de referência.');
+  if(ig>315)return out('bad','','','Data inválida','IG pela DUM acima de 45 semanas. Confira a DUM.');
+  const dus0=parseDay($('dus').value);if(dus0&&(daysBetween(dum,dus0)<0||daysBetween(dus0,ref)<0))return out('bad','','','Data inválida','USG deve estar entre a DUM e a data de referência.');
+  const rows=[['IG pela DUM',sd(ig)],['DPP pela DUM',brDate(dpp)]];
+  const dus=parseDay($('dus').value),w=num('usw'),d=num('usd')||0;
+  if(!dus||!(w>0))return out('acc',sd(ig),'',`DPP ${brDate(dpp)}`,'Sem USG: datação pela DUM.',rows);
+  const igUS=Math.round(w*7+d),igRefUS=igUS+daysBetween(dus,ref),dppUS=addDays(dus,280-igUS);
+  const igDumAtUS=daysBetween(dum,dus),disc=Math.abs(igDumAtUS-igUS);
+  const lim=igUS<63?5:igUS<112?7:igUS<154?10:igUS<196?14:null;
+  rows.push(['IG pelo USG',sd(igRefUS)],['DPP pelo USG',brDate(dppUS)],['Discrepância no dia do USG',disc+' dias'+(lim?` (limite ${lim})`:'')]);
+  if(lim==null)return out('warn',sd(ig),'','Manter DUM','USG ≥ 28 semanas: datação imprecisa. Não redatar com base apenas nele.',rows);
+  const red=disc>lim;
+  out(red?'warn':'ok',sd(red?igRefUS:ig),'',red?'Redatar pelo USG':'Manter DUM',red?`Discrepância &gt; ${lim} dias para a IG do exame: usar USG. DPP ${brDate(dppUS)}.`:`Discrepância ≤ ${lim} dias: manter DUM. DPP ${brDate(dpp)}.`,rows);
+ },
+ how:()=>`<p><b>DPP = DUM + 280 dias.</b> Gestação por FIV: usar idade do embrião e data da transferência.</p>${table(['IG no USG','Redatar se discrepância'],[['≤ 8s 6d','&gt; 5 dias'],['9s 0d a 15s 6d','&gt; 7 dias'],['16s 0d a 21s 6d','&gt; 10 dias'],['22s 0d a 27s 6d','&gt; 14 dias']])}<p>DUM incerta: usar o USG mais precoce. CCN &gt; 84 mm: usar biometria de 2º trimestre.</p>`},
+
+{id:'bishop',cat:'Obstetrícia',name:'Índice de Bishop',sub:'Colo antes da indução',
+ src:'Bishop 1964, ACOG',
+ form:()=>`<div class="stack">
+  ${sel('bi1','Dilatação',[['0','Fechado'],['1','1 a 2 cm'],['2','3 a 4 cm'],['3','≥ 5 cm']],1)}
+  ${sel('bi2','Apagamento',[['0','0 a 30%'],['1','40 a 50%'],['2','60 a 70%'],['3','≥ 80%']],1)}
+  ${sel('bi3','Altura da apresentação',[['0','−3'],['1','−2'],['2','−1 ou 0'],['3','+1 ou +2']],1)}
+  ${sel('bi4','Consistência',[['0','Firme'],['1','Média'],['2','Amolecida']],1)}
+  ${sel('bi5','Posição',[['0','Posterior'],['1','Intermediária'],['2','Anterior']])}</div>`,
+ calc(){const t=sumSel(['bi1','bi2','bi3','bi4','bi5']);
+  const g=t>=8?['Favorável','ok','Colo maduro: boa chance de parto vaginal com indução.']:t<=6?['Desfavorável','warn','Colo desfavorável.']:['Intermediário','acc','Entre 6 e 8: individualizar.'];
+  out(g[1],t,'/ 13',g[0],g[2])},
+ how:()=>`<p>Soma de 5 componentes.</p>${table(['Bishop','Interpretação'],[['≥ 8','Favorável'],['≤ 6','Desfavorável']])}`},
+
+{id:'pedem',cat:'Pediatria',name:'Doses e TOT na PCR pediátrica',sub:'Peso estimado pela idade, drogas e tubo',
+ src:'PALS 2025 (AHA), fórmulas APLS, MSD Manual (TOT)',
+ form:()=>`<div class="form">${field('pa','Idade: anos','3','min="0" max="17"')}${field('pm','Idade: meses','0','min="0" max="11"')}<div class="full">${field('pw','Peso medido (kg), se disponível','')}</div></div>`,
+ calc(){
+  const a=num('pa')||0,mo=num('pm')||0,pw=num('pw');
+  const tm=a*12+mo;if(!(tm>=0)||(a===0&&mo===0&&!(pw>0)))return out('acc','','','','Informe idade ou peso.');
+  let est=null;if(tm<12)est=.5*tm+4;else if(a<=5)est=2*a+8;else if(a<=12)est=3*a+7;
+  const w=pw>0?pw:est;if(!w)return out('warn','','','Informe o peso','Fórmula APLS vale até 12 anos.');
+  const f=(x,d=1)=>fmt(x,d);
+  const adr=Math.min(.01*w,1),ami=Math.min(5*w,300);
+  let tot;if(tm<12)tot='3,5 sem cuff, 3,0 com cuff (&gt; 3,5 kg)';else if(a<=8){const ar=Math.round(a);tot=`${f(ar/4+4,1)} sem cuff, ${f(ar/4+3.5,1)} com cuff`}else tot='Fórmula vale até 8 anos';
+  out('acc',f(w,1),'kg',pw>0?'Peso medido':'Peso estimado (APLS)',pw>0?'':'Estimativa imprecisa. Preferir peso real ou fita por estatura.',[
+   ['Adrenalina IV/IO (0,01 mg/kg)',`${f(adr,2)} mg = ${f(adr*10,1)} mL (0,1 mg/mL)`],
+   ['Amiodarona (5 mg/kg)',`${f(ami,0)} mg`],
+   ['Lidocaína (1 mg/kg)',`${f(w,0)} mg`],
+   ['Choque 1º (2 J/kg)',`${f(2*w,0)} J`],['Choque 2º (4 J/kg)',`${f(4*w,0)} J`],
+   ['Choques seguintes',`≥ ${f(4*w,0)} J, máx. ${f(10*w,0)} J ou dose adulto`],
+   ['TOT (mm)',tot]]);
+ },
+ how:()=>`<p><b>Peso estimado (APLS):</b> &lt; 1 ano = 0,5 × meses + 4, 1 a 5 anos = 2 × idade + 8, 6 a 12 anos = 3 × idade + 7.</p>
+ <p><b>PALS 2025:</b> adrenalina 0,01 mg/kg IV/IO (máx. 1 mg) a cada 3 a 5 min. Amiodarona 5 mg/kg (máx. 300 mg), repetir até 3 doses. Lidocaína 1 mg/kg. Choque 2 J/kg, depois 4, depois ≥ 4 J/kg (máx. 10 J/kg ou adulto).</p>
+ <p>Compressão 100 a 120/min, ≥ 1/3 do diâmetro AP. 15:2 com 2 socorristas (pré-púbere). Via aérea avançada: 1 ventilação a cada 2 a 3 s.</p>
+ <p><b>TOT (1 a 8 anos):</b> sem cuff = idade/4 + 4, com cuff = idade/4 + 3,5. Ter meio número acima e abaixo.</p>`},
+
+{id:'oms',cat:'Pediatria',name:'Curvas OMS',sub:'Escore-z e percentil, 0 a 19 anos',
+ src:'OMS 2006 (0 a 5 a) e 2007 (5 a 19 a), tabelas LMS oficiais (WHO anthro), Ministério da Saúde',
+ form:()=>{const t=new Date();return `<div class="form">${seg('osx',[['1','Masculino'],['2','Feminino']])}${dateField('obd','Nascimento','')}${dateField('odm','Data da medida',isoDay(t))}
+  ${field('owt','Peso (kg)','12.5')}${field('oht','Comprimento/estatura (cm)','88')}${field('ohc','Perímetro cefálico (cm)','48.5')}
+  <div class="full"><label>Medido</label><div class="seg" id="opos"><button type="button" data-v="L" aria-pressed="false">Deitado</button><button type="button" data-v="H" aria-pressed="false">Em pé</button></div></div></div>`},
+ calc(){
+  const sx=segVal('osx'),bd=parseDay($('obd').value),dm=parseDay($('odm').value);
+  if(!bd||!dm)return out('acc','','','','Informe as datas.');
+  const days=daysBetween(bd,dm);if(days<0)return out('warn','','','Datas inválidas','Medida antes do nascimento.');
+  const wt=num('owt'),ht0=num('oht'),hc=num('ohc'),pos=segVal('opos');
+  const ageTxt=days<731?`${Math.floor(days/30.4375)} meses`:`${Math.floor(days/365.25)} anos e ${Math.floor((days%365.25)/30.4375)} meses`;
+  const rows=[],pc=z=>z==null?'sem dados':`z ${fmt(z,2)}, P${fmt(ncdf(z)*100,z>2.5||z<-2.5?1:0)}`;
+  let main=null;
+  if(days>6940)return out('warn','','','Fora da faixa','Curvas OMS até 19 anos.');
+  if(days<=1856){
+   let ht=ht0;if(ht>0){if(days<731&&pos==='H')ht+=.7;else if(days>=731&&pos==='L')ht-=.7}
+   const zw=wt>0?zLMS(wt,lmsAt('wfa',sx,days),1):null;
+   const zh=ht>0?zLMS(ht,lmsAt('lfa',sx,days),0):null;
+   const zb=wt>0&&ht>0?zLMS(wt/((ht/100)**2),lmsAt('bfa',sx,days),1):null;
+   const zc=hc>0?zLMS(hc,lmsAt('hca',sx,days),0):null;
+   rows.push(['Peso/idade',pc(zw)+(zw==null?'':zw<-2?', baixo':zw>2?', elevado':'')],['Comprimento/estatura/idade',pc(zh)+(zh!=null&&zh<-2?', baixa':'')],['IMC/idade',pc(zb)],['PC/idade',pc(zc)]);
+   main=zw??zh;
+  }else{
+   const mo=days/30.4375;
+   const zh=ht0>0?zLMS(ht0,lmsAt('hfa7',sx,mo,1),0):null;
+   const zb=wt>0&&ht0>0?zLMS(wt/((ht0/100)**2),lmsAt('bfa7',sx,mo,1),1):null;
+   const p=mo<=120&&wt>0?lmsAt('wfa7',sx,mo,1):null,zw=p?zLMS(wt,p,1):null;
+   const cb=zb==null?'':zb<-2?', magreza':zb>2?', obesidade':zb>1?', sobrepeso':'';
+   rows.push(['IMC/idade',pc(zb)+cb],['Estatura/idade',pc(zh)+(zh!=null&&zh<-2?', baixa':'')],['Peso/idade',mo<=120?pc(zw):'só até 10 anos'],['PC/idade','só até 5 anos']);
+   main=zb??zh;
+  }
+  const st=main==null?'acc':Math.abs(main)>2?'warn':'ok';
+  out(st,main==null?'':fmt(main,2),'escore-z',days<=1856?'OMS 2006':'OMS 2007',`Idade: ${ageTxt} (${days} dias)`,rows);
+ },
+ how:()=>`<p><code>z = ((medida ÷ M)^L − 1) ÷ (L × S)</code>. Para peso e IMC, valores além de ±3 usam a correção oficial da OMS.</p>
+ <p>0 a 5 anos: tabelas diárias OMS 2006. Menor de 2 anos medido em pé: +0,7 cm. 2 anos ou mais medido deitado: −0,7 cm.</p>
+ <p>5 a 19 anos: OMS 2007, interpolação mensal. Peso/idade só até 10 anos.</p>
+ ${table(['Indicador (MS)','Ponto de corte'],[['P/I &lt; 5 a','&lt; −2 baixo, &gt; +2 elevado'],['E/I','&lt; −2 baixa estatura'],['IMC/I 5 a 19 a','&lt; −2 magreza, +1 a +2 sobrepeso, &gt; +2 obesidade']])}`},
+
+/* ---------- LOTE 5 ---------- */
+{id:'sc',cat:'Antropometria',name:'Superfície corporal',sub:'Mosteller e DuBois',
+ src:'Mosteller, NEJM 1987, DuBois & DuBois 1916',
+ form:()=>`<div class="form">${field('scw','Peso (kg)','70')}${field('sch','Altura (cm)','170')}</div>`,
+ calc(){const w=num('scw'),h=num('sch');if(!(w>0&&h>0))return out('acc','','','','Informe peso e altura.');
+  const mo=Math.sqrt(w*h/3600),du=.007184*Math.pow(w,.425)*Math.pow(h,.725);
+  out('acc',fmt(mo,2),'m²','Mosteller','',[['Mosteller',fmt(mo,2)+' m²'],['DuBois',fmt(du,2)+' m²']])},
+ how:()=>`<p><code>Mosteller = √(altura cm × peso kg ÷ 3600)</code></p><p><code>DuBois = 0,007184 × peso^0,425 × altura^0,725</code></p><p>Fórmulas antigas, mas ainda são o padrão. Nenhuma diretriz as substituiu. Mosteller é a mais usada por ser simples. Usar peso real para dose de quimioterapia, salvo protocolo específico.</p>`},
+
+{id:'queim',cat:'Trauma',name:'Queimaduras',sub:'%SCQ + reposição volêmica',
+ src:'Regra dos 9 (Wallace), ATLS 11ª ed., ABA 2023, para mais precisão use Lund-Browder',
+ form:()=>{const segs=[['qh','Cabeça e pescoço'],['qma','Membro superior D'],['qmb','Membro superior E'],['qta','Tronco anterior'],['qtp','Tronco posterior'],['qia','Membro inferior D'],['qib','Membro inferior E'],['qp','Períneo']];
+  const fr=[['0','Nada'],['0.25','¼'],['0.5','½'],['0.75','¾'],['1','Todo']];
+  return `<div class="form">${field('qw','Peso (kg)','70')}${field('qa','Idade (anos)','35')}<div class="full"><label>Tipo</label><div class="seg" id="qtype"><button type="button" data-v="T" aria-pressed="false">Térmica</button><button type="button" data-v="E" aria-pressed="false">Elétrica</button></div></div>
+  <div class="full"><label>Regra dos 9</label><div class="seg" id="qrule"><button type="button" data-v="A" aria-pressed="false">Adulto</button><button type="button" data-v="C" aria-pressed="false">Criança</button></div></div></div>
+  <div class="form">${segs.map((s,i)=>`<label>${s[1]}<select id="${s[0]}">${fr.map(f=>`<option value="${f[0]}" >${f[1]}</option>`).join('')}</select></label>`).join('')}</div>`},
+ calc(){
+  const w=num('qw'),age=num('qa'),type=segVal('qtype');
+  const child=segVal('qrule')==='C';
+  const P=child?{qh:18,qma:9,qmb:9,qta:18,qtp:18,qia:14,qib:14,qp:0}:{qh:9,qma:9,qmb:9,qta:18,qtp:18,qia:18,qib:18,qp:1};
+  const tb=Object.keys(P).reduce((s,k)=>s+P[k]*parseFloat($(k).value),0);
+  if(!(tb>0))return out('acc','0','%','','Marque as áreas com queimadura de 2º e 3º grau.');
+  const rows=[['Regra usada',child?'Infantil (cabeça 18, MI 14)':'Adulto']];
+  const fat=type==='E'?4:(age>=13?2:3);
+  const thr=age>=13?20:10;
+  if(w>0){const tot=fat*w*tb;rows.push([`Fator (${type==='E'?'elétrica':age>=13?'≥ 13 anos':'&lt; 13 anos'})`,fat+' mL/kg/%SCQ'],['Taxa inicial RL',fmt(tot/16,0)+' mL/h'],['Diurese alvo',age>=13?fmt(.5*w,0)+' mL/h (0,5 mL/kg/h)':fmt(w,0)+' mL/h (1 mL/kg/h)']);if(w<=30)rows.push(['Criança ≤ 30 kg','+ manutenção com glicose'])}
+  out(tb>=thr?'bad':'warn',fmt(tb,1),'% SCQ',tb>=thr?'Acima do limiar':'Abaixo do limiar',`Limiar de reposição do ATLS: ${thr}% SCQ (${age>=13?'adulto':'criança'}).`,rows);
+ },
+ how:()=>`<p>Somar só 2º e 3º grau. 1º grau não entra. Palma do paciente com dedos ≈ 1%.</p>${table(['Segmento','Adulto','Criança'],[['Cabeça/pescoço','9','18'],['Cada MS','9','9'],['Tronco anterior','18','18'],['Tronco posterior','18','18'],['Cada MI','18','14'],['Períneo','1','-']])}
+ <p><b>ATLS 11ª ed.:</b> ≥ 13 anos 2 mL × kg × %SCQ, &lt; 13 anos 3 mL, elétrica 4 mL. Taxa inicial = volume ÷ 16 (mL/h). Diurese 0,5 mL/kg/h (adulto) e 1 mL/kg/h (criança).</p><p><b>ABA 2023:</b> usa 2 mL/kg/%SCQ em adultos ≥ 20%.</p>`},
+
+{id:'snap',cat:'Psiquiatria',name:'SNAP-IV',sub:'Triagem de sintomas de TDAH (18 itens)',
+ src:'MTA-SNAP-IV, versão brasileira (Mattos et al., 2006), ABDA',
+ form:()=>{const it=['Não consegue prestar muita atenção a detalhes ou comete erros por descuido','Tem dificuldade de manter a atenção em tarefas ou atividades de lazer','Parece não estar ouvindo quando se fala diretamente com ele','Não segue instruções até o fim e não termina tarefas','Tem dificuldade para organizar tarefas e atividades','Evita ou não gosta de tarefas que exigem esforço mental prolongado','Distrai-se com estímulos externos','É esquecido em atividades do dia a dia','Perde coisas necessárias para atividades',
+  'Mexe com as mãos ou pés ou se remexe na cadeira','Não para ou frequentemente está "a mil por hora"','Fala em excesso','Tem dificuldade de esperar sua vez','Sai do lugar quando se espera que fique sentado','Corre de um lado para outro ou sobe demais nas coisas quando é inapropriado','Tem dificuldade em brincar ou em lazer de forma calma','Responde de forma precipitada antes de a pergunta terminar','Interrompe os outros ou se intromete'];
+  const op=[['0','Nem um pouco'],['1','Só um pouco'],['2','Bastante'],['3','Demais']];
+  const ex=[2,2,3,2,2,1,3,2,2, 1,1,2,1,0,1,1,1,2];
+  return `<fieldset><legend>Desatenção</legend><div class="stack">${it.slice(0,9).map((t,i)=>sel('sn'+i,`${i+1}. ${t}`,op,ex[i])).join('')}</div></fieldset>
+  <fieldset><legend>Hiperatividade / impulsividade</legend><div class="stack">${it.slice(9).map((t,i)=>sel('sn'+(i+9),`${i+10}. ${t}`,op,ex[i+9])).join('')}</div></fieldset>`},
+ calc(){
+  const c=(a,b)=>{let n=0;for(let i=a;i<b;i++)if(+$('sn'+i).value>=2)n++;return n};
+  const d=c(0,9),h=c(9,18),pd=d>=6,ph=h>=6;
+  const lab=pd&&ph?'Combinado':pd?'Predomínio desatento':ph?'Predomínio hiperativo':'Abaixo do corte';
+  out(pd||ph?'warn':'ok',`${d}, ${h}`,'',lab,'Contagem de itens "bastante" ou "demais". Triagem não fecha diagnóstico.',[['Desatenção (1 a 9)',`${d} de 9${pd?': ≥ 6':''}`],['Hiperatividade (10 a 18)',`${h} de 9${ph?': ≥ 6':''}`]]);
+ },
+ how:()=>`<p>Contar itens marcados como <b>bastante</b> ou <b>demais</b>.</p>${table(['Bloco','Sugestivo'],[['Itens 1 a 9','≥ 6: desatenção'],['Itens 10 a 18','≥ 6: hiperatividade/impulsividade']])}<p>Avalia só o critério A do DSM. Diagnóstico exige início antes dos 12 anos, mais de um ambiente, prejuízo funcional e exclusão de outras causas. Aplicar com pais e professores.</p><p>Itens de oposição (19 a 26) não incluídos nesta versão.</p>`},
+
+/* ---------- EXTRAS ---------- */
+{id:'wellsp',cat:'Vascular',name:'Wells TEP',sub:'Probabilidade de embolia pulmonar',
+ src:'Wells et al., Thromb Haemost 2000',
+ form:()=>`<fieldset><legend>Critérios</legend>${chkw('wp1','Sinais clínicos de TVP',3)}${chkw('wp2','TEP é o diagnóstico mais provável',3,1)}${chkw('wp3','FC &gt; 100 bpm',1.5,1)}${chkw('wp4','Imobilização ≥ 3 dias ou cirurgia em 4 semanas',1.5)}${chkw('wp5','TVP ou TEP prévio',1.5)}${chkw('wp6','Hemoptise',1)}${chkw('wp7','Câncer ativo (tratamento &lt; 6 meses ou paliativo)',1)}</fieldset>`,
+ calc(){const t=wsum(['wp1','wp2','wp3','wp4','wp5','wp6','wp7']);const l=t>4;
+  out(l?'bad':'ok',fmt(t,1),'pontos',l?'TEP provável':'TEP improvável','Modelo de dois níveis.')},
+ how:()=>`${table(['Wells (2 níveis)','Probabilidade'],[['≤ 4','TEP improvável'],['&gt; 4','TEP provável']])}`},
+
+{id:'perc',cat:'Vascular',name:'PERC',sub:'Exclusão de TEP sem exames',
+ src:'Kline et al., J Thromb Haemost 2004',
+ form:()=>`<fieldset><legend>Algum presente?</legend>${chk('pe1','Idade ≥ 50 anos')}${chk('pe2','FC ≥ 100 bpm')}${chk('pe3','SpO₂ &lt; 95% em ar ambiente')}${chk('pe4','Edema unilateral de membro inferior')}${chk('pe5','Hemoptise')}${chk('pe6','Cirurgia ou trauma com internação em 4 semanas')}${chk('pe7','TEP ou TVP prévio')}${chk('pe8','Uso de estrogênio (ACO, TRH)')}</fieldset>`,
+ calc(){const t=pts(['pe1','pe2','pe3','pe4','pe5','pe6','pe7','pe8']);
+  out(t?'warn':'ok',t,'/ 8',t?'PERC positivo':'PERC negativo',t?'Regra não preenchida.':'Com probabilidade pré-teste ≤ 15%, a regra classifica como baixo risco de TEP.')},
+ how:()=>`<p>Válido só com probabilidade clínica baixa (≤ 15%). Todos os 8 ausentes: regra preenchida.</p>`},
+
+{id:'wellst',cat:'Vascular',name:'Wells TVP',sub:'Probabilidade de trombose venosa',
+ src:'Wells et al., NEJM 2003 (2 níveis)',
+ form:()=>`<fieldset><legend>Critérios</legend>${chkw('wt1','Câncer ativo (&lt; 6 meses ou paliativo)',1)}${chkw('wt2','Paralisia, paresia ou gesso recente em MI',1)}${chkw('wt3','Acamado ≥ 3 dias ou cirurgia maior em 12 semanas',1,1)}${chkw('wt4','Dor ao longo do sistema venoso profundo',1,1)}${chkw('wt5','Edema de toda a perna',1)}${chkw('wt6','Panturrilha ≥ 3 cm maior que a contralateral',1,1)}${chkw('wt7','Edema com cacifo só na perna sintomática',1)}${chkw('wt8','Veias colaterais superficiais (não varicosas)',1)}${chkw('wt9','TVP prévia documentada',1)}${chkw('wt10','Diagnóstico alternativo tão provável quanto TVP',-2)}</fieldset>`,
+ calc(){const t=wsum(['wt1','wt2','wt3','wt4','wt5','wt6','wt7','wt8','wt9','wt10']);const l=t>=2;
+  out(l?'bad':'ok',t,'pontos',l?'TVP provável':'TVP improvável','Modelo de dois níveis.')},
+ how:()=>`${table(['Wells TVP','Probabilidade'],[['≤ 1','TVP improvável'],['≥ 2','TVP provável']])}<p>Panturrilha medida 10 cm abaixo da tuberosidade tibial.</p>`},
+
+{id:'cha',cat:'Cardiologia',name:'CHA₂DS₂-VA',sub:'Risco de AVC na FA',
+ src:'Diretriz Brasileira de Fibrilação Atrial SBC 2025, ESC 2024',
+ form:()=>`<fieldset><legend>Critérios</legend>${chkw('ch1','Insuficiência cardíaca',1)}${chkw('ch2','Hipertensão',1,1)}${chkw('ch3','Diabetes',1)}${chkw('ch4','AVC, AIT ou tromboembolismo prévio',2)}${chkw('ch5','Doença vascular (IAM, DAP, placa aórtica)',1)}</fieldset>
+  ${radios('cha','Idade',[['0','&lt; 65 anos'],['1','65 a 74 anos'],['2','≥ 75 anos']],'1')}`,
+ calc(){const t=wsum(['ch1','ch2','ch3','ch4','ch5'])+ +document.querySelector('input[name="cha"]:checked').value;
+  out(t>=2?'bad':t===1?'warn':'ok',t,'/ 8',t>=2?'Alto risco':t===1?'Risco intermediário':'Baixo risco','Risco de AVC e tromboembolismo na FA. Decisão de anticoagulação segue a diretriz e o caso.')},
+ how:()=>`<p><b>SBC 2025</b> (e ESC 2024) adotam o CHA₂DS₂-VA: sexo feminino retirado.</p>${table(['CHA₂DS₂-VA','Risco'],[['0','Baixo'],['1','Intermediário'],['≥ 2','Alto']])}<p>O escore não se aplica a cardiomiopatia hipertrófica nem amiloidose cardíaca.</p>`},
+
+{id:'hasbled',cat:'Cardiologia',name:'HAS-BLED',sub:'Risco de sangramento em anticoagulação',
+ src:'Pisters et al., Chest 2010',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('hb1','<b>H</b>: PAS &gt; 160 mmHg',1)}${chk('hb2','<b>A</b>: função renal anormal (diálise, Tx, Cr &gt; 2,26 mg/dL)')}${chk('hb3','<b>A</b>: função hepática anormal (cirrose, bilirrubina &gt; 2× LSN)')}${chk('hb4','<b>S</b>: AVC prévio')}${chk('hb5','<b>B</b>: sangramento prévio ou predisposição')}${chk('hb6','<b>L</b>: INR lábil (TTR &lt; 60%, só AVK)')}${chk('hb7','<b>E</b>: idade &gt; 65 anos',1)}${chk('hb8','<b>D</b>: antiplaquetário ou AINE')}${chk('hb9','<b>D</b>: álcool ≥ 8 doses/semana')}</fieldset>`,
+ calc(){const t=pts(['hb1','hb2','hb3','hb4','hb5','hb6','hb7','hb8','hb9']);
+  out(t>=3?'bad':t>=1?'warn':'ok',t,'/ 9',t>=3?'Alto risco':t>=1?'Moderado':'Baixo','Risco de sangramento maior em 1 ano.')},
+ how:()=>`<p>1 ponto por item. <b>≥ 3</b> = alto risco de sangramento.</p><p>Modificáveis: PA, INR lábil, AINE/antiplaquetário, álcool.</p>`},
+
+{id:'child',cat:'Hepatologia',name:'Child-Pugh',sub:'Classificação da cirrose',
+ src:'Pugh et al., Br J Surg 1973',
+ form:()=>`<div class="stack">
+  ${sel('cp1','Bilirrubina',[['1','&lt; 2 mg/dL'],['2','2 a 3 mg/dL'],['3','&gt; 3 mg/dL']],1)}
+  ${sel('cp2','Albumina',[['1','&gt; 3,5 g/dL'],['2','2,8 a 3,5 g/dL'],['3','&lt; 2,8 g/dL']],1)}
+  ${sel('cp3','INR',[['1','&lt; 1,7'],['2','1,7 a 2,3'],['3','&gt; 2,3']])}
+  ${sel('cp4','Ascite',[['1','Ausente'],['2','Leve / controlada'],['3','Moderada a grave']],1)}
+  ${sel('cp5','Encefalopatia',[['1','Ausente'],['2','Grau I-II'],['3','Grau III-IV']])}</div>`,
+ calc(){const t=sumSel(['cp1','cp2','cp3','cp4','cp5']);const c=t<=6?['A','ok','~100%']:t<=9?['B','warn','~80%']:['C','bad','~45%'];
+  out(c[1],t,'/ 15','Classe '+c[0],`Sobrevida em 1 ano ${c[2]}.`)},
+ how:()=>`${table(['Pontos','Classe'],[['5 a 6','A'],['7 a 9','B'],['10 a 15','C']])}`},
+
+{id:'cg',cat:'Nefrologia',name:'Cockcroft-Gault',sub:'Clearance de creatinina',
+ src:'Cockcroft & Gault, Nephron 1976',
+ form:()=>`<div class="form">${field('cga','Idade (anos)','72')}${field('cgw','Peso (kg)','68')}${field('cgc','Creatinina (mg/dL)','1.3')}${seg('cgs',SEX)}</div>`,
+ calc(){const a=num('cga'),w=num('cgw'),c=num('cgc');if(!(a>0&&w>0&&c>0))return out('acc','','','','Preencha todos os campos.');
+  const v=(140-a)*w/(72*c)*(segVal('cgs')==='F'?.85:1);
+  out('acc',fmt(v,0),'mL/min','ClCr','Usado em bulas para ajuste de dose. Não normalizado por 1,73 m².')},
+ how:()=>`<p><code>ClCr = (140 − idade) × peso ÷ (72 × Cr) × 0,85 [se F]</code></p><p>Obesidade: o peso real superestima o ClCr.</p>`},
+
+{id:'osm',cat:'Laboratório',name:'Osmolaridade sérica',sub:'Calculada + gap osmolar',
+ src:'Fórmula clássica com ureia (mg/dL)',
+ form:()=>`<div class="form">${field('osn','Na⁺ (mEq/L)','140')}${field('osg','Glicose (mg/dL)','100')}${field('osu','Ureia (mg/dL)','30')}${field('osmm','Osm medida (opcional)','')}</div>`,
+ calc(){const n=num('osn'),g=num('osg'),u=num('osu'),m=num('osmm');if(!(n>0&&g>0&&u>=0))return out('acc','','','','Informe Na, glicose e ureia.');
+  const c=2*n+g/18+u/6,rows=[['Calculada',fmt(c,0)]];if(m>0)rows.push(['Gap osmolar',fmt(m-c,0)]);
+  out('acc',fmt(c,0),'mOsm/kg','Calculada',m>0?'Gap elevado sugere osmóis não medidos (álcoois tóxicos, manitol).':'',rows)},
+ how:()=>`<p><code>Osm = 2 × Na + glicose ÷ 18 + ureia ÷ 6</code></p><p>Laudo com BUN em vez de ureia: BUN ÷ 2,8.</p><p><code>Gap = osm medida − calculada</code></p>`},
+
+{id:'adrogue',cat:'Laboratório',name:'Correção do sódio',sub:'Adrogué-Madias (hiponatremia)',
+ src:'Adrogué & Madias, NEJM 2000, MSD Manual',
+ form:()=>`<div class="form">${field('adn','Na⁺ sérico (mEq/L)','118')}${field('adw','Peso (kg)','60')}
+  <div class="full">${sel('adf','Água corporal',[['0.6','Homem adulto / criança (0,6)'],['0.5','Mulher adulta / homem idoso (0,5)'],['0.45','Mulher idosa (0,45)']],1,1)}</div>
+  <div class="full">${sel('ads','Solução',[['513','NaCl 3% (513)'],['154','NaCl 0,9% (154)'],['130','Ringer lactato (130 + K 4)'],['855','NaCl 5% (855)']],0,1)}</div>
+  ${field('adk','K⁺ na solução (mEq/L)','0')}${field('adt','Alvo de subida (mEq/L)','6')}</div>`,
+ calc(){const n=num('adn'),w=num('adw'),f=+$('adf').value,s=+$('ads').value,k=num('adk')||($('ads').value==='130'?4:0),t=num('adt');
+  if(!(n>0&&w>0))return out('acc','','','','Informe sódio e peso.');
+  const d=(s+k-n)/(f*w+1);if(!(d>0))return out('warn','','','Solução inadequada','Na da solução ≤ Na sérico: não eleva o sódio.');
+  const rows=[['ΔNa por 1 L',fmt(d,1)+' mEq/L']];if(t>0)rows.push([`Volume para +${t} mEq/L`,fmt(t/d*1000,0)+' mL']);
+  out(t>8?'bad':'acc',fmt(d,1),'mEq/L por litro','Estimativa',t>8?'Alvo &gt; 8 mEq/L em 24 h: risco de desmielinização osmótica.':'Fórmula não considera diurese nem outras perdas.',rows)},
+ how:()=>`<p><code>ΔNa = (Na sol + K sol − Na sérico) ÷ (água corporal + 1)</code></p><p>Água corporal = peso × fração.</p><p>Limite usual: até 8 mEq/L em 24 h. Sintomas graves: 1 a 2 mEq/L/h nas primeiras horas, sem passar do limite diário.</p>`},
+
+{id:'centor',cat:'Infectologia',name:'Centor / McIsaac',sub:'Faringite estreptocócica',
+ src:'McIsaac et al., CMAJ 1998',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('ce1','Febre &gt; 38 °C',1)}${chk('ce2','Ausência de tosse',1)}${chk('ce3','Linfonodos cervicais anteriores dolorosos')}${chk('ce4','Exsudato ou aumento tonsilar',1)}</fieldset>${radios('cea','Idade',[['1','3 a 14 anos'],['0','15 a 44 anos'],['-1','≥ 45 anos']],'0')}`,
+ calc(){const t=pts(['ce1','ce2','ce3','ce4'])+ +document.querySelector('input[name="cea"]:checked').value;
+  const g=t<=1?['Baixo','ok','Probabilidade de estreptococo de 1 a 10%.']:t<=3?['Moderado','warn','Probabilidade de estreptococo de 10 a 28%.']:['Alto','bad','Probabilidade de estreptococo de 38 a 63%.'];
+  out(g[1],t,'pontos',g[0],g[2])},
+ how:()=>`${table(['McIsaac','Estreptococo'],[['≤ 1','1 a 10%'],['2 a 3','10 a 28%'],['≥ 4','38 a 63%']])}<p>Não validado em &lt; 3 anos.</p>`},
+
+{id:'alvarado',cat:'Cirurgia',name:'Alvarado',sub:'Apendicite aguda',
+ src:'Alvarado, Ann Emerg Med 1986',
+ form:()=>`<fieldset><legend>MANTRELS</legend>${chkw('av1','Migração da dor para FID',1,1)}${chkw('av2','Anorexia',1,1)}${chkw('av3','Náusea ou vômito',1)}${chkw('av4','Dor à palpação em FID',2,1)}${chkw('av5','Descompressão dolorosa',1)}${chkw('av6','Temperatura &gt; 37,3 °C',1)}${chkw('av7','Leucocitose',2)}${chkw('av8','Desvio à esquerda',1)}</fieldset>`,
+ calc(){const t=wsum(['av1','av2','av3','av4','av5','av6','av7','av8']);
+  const g=t<=4?['Improvável','ok']:t<=6?['Compatível','warn']:t<=8?['Provável','bad']:['Muito provável','bad'];
+  out(g[1],t,'/ 10',g[0],'Probabilidade de apendicite pelo escore.')},
+ how:()=>`${table(['Alvarado','Interpretação'],[['≤ 4','Improvável'],['5 a 6','Compatível'],['7 a 8','Provável'],['9 a 10','Muito provável']])}<p>Pior desempenho em mulheres em idade fértil.</p><p><b>WSES 2020:</b> não usar Alvarado para confirmar apendicite em adultos. Útil para excluir. Preferir <b>AIR</b> ou AAS.</p>`},
+
+/* ---------- LOTE 6 ---------- */
+{id:'gaso',cat:'Laboratório',name:'Gasometria',sub:'Distúrbio ácido-base + compensação',
+ src:'Regras de Boston, fórmula de Winter, Deranged Physiology, LITFL',
+ form:()=>`<div class="form">${field('gph','pH','7.28')}${field('gpc','pCO₂ (mmHg)','30')}${field('ghc','HCO₃⁻ (mEq/L)','14')}${field('gna','Na⁺ (opcional)','138')}${field('gcl','Cl⁻ (opcional)','104')}${field('gal','Albumina g/dL (opcional)','4')}</div>`,
+ calc(){
+  const ph=num('gph'),pc=num('gpc'),hc=num('ghc'),na=num('gna'),cl=num('gcl'),al=num('gal');
+  if(!(ph>6.5&&pc>0&&hc>0))return out('acc','','','','Informe pH, pCO₂ e HCO₃⁻.');
+  const rows=[];let dx,st='warn',note='';
+  const met=()=>{const e=1.5*hc+8;rows.push(['pCO₂ esperada (Winter)',`${fmt(e-2,1)} a ${fmt(e+2,1)}`]);return pc>e+2?' + acidose respiratória':pc<e-2?' + alcalose respiratória':' compensada'};
+  const alk=()=>{const e=.7*hc+20;rows.push(['pCO₂ esperada',`${fmt(e-2,1)} a ${fmt(e+2,1)}`]);return pc>e+2?' + acidose respiratória':pc<e-2?' + alcalose respiratória':' compensada'};
+  const resp=(acid)=>{const d=Math.abs(pc-40)/10,a=acid?24+d:24-2*d,c=acid?24+4*d:24-5*d;rows.push(['HCO₃⁻ esperado agudo',fmt(a,1)],['HCO₃⁻ esperado crônico',fmt(c,1)]);
+    const lo=Math.min(a,c),hi=Math.max(a,c);if(hc<lo)return ' + acidose metabólica';if(hc>hi)return ' + alcalose metabólica';return Math.abs(hc-a)<=Math.abs(hc-c)?' aguda':' crônica'};
+  if(ph<7.35){
+    if(hc<22&&pc>45){dx='Acidose mista (metabólica + respiratória)';st='bad'}
+    else if(hc<22)dx='Acidose metabólica'+met();
+    else if(pc>45)dx='Acidose respiratória'+resp(true);
+    else dx='Acidemia sem padrão claro';
+  }else if(ph>7.45){
+    if(hc>26&&pc<35){dx='Alcalose mista (metabólica + respiratória)';st='bad'}
+    else if(hc>26)dx='Alcalose metabólica'+alk();
+    else if(pc<35)dx='Alcalose respiratória'+resp(false);
+    else dx='Alcalemia sem padrão claro';
+  }else{
+    if(hc<22&&pc<35)dx='pH normal: acidose metabólica + alcalose respiratória';
+    else if(hc>26&&pc>45)dx='pH normal: alcalose metabólica + acidose respiratória';
+    else{dx='Sem distúrbio evidente';st='ok'}
+  }
+  if(na>0&&cl>0){const ag=na-(cl+hc);rows.push(['Ânion gap',fmt(ag,1)]);if(al>0)rows.push(['AG corrigido (albumina)',fmt(ag+2.5*(4-al),1)])}
+  out(st,fmt(ph,2),'pH',dx.split(' + ')[0].split(' compensada')[0].split(' aguda')[0].split(' crônica')[0],dx,rows);
+ },
+ how:()=>`<p>Referência: pH 7,35 a 7,45, pCO₂ 35 a 45, HCO₃⁻ 22 a 26.</p>
+ <p><b>Acidose metabólica (Winter):</b> pCO₂ = 1,5 × HCO₃⁻ + 8 (±2).</p><p><b>Alcalose metabólica:</b> pCO₂ = 0,7 × HCO₃⁻ + 20 (±2).</p>
+ ${table(['Distúrbio respiratório','HCO₃⁻ a cada 10 mmHg de pCO₂'],[['Acidose aguda','+1'],['Acidose crônica','+4'],['Alcalose aguda','−2'],['Alcalose crônica','−5']])}
+ <p>HCO₃⁻ fora da faixa aguda-crônica: distúrbio metabólico associado. Coeficientes variam entre autores. Sempre correlacionar com a clínica.</p>`},
+
+{id:'infusao',cat:'Terapia intensiva',name:'Infusão contínua',sub:'Dose e vazão em mL/h',
+ src:'Cálculo de concentração (sem diluições pré-definidas)',
+ form:()=>{const b=(v,t)=>`<button type="button" data-v="${v}" aria-pressed="false">${t}</button>`;
+  return `<div class="full"><label>1. O que você quer calcular?</label><div class="seg" id="ifmode">${b('v','Vazão (mL/h)')}${b('d','Dose')}</div></div>
+  <p class="sec">2. Solução</p><div class="form">${field('ifm','Droga na solução (mg)','')}${field('ifv','Volume total (mL)','')}</div>
+  <p class="sec">3. Dose</p><div class="full"><label>Unidade da dose</label><div class="seg" id="ifu">${b('ugkgmin','µg/kg/min')}${b('ugmin','µg/min')}${b('mgkgh','mg/kg/h')}${b('mgh','mg/h')}</div></div>
+  <div class="form"><label id="ifwl">Peso (kg)${numIn('ifw')}</label><label><span id="ifxl">Dose desejada</span>${numIn('ifx')}</label></div>`},
+ calc(){
+  const mode=segVal('ifmode'),u=segVal('ifu'),kg=!!u&&u.includes('kg');
+  const U={ugkgmin:'µg/kg/min',ugmin:'µg/min',mgkgh:'mg/kg/h',mgh:'mg/h'}[u]||'';
+  $('ifxl').innerHTML=unitLab(mode==='d'?'Vazão atual (mL/h)':`Dose desejada${U?' ('+U+')':''}`);$('ifwl').style.display=kg||!u?'':'none';
+  const mg=num('ifm'),ml=num('ifv'),w=num('ifw'),x=num('ifx');
+  if(!(mg>0&&ml>0))return out('acc','','','','Informe a droga e o volume da solução.');
+  const c=mg/ml,rows=[['Concentração',`${fmt(c*1000,1)} µg/mL (${fmt(c,3)} mg/mL)`]];
+  if(kg&&!(w>0))return out('acc','','','','Informe o peso.',rows);
+  if(!(x>0))return out('acc','','','',mode==='d'?'Informe a vazão atual.':'Informe a dose desejada.',rows);
+  const toMgH={ugkgmin:d=>d*w*60/1000,ugmin:d=>d*60/1000,mgkgh:d=>d*w,mgh:d=>d}[u];
+  const fromMgH={ugkgmin:m=>m*1000/(60*w),ugmin:m=>m*1000/60,mgkgh:m=>m/w,mgh:m=>m}[u];
+  if(mode==='v'){const r=toMgH(x)/c;out('acc',fmt(r,1),'mL/h','Vazão',`Para ${String(x).replace('.',',')} ${U}`,rows)}
+  else{const d=fromMgH(x*c);out('acc',fmt(d,d<1?3:2),U,'Dose',`Com ${String(x).replace('.',',')} mL/h`,rows)}
+ },
+ how:()=>`<p><code>Concentração = mg da droga ÷ volume total (mL)</code></p><p><code>mL/h = dose (em mg/h) ÷ concentração (mg/mL)</code></p><p>De µg/kg/min para mg/h: × peso × 60 ÷ 1000.</p><p>Conferir a diluição padrão do seu serviço. Noradrenalina: verificar se o rótulo expressa sal ou base.</p>`},
+
+{id:'vm',cat:'Terapia intensiva',name:'Ventilação mecânica',sub:'Peso predito + volume corrente',
+ src:'ARDSNet (NEJM 2000), LITFL, FPnotebook',
+ form:()=>`<div class="form">${field('vmh','Altura (cm)','170')}${seg('vms',SEX)}</div>`,
+ calc(){const h=num('vmh'),s=segVal('vms');if(!(h>100))return out('acc','','','','Informe a altura.');
+  const p=(s==='F'?45.5:50)+.91*(h-152.4);
+  out('acc',fmt(p,1),'kg','Peso predito','Usar peso predito, não o peso real.',[['VC 4 mL/kg',fmt(4*p,0)+' mL'],['VC 6 mL/kg (alvo)',fmt(6*p,0)+' mL'],['VC 8 mL/kg',fmt(8*p,0)+' mL'],['Platô','&lt; 30 cmH₂O'],['Oxigenação','SpO₂ 88 a 95%, PaO₂ 55 a 80']])},
+ how:()=>`<p><code>Homem = 50 + 0,91 × (altura − 152,4)</code><br><code>Mulher = 45,5 + 0,91 × (altura − 152,4)</code></p><p>SDRA: VC 6 mL/kg de peso predito (faixa 4 a 8). Platô &lt; 30 cmH₂O.</p>`},
+
+{id:'lra',cat:'Nefrologia',name:'LRA (KDIGO)',sub:'Estadiamento por creatinina e diurese',
+ src:'KDIGO AKI 2012 (revisão KDIGO 2026 em rascunho, ainda não final)',
+ form:()=>`<div class="form">${field('lrb','Cr basal (mg/dL)','0.9')}${field('lra','Cr atual (mg/dL)','2.0')}${field('lrd','Diurese (mL/kg/h)','0.4')}${field('lrh','Por quantas horas','8')}<div class="full">${chk('lrt','Em terapia renal substitutiva')}${chk('lr48','Aumento ≥ 0,3 mg/dL em 48 h',1)}${chk('lran','Anúria ≥ 12 h')}</div></div>`,
+ calc(){
+  const b=num('lrb'),a=num('lra'),d=num('lrd'),h=num('lrh');
+  let sc=0;const r=b>0&&a>0?a/b:0;
+  if(r>=3||a>=4)sc=3;else if(r>=2)sc=2;else if(r>=1.5||$('lr48').checked)sc=1;
+  let su=0;if($('lran').checked||(d<.3&&h>=24))su=3;else if(d<.5&&h>=12)su=2;else if(d<.5&&h>=6)su=1;
+  let s=Math.max(sc,su);if($('lrt').checked)s=3;
+  out(s?['','warn','bad','bad'][s]:'ok',s?'Estágio '+s:'Sem LRA','',s?'KDIGO '+s:'Critérios ausentes','O estágio final é o maior entre creatinina e diurese.',[['Razão Cr atual/basal',r?fmt(r,2)+'×':'não informado'],['Estágio por creatinina',sc||'sem critério'],['Estágio por diurese',su||(isNaN(d)&&!$('lran').checked?'não informado':'sem critério')]]);
+ },
+ how:()=>`${table(['Estágio','Creatinina','Diurese'],[['1','1,5 a 1,9× basal ou ↑ ≥ 0,3 mg/dL em 48 h','&lt; 0,5 mL/kg/h por 6 a 12 h'],['2','2,0 a 2,9× basal','&lt; 0,5 mL/kg/h por ≥ 12 h'],['3','≥ 3× basal, Cr ≥ 4,0 ou TRS','&lt; 0,3 mL/kg/h por ≥ 24 h ou anúria ≥ 12 h']])}<p>Diagnóstico: ↑ ≥ 0,3 mg/dL em 48 h, ou ≥ 1,5× basal em 7 dias, ou diurese &lt; 0,5 mL/kg/h por 6 h.</p>`},
+
+{id:'fe',cat:'Nefrologia',name:'Fração de excreção',sub:'Na, ureia, K, fósforo',
+ src:'Fórmula clássica, The Hospitalist (cortes de FENa e FEureia)',
+ form:()=>`<div class="form"><div class="full">${sel('fes','Substância',[['Na','Sódio'],['Ur','Ureia'],['K','Potássio'],['P','Fósforo']],0,1)}</div>${field('feu','Urina: substância','20')}${field('fep','Plasma: substância','138')}${field('feuc','Urina: creatinina (mg/dL)','80')}${field('fepc','Plasma: creatinina (mg/dL)','2')}</div>`,
+ calc(){const s=$('fes').value,u=num('feu'),p=num('fep'),uc=num('feuc'),pc=num('fepc');
+  if(!(u>=0&&p>0&&uc>0&&pc>0))return out('acc','','','','Preencha todos os campos.');
+  const f=u*pc/(p*uc)*100;let lab='FE'+s,note='Usar mesma unidade na urina e no plasma.',st='acc';
+  if(s==='Na'){if(f<1){lab='Sugere pré-renal';st='ok'}else if(f>3){lab='Compatível com NTA';st='warn'}else lab='Indeterminado';note='Diurético eleva a FENa: preferir FEureia.'}
+  if(s==='Ur'){if(f<35){lab='Sugere pré-renal';st='ok'}else if(f>50){lab='Compatível com NTA';st='warn'}else lab='Indeterminado';note='Útil em uso de diurético. Menos confiável em sepse.'}
+  out(st,fmt(f,2),'%',lab,note)},
+ how:()=>`<p><code>FE = (U × Pcr) ÷ (P × Ucr) × 100</code></p>${table(['Índice','Pré-renal','NTA'],[['FENa','&lt; 1%','&gt; 3%'],['FEureia','&lt; 35%','&gt; 50%']])}<p>FENa &lt; 1% também ocorre em cirrose, IC, contraste, GN e sepse.</p>`},
+
+{id:'ttkg',cat:'Nefrologia',name:'TTKG',sub:'Gradiente transtubular de potássio',
+ src:'Ethier et al., Am J Kidney Dis 1990, Choi & Ziyadeh 2008',
+ form:()=>`<div class="form">${field('tku','K⁺ urinário','40')}${field('tkp','K⁺ plasmático','6.2')}${field('tkuo','Osm urinária','450')}${field('tkpo','Osm plasmática','290')}${field('tkna','Na⁺ urinário','60')}</div>`,
+ calc(){const uk=num('tku'),pk=num('tkp'),uo=num('tkuo'),po=num('tkpo'),una=num('tkna');
+  if(!(uk>0&&pk>0&&uo>0&&po>0))return out('acc','','','','Preencha os campos.');
+  const t=uk*po/(pk*uo);const inval=uo<=300||(una>0&&una<=25);
+  let lab='',st='acc';if(pk>5){lab=t<7?'Baixo para hipercalemia':'Resposta renal adequada';st=t<7?'warn':'ok'}else if(pk<3.5){lab=t>3?'Perda renal de K':'Perda extrarrenal provável';st=t>3?'warn':'ok'}
+  out(inval?'warn':st,fmt(t,1),'',inval?'Inválido':lab,inval?'Válido só com Osm urinária &gt; 300 e Na urinário &gt; 25.':'TTKG normal ≈ 8 a 9 em dieta habitual.')},
+ how:()=>`<p><code>TTKG = (K urina × Osm plasma) ÷ (K plasma × Osm urina)</code></p>${table(['Situação','Esperado'],[['Hipercalemia','&gt; 10, &lt; 7 sugere deficiência mineralocorticoide'],['Hipocalemia','&lt; 3, &gt; 3 sugere perda renal']])}<p>Validade questionada na literatura. Interpretar com cautela.</p>`},
+
+{id:'sofa',cat:'Terapia intensiva',name:'SOFA',sub:'Disfunção orgânica (Sepsis-3)',
+ src:'Vincent et al. 1996, Singer et al., JAMA 2016, MSD Manual',
+ form:()=>`<div class="stack">
+  ${sel('so1','Respiratório: PaO₂/FiO₂',[['0','≥ 400'],['1','&lt; 400'],['2','&lt; 300'],['3','&lt; 200 com suporte ventilatório'],['4','&lt; 100 com suporte ventilatório']],2)}
+  ${sel('so2','Coagulação: plaquetas (×10³/µL)',[['0','≥ 150'],['1','&lt; 150'],['2','&lt; 100'],['3','&lt; 50'],['4','&lt; 20']],1)}
+  ${sel('so3','Fígado: bilirrubina (mg/dL)',[['0','&lt; 1,2'],['1','1,2 a 1,9'],['2','2,0 a 5,9'],['3','6,0 a 11,9'],['4','&gt; 12,0']])}
+  ${sel('so4','Cardiovascular',[['0','PAM ≥ 70'],['1','PAM &lt; 70'],['2','Dopamina &lt; 5 ou dobutamina'],['3','Dopa 5,1 a 15 ou nora/adrenalina ≤ 0,1'],['4','Dopa &gt; 15 ou nora/adrenalina &gt; 0,1']],3)}
+  ${sel('so5','SNC: Glasgow',[['0','15'],['1','13 a 14'],['2','10 a 12'],['3','6 a 9'],['4','&lt; 6']])}
+  ${sel('so6','Renal: creatinina ou diurese',[['0','Cr &lt; 1,2'],['1','Cr 1,2 a 1,9'],['2','Cr 2,0 a 3,4'],['3','Cr 3,5 a 4,9 ou diurese &lt; 500 mL/dia'],['4','Cr &gt; 5,0 ou diurese &lt; 200 mL/dia']],1)}</div>`,
+ calc(){const t=sumSel(['so1','so2','so3','so4','so5','so6']);
+  out(t>=2?'bad':'ok',t,'/ 24','SOFA','Sepse = infecção + aumento agudo ≥ 2 pontos do SOFA basal.')},
+ how:()=>`<p>Seis sistemas, 0 a 4 pontos cada. Vasopressores em µg/kg/min por ≥ 1 h.</p><p><b>Sepse (Sepsis-3):</b> aumento ≥ 2 pontos. Basal presumido 0 sem disfunção prévia.</p><p><b>SOFA-2</b> foi publicado em 2025 (JAMA). Ainda não incluído: cortes renais e cardiovasculares completos não verificados.</p>`},
+
+{id:'light',cat:'Pneumologia',name:'Critérios de Light',sub:'Transudato × exsudato',
+ src:'Light et al., Ann Intern Med 1972, RCEM Learning',
+ form:()=>`<div class="form">${field('lpp','Proteína pleural (g/dL)','3.8')}${field('lps','Proteína sérica (g/dL)','6.5')}${field('llp','LDH pleural (U/L)','260')}${field('lls','LDH sérica (U/L)','220')}${field('lln','LSN da LDH sérica (U/L)','240')}</div>`,
+ calc(){const pp=num('lpp'),ps=num('lps'),lp=num('llp'),ls=num('lls'),ln=num('lln');
+  if(!(pp>0&&ps>0&&lp>0&&ls>0))return out('acc','','','','Preencha proteínas e LDH.');
+  const c1=pp/ps>.5,c2=lp/ls>.6,c3=ln>0&&lp>2/3*ln,ex=c1||c2||c3;
+  out(ex?'warn':'ok',ex?'Exsudato':'Transudato','',(c1+c2+c3)+' de 3 critérios','Basta 1 critério para exsudato.',[['Proteína P/S',fmt(pp/ps,2)+(c1?' &gt; 0,5':'')],['LDH P/S',fmt(lp/ls,2)+(c2?' &gt; 0,6':'')],['LDH &gt; 2/3 LSN',ln>0?(c3?'sim':'não'):'-']])},
+ how:()=>`<p>Exsudato se ≥ 1:</p>${table(['Critério','Corte'],[['Proteína pleural/sérica','&gt; 0,5'],['LDH pleural/sérica','&gt; 0,6'],['LDH pleural','&gt; 2/3 do LSN sérico']])}<p>Pode classificar como exsudato transudatos em uso de diurético.</p>`},
+
+{id:'psi',cat:'Pneumologia',name:'PSI / PORT',sub:'Gravidade da PAC (Fine)',
+ src:'Fine et al., NEJM 1997',
+ form:()=>`<div class="form">${field('psa','Idade (anos)','72')}${seg('pss',[['M','Masculino'],['F','Feminino']])}</div>
+  <fieldset><legend>Comorbidades</legend>${chkw('ps1','Residente em instituição de longa permanência',10)}${chkw('ps2','Neoplasia',30)}${chkw('ps3','Doença hepática',20)}${chkw('ps4','Insuficiência cardíaca',10,1)}${chkw('ps5','Doença cerebrovascular',10)}${chkw('ps6','Doença renal',10)}</fieldset>
+  <fieldset><legend>Exame físico</legend>${chkw('ps7','Alteração do estado mental',20)}${chkw('ps8','FR ≥ 30 irpm',20,1)}${chkw('ps9','PAS &lt; 90 mmHg',20)}${chkw('ps10','T &lt; 35 °C ou ≥ 40 °C',15)}${chkw('ps11','FC ≥ 125 bpm',10)}</fieldset>
+  <fieldset><legend>Exames</legend>${chkw('ps12','pH &lt; 7,35',30)}${chkw('ps13','BUN ≥ 30 mg/dL (ureia ≥ 64)',20)}${chkw('ps14','Na &lt; 130',20)}${chkw('ps15','Glicose ≥ 250',10)}${chkw('ps16','Hematócrito &lt; 30%',10)}${chkw('ps17','PaO₂ &lt; 60 mmHg',10)}${chkw('ps18','Derrame pleural',10)}</fieldset>`,
+ calc(){const a=num('psa');if(!(a>0))return out('acc','','','','Informe a idade.');
+  const ids=Array.from({length:18},(_,i)=>'ps'+(i+1));const t=a-(segVal('pss')==='F'?10:0)+wsum(ids);
+  const c=t<=50?['I','0,1%','ok']:t<=70?['II','0,6%','ok']:t<=90?['III','2,8%','warn']:t<=130?['IV','8,2%','bad']:['V','29,2%','bad'];
+  out(c[2],t,'pontos','Classe '+c[0],`Mortalidade em 30 dias ${c[1]}.`)},
+ how:()=>`<p>Idade em anos (mulher − 10) + pontos dos itens.</p>${table(['Classe','Pontos','Mortalidade 30 d'],[['I','≤ 50','0,1%'],['II','51 a 70','0,6%'],['III','71 a 90','2,8%'],['IV','91 a 130','8,2%'],['V','&gt; 130','29,2%']])}<p>BUN = ureia ÷ 2,14.</p>`},
+
+{id:'fib4',cat:'Hepatologia',name:'FIB-4',sub:'Fibrose hepática avançada',
+ src:'Sterling et al., Hepatology 2006, MetricGate',
+ form:()=>`<div class="form">${field('fba','Idade (anos)','56')}${field('fbs','AST (U/L)','48')}${field('fbl','ALT (U/L)','40')}${field('fbp','Plaquetas (×10³/µL)','180')}</div>`,
+ calc(){const a=num('fba'),s=num('fbs'),l=num('fbl'),p=num('fbp');if(!(a>0&&s>0&&l>0&&p>0))return out('acc','','','','Preencha todos os campos.');
+  const f=a*s/(p*Math.sqrt(l)),lo=a>=65?2:1.3;
+  const g=f<lo?['Baixo risco','ok']:f>2.67?['Alto risco','bad']:['Indeterminado','warn'];
+  out(g[1],fmt(f,2),'',g[0],`Corte inferior ${String(lo).replace('.',',')}${a>=65?' (≥ 65 anos)':''}. Corte superior 2,67.`)},
+ how:()=>`<p><code>FIB-4 = idade × AST ÷ (plaquetas × √ALT)</code></p>${table(['FIB-4','&lt; 65 anos','≥ 65 anos'],[['Baixo','&lt; 1,30','&lt; 2,00'],['Indeterminado','1,30 a 2,67','2,00 a 2,67'],['Alto','&gt; 2,67','&gt; 2,67']])}`},
+
+{id:'ranson',cat:'Gastroenterologia',name:'Ranson',sub:'Pancreatite aguda (não biliar)',
+ src:'Ranson et al. 1974, MetricGate',
+ form:()=>`<fieldset><legend>Admissão</legend>${chk('ra1','Idade &gt; 55 anos',1)}${chk('ra2','Leucócitos &gt; 16.000',1)}${chk('ra3','Glicose &gt; 200 mg/dL')}${chk('ra4','LDH &gt; 350 U/L')}${chk('ra5','AST &gt; 250 U/L')}</fieldset>
+  <fieldset><legend>Em 48 h</legend>${chk('ra6','Queda do hematócrito &gt; 10 pontos')}${chk('ra7','Aumento do BUN &gt; 5 mg/dL')}${chk('ra8','Cálcio &lt; 8 mg/dL')}${chk('ra9','PaO₂ &lt; 60 mmHg')}${chk('ra10','Déficit de base &gt; 4 mEq/L')}${chk('ra11','Sequestro de líquido &gt; 6 L')}</fieldset>`,
+ calc(){const t=pts(Array.from({length:11},(_,i)=>'ra'+(i+1)));
+  const g=t<=2?['Leve','ok','~2%']:t<=4?['Moderada','warn','~15%']:t<=6?['Grave','bad','~40%']:['Muito grave','bad','&gt; 50%'];
+  out(g[1],t,'/ 11',g[0],`Mortalidade ${g[2]}. Escore só fecha em 48 h.`)},
+ how:()=>`${table(['Ranson','Mortalidade'],[['0 a 2','~2%'],['3 a 4','~15%'],['5 a 6','~40%'],['≥ 7','&gt; 50%']])}<p>Versão não biliar. A versão biliar usa cortes diferentes (idade &gt; 70, leucócitos &gt; 18.000, glicose &gt; 220, LDH &gt; 400).</p><p>BISAP é mais simples e pode ser feito nas primeiras 24 h.</p>`},
+
+{id:'bisap',cat:'Gastroenterologia',name:'BISAP',sub:'Pancreatite aguda nas primeiras 24 h',
+ src:'Wu et al., Gut 2008, MSD Manual',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('bs1','<b>B</b>UN &gt; 25 mg/dL (ureia &gt; 53)')}${chk('bs2','<b>I</b>: alteração mental (Glasgow &lt; 15)')}${chk('bs3','<b>S</b>IRS (≥ 2 critérios)',1)}${chk('bs4','<b>A</b>: idade &gt; 60 anos',1)}${chk('bs5','<b>P</b>: derrame pleural')}</fieldset>`,
+ calc(){const t=pts(['bs1','bs2','bs3','bs4','bs5']);out(t>=3?'bad':'ok',t,'/ 5',t>=3?'Alto risco':'Baixo risco',t>=3?'Mortalidade &gt; 15%.':'Mortalidade &lt; 2%.')},
+ how:()=>`<p><b>SIRS:</b> T &lt; 36 ou &gt; 38 °C, FR &gt; 20 ou PaCO₂ &lt; 32, FC &gt; 90, leucócitos &lt; 4.000 ou &gt; 12.000 ou &gt; 10% bastões.</p>${table(['BISAP','Mortalidade'],[['0 a 2','&lt; 2%'],['3 a 5','&gt; 15%']])}`},
+
+{id:'katz',cat:'Geriatria',name:'Índice de Katz',sub:'Atividades básicas de vida diária',
+ src:'Katz et al., JAMA 1963, Missouri Geriatric Toolkit',
+ form:()=>`<fieldset><legend>Independente em</legend>${chk('kz1','Banho (ajuda em no máximo 1 parte do corpo)',1)}${chk('kz2','Vestir-se (pode precisar de ajuda com cadarço)',1)}${chk('kz3','Uso do sanitário e higiene íntima',1)}${chk('kz4','Transferência cama/cadeira',1)}${chk('kz5','Continência urinária e fecal')}${chk('kz6','Alimentação (do prato à boca)',1)}</fieldset>`,
+ calc(){const t=pts(['kz1','kz2','kz3','kz4','kz5','kz6']);const g=t===6?['Independente','ok']:t>=3?['Dependência moderada','warn']:['Dependência grave','bad'];out(g[1],t,'/ 6',g[0],'Comparar com avaliação basal.')},
+ how:()=>`${table(['Katz','Interpretação'],[['6','Função completa'],['4','Comprometimento moderado'],['≤ 2','Comprometimento grave']])}`},
+
+{id:'barthel',cat:'Geriatria',name:'Índice de Barthel',sub:'Independência funcional (0 a 100)',
+ src:'Mahoney & Barthel 1965, Serviço Andaluz de Saúde',
+ form:()=>`<div class="stack">
+  ${sel('bt1','Alimentação',[['10','Independente'],['5','Ajuda para cortar, passar manteiga'],['0','Dependente']])}
+  ${sel('bt2','Banho',[['5','Independente'],['0','Dependente']],1)}
+  ${sel('bt3','Vestir-se',[['10','Independente'],['5','Ajuda, faz metade'],['0','Dependente']],1)}
+  ${sel('bt4','Higiene pessoal',[['5','Independente'],['0','Dependente']])}
+  ${sel('bt5','Evacuação',[['10','Continente'],['5','Acidente ocasional'],['0','Incontinente']])}
+  ${sel('bt6','Micção',[['10','Continente'],['5','Acidente ocasional'],['0','Incontinente']],1)}
+  ${sel('bt7','Uso do vaso sanitário',[['10','Independente'],['5','Pequena ajuda'],['0','Dependente']],1)}
+  ${sel('bt8','Transferência cama/cadeira',[['15','Independente'],['10','Mínima ajuda'],['5','Grande ajuda'],['0','Dependente']],1)}
+  ${sel('bt9','Deambulação',[['15','Independente 50 m'],['10','Ajuda ou andador'],['5','Cadeira de rodas sozinho'],['0','Dependente']],1)}
+  ${sel('bt10','Escadas',[['10','Independente'],['5','Supervisão'],['0','Dependente']],2)}</div>`,
+ calc(){const t=sumSel(Array.from({length:10},(_,i)=>'bt'+(i+1)));
+  const g=t===100?['Independente','ok']:t>=91?['Dependência escassa','ok']:t>=61?['Dependência moderada','warn']:t>=21?['Dependência severa','bad']:['Dependência total','bad'];
+  out(g[1],t,'/ 100',g[0],'')},
+ how:()=>`${table(['Barthel','Dependência'],[['100','Independente'],['91 a 99','Escassa'],['61 a 90','Moderada'],['21 a 60','Severa'],['0 a 20','Total']])}`},
+
+/* ---------- LOTE 8 ---------- */
+{id:'news2',cat:'Terapia intensiva',name:'NEWS2',sub:'Alerta precoce de deterioração',
+ src:'Royal College of Physicians 2017, tabela NHS Gloucestershire',
+ form:()=>`<div class="form">${field('nfr','FR (irpm)','')}${field('nsp','SpO₂ (%)','')}
+  <div class="full"><label>Escala de SpO₂</label><div class="seg" id="nesc"><button type="button" data-v="1" aria-pressed="false">Escala 1 (padrão)</button><button type="button" data-v="2" aria-pressed="false">Escala 2 (alvo 88 a 92%)</button></div></div>
+  <div class="full"><label>Oxigênio</label><div class="seg" id="no2"><button type="button" data-v="0" aria-pressed="false">Ar ambiente</button><button type="button" data-v="1" aria-pressed="false">O₂ suplementar</button></div></div>
+  ${field('npa','PAS (mmHg)','')}${field('nfc','FC (bpm)','')}${field('nt','Temperatura (°C)','')}
+  <div class="full"><label>Consciência</label><div class="seg" id="ncon"><button type="button" data-v="A" aria-pressed="false">Alerta</button><button type="button" data-v="C" aria-pressed="false">Confusão nova, V, P ou U</button></div></div></div>`,
+ calc(){const fr=num('nfr'),sp=num('nsp'),pa=num('npa'),fc=num('nfc'),t=num('nt'),esc=segVal('nesc'),o2=segVal('no2')==='1',con=segVal('ncon');
+  if([fr,sp,pa,fc,t].some(x=>isNaN(x)))return out('acc','','','','Preencha todos os sinais vitais.');
+  const pfr=fr<=8?3:fr<=11?1:fr<=20?0:fr<=24?2:3;
+  let psp;if(esc==='1')psp=sp>=96?0:sp>=94?1:sp>=92?2:3;
+  else psp=sp<=83?3:sp<=85?2:sp<=87?1:sp<=92?0:!o2?0:sp<=94?1:sp<=96?2:3;
+  const ppa=pa<=90?3:pa<=100?2:pa<=110?1:pa<=219?0:3,pfc=fc<=40?3:fc<=50?1:fc<=90?0:fc<=110?1:fc<=130?2:3;
+  const pt=t<=35?3:t<=36?1:t<=38?0:t<=39?1:2,po=o2?2:0,pc=con==='C'?3:0;
+  const parts=[pfr,psp,po,ppa,pfc,pc,pt],s=parts.reduce((a,b)=>a+b,0),three=parts.some(x=>x===3);
+  const g=s>=7?['Alto','bad','Resposta de emergência. Monitorização contínua.']:s>=5?['Médio','warn','Avaliação médica urgente. Monitorizar no mínimo a cada 1 h.']:three?['Baixo-médio','warn','3 pontos em um parâmetro: avaliação médica. Monitorizar a cada 1 h.']:s>=1?['Baixo','ok','Monitorizar no mínimo a cada 4 h.']:['Mínimo','ok','Monitorizar no mínimo a cada 8 h.'];
+  out(g[1],s,'pontos','Risco '+g[0],g[2],[['FR',pfr],['SpO₂',psp],['O₂',po],['PAS',ppa],['FC',pfc],['Consciência',pc],['Temperatura',pt]])},
+ how:()=>`${table(['Parâmetro','3','2','1','0','1','2','3'],[['FR','≤ 8','','9 a 11','12 a 20','','21 a 24','≥ 25'],['SpO₂ esc. 1','≤ 91','92 a 93','94 a 95','≥ 96','','',''],['PAS','≤ 90','91 a 100','101 a 110','111 a 219','','','≥ 220'],['FC','≤ 40','','41 a 50','51 a 90','91 a 110','111 a 130','≥ 131'],['Temp','≤ 35,0','','35,1 a 36,0','36,1 a 38,0','38,1 a 39,0','≥ 39,1','']])}
+ <p>O₂ suplementar: +2. Confusão nova, V, P ou U: +3.</p><p><b>Escala 2</b> (só com alvo 88 a 92% definido, ex.: DPOC com hipercapnia): 88 a 92% = 0, 86 a 87 = 1, 84 a 85 = 2, ≤ 83 = 3. Em O₂: 93 a 94 = 1, 95 a 96 = 2, ≥ 97 = 3.</p>`},
+
+{id:'blatch',cat:'Gastroenterologia',name:'Glasgow-Blatchford',sub:'Hemorragia digestiva alta',
+ src:'Blatchford et al., Lancet 2000',
+ form:()=>`<div class="form">${field('bur','Ureia (mg/dL)','')}${field('bhb','Hemoglobina (g/dL)','')}${field('bpa','PAS (mmHg)','')}${seg('bsx',SEX)}</div>
+  <fieldset><legend>Outros</legend>${chkw('bb1','FC ≥ 100 bpm',1)}${chkw('bb2','Melena',1)}${chkw('bb3','Síncope',2)}${chkw('bb4','Doença hepática',2)}${chkw('bb5','Insuficiência cardíaca',2)}</fieldset>`,
+ calc(){const u=num('bur'),hb=num('bhb'),pa=num('bpa'),f=segVal('bsx')==='F';
+  if([u,hb,pa].some(isNaN))return out('acc','','','','Preencha ureia, Hb e PAS.');
+  const um=u/6.006,pu=um<6.5?0:um<8?2:um<10?3:um<=25?4:6;
+  const ph=f?(hb>=12?0:hb>=10?1:6):(hb>=13?0:hb>=12?1:hb>=10?3:6);
+  const pp=pa>=110?0:pa>=100?1:pa>=90?2:3;
+  const s=pu+ph+pp+wsum(['bb1','bb2','bb3','bb4','bb5']);
+  out(s===0?'ok':s>=6?'bad':'warn',s,'pontos',s===0?'Baixo risco':s>=6?'Alto risco':'Risco não baixo',s===0?'Escore 0: risco muito baixo de precisar de intervenção.':s>=6?'≥ 6: risco &gt; 50% de precisar de intervenção.':'Risco de precisar de intervenção não é baixo.',[['Ureia',`${fmt(um,1)} mmol/L: ${pu}`],['Hemoglobina',ph],['PAS',pp]])},
+ how:()=>`${table(['Ureia (mmol/L)','Pontos'],[['6,5 a 8,0','2'],['8,0 a 10,0','3'],['10,0 a 25','4'],['&gt; 25','6']])}<p>Ureia em mg/dL ÷ 6 = mmol/L.</p>${table(['Hb (g/dL)','Homem','Mulher'],[['12,0 a 12,9','1','-'],['10,0 a 11,9','3','1'],['&lt; 10,0','6','6']])}<p>PAS 100 a 109 = 1, 90 a 99 = 2, &lt; 90 = 3. FC ≥ 100 e melena = 1. Síncope, hepatopatia e IC = 2.</p>`},
+
+{id:'abcd2',cat:'Neurologia',name:'ABCD²',sub:'Risco de AVC após AIT',
+ src:'Johnston et al., Lancet 2007',
+ form:()=>`<div class="stack">${sel('ab1','Idade',[['0','&lt; 60 anos'],['1','≥ 60 anos']])}${sel('ab2','PA na avaliação',[['0','&lt; 140/90'],['1','≥ 140/90']])}${sel('ab3','Clínica',[['0','Outros sintomas'],['1','Distúrbio de fala sem fraqueza'],['2','Fraqueza unilateral']])}${sel('ab4','Duração',[['0','&lt; 10 min'],['1','10 a 59 min'],['2','≥ 60 min']])}${sel('ab5','Diabetes',[['0','Não'],['1','Sim']])}</div>`,
+ calc(){const t=sumSel(['ab1','ab2','ab3','ab4','ab5']);const g=t<=3?['Baixo','ok','1,0%']:t<=5?['Moderado','warn','4,1%']:['Alto','bad','8,1%'];out(g[1],t,'/ 7','Risco '+g[0],`Risco de AVC em 2 dias: ${g[2]}.`)},
+ how:()=>`${table(['ABCD²','AVC em 2 dias'],[['0 a 3','1,0%'],['4 a 5','4,1%'],['6 a 7','8,1%']])}<p><b>ESO 2021:</b> não usar ABCD² isoladamente para triagem. Escore ≤ 3 pode deixar passar AIT de alto risco. Todo AIT merece avaliação precoce.</p>`},
+
+{id:'cchr',cat:'Trauma',name:'Canadian CT Head',sub:'TC no TCE leve (adulto)',
+ src:'Stiell et al., Lancet 2001, WikEM',
+ form:()=>`<p class="note">Aplicar se: ≥ 16 anos, Glasgow 13 a 15, trauma &lt; 24 h com perda de consciência, amnésia ou desorientação presenciada.</p>
+  <fieldset><legend>Alto risco</legend>${chk('cc1','Glasgow &lt; 15 duas horas após o trauma')}${chk('cc2','Suspeita de fratura aberta ou com afundamento')}${chk('cc3','Sinal de fratura de base de crânio')}${chk('cc4','≥ 2 episódios de vômito')}${chk('cc5','Idade ≥ 65 anos')}</fieldset>
+  <fieldset><legend>Médio risco</legend>${chk('cc6','Amnésia de eventos antes do impacto &gt; 30 min')}${chk('cc7','Mecanismo perigoso (atropelamento, ejeção, queda ≥ 1 m ou 5 degraus)')}</fieldset>`,
+ calc(){const h=pts(['cc1','cc2','cc3','cc4','cc5']),m=pts(['cc6','cc7']);
+  out(h?'bad':m?'warn':'ok','','',h?'Alto risco':m?'Médio risco':'Nenhum critério',h?'Risco de intervenção neurocirúrgica.':m?'Risco de lesão cerebral na TC.':'Baixo risco pela regra.')},
+ how:()=>`<p>Alto risco: chance de intervenção neurocirúrgica. Médio risco: chance de lesão na TC. Nenhum critério: baixo risco pela regra original.</p>`},
+
+{id:'nexus',cat:'Trauma',name:'NEXUS',sub:'Imagem da coluna cervical',
+ src:'Hoffman et al., NEJM 2000, WikEM',
+ form:()=>`<fieldset><legend>Algum presente?</legend>${chk('nx1','Dor à palpação da linha média cervical')}${chk('nx2','Déficit neurológico focal')}${chk('nx3','Alteração do nível de alerta')}${chk('nx4','Intoxicação')}${chk('nx5','Lesão dolorosa que distrai')}</fieldset>`,
+ calc(){const t=pts(['nx1','nx2','nx3','nx4','nx5']);out(t?'warn':'ok','','',t?'NEXUS positivo':'Baixo risco',t?'A regra não classifica como baixo risco de lesão cervical.':'Todos ausentes: baixo risco de lesão cervical pela regra.')},
+ how:()=>`<p>Trauma contuso. Todos os 5 critérios ausentes: baixo risco de lesão cervical.</p><p>Cautela em idosos: poucos no estudo original.</p>`},
+
+{id:'pecarn',cat:'Trauma',name:'PECARN (TCE)',sub:'TC de crânio em crianças',
+ src:'Kuppermann et al., Lancet 2009, WikEM',
+ form:()=>`<div class="full"><label>Idade</label><div class="seg" id="pcage"><button type="button" data-v="0" aria-pressed="false">&lt; 2 anos</button><button type="button" data-v="2" aria-pressed="false">≥ 2 anos</button></div></div>
+  <fieldset><legend>Alto risco</legend>${chk('pc1','Glasgow ≤ 14')}${chk('pc2','Alteração do estado mental')}${chk('pc3','&lt; 2 a: fratura de crânio palpável, ≥ 2 a: sinais de fratura de base')}</fieldset>
+  <fieldset><legend>Risco intermediário</legend>${chk('pc4','&lt; 2 a: hematoma de couro cabeludo não frontal, ≥ 2 a: vômito')}${chk('pc5','&lt; 2 a: perda de consciência ≥ 5 s, ≥ 2 a: perda de consciência')}${chk('pc6','Mecanismo grave')}${chk('pc7','&lt; 2 a: comportamento anormal segundo os pais, ≥ 2 a: cefaleia intensa')}</fieldset>`,
+ calc(){const h=pts(['pc1','pc2','pc3']),m=pts(['pc4','pc5','pc6','pc7']),u2=segVal('pcage')==='0';
+  if(h)return out('bad','','','Alto risco',`Risco de TCE clinicamente importante ${u2?'4,4%':'4,3%'}.`);
+  if(m)return out('warn','','','Risco intermediário','Risco de TCE clinicamente importante 0,9%.');
+  out('ok','','','Baixo risco','Risco muito baixo de TCE clinicamente importante na coorte original.')},
+ how:()=>`<p><b>Mecanismo grave:</b> pedestre ou ciclista sem capacete atingido por veículo, objeto de alto impacto na cabeça, queda &gt; 3 pés (~0,9 m) se &lt; 2 anos ou &gt; 5 pés (~1,5 m) se ≥ 2 anos.</p>${table(['Grupo','Risco de TCE importante'],[['Alto','4,3 a 4,4%'],['Intermediário','0,9%']])}`},
+
+{id:'rass',cat:'Terapia intensiva',name:'RASS',sub:'Agitação e sedação',
+ src:'Sessler et al., Am J Respir Crit Care Med 2002, MSD Manual',
+ form:()=>radios('rs','Escolha o nível',[['4','Combativo: violento, perigo para a equipe','+4'],['3','Muito agitado: puxa tubos, agressivo','+3'],['2','Agitado: movimentos sem propósito, briga com ventilador','+2'],['1','Inquieto: ansioso, sem agressividade','+1'],['0','Alerta e calmo','0'],['-1','Sonolento: acorda &gt; 10 s com contato visual à voz','−1'],['-2','Sedação leve: acorda &lt; 10 s à voz','−2'],['-3','Sedação moderada: movimento à voz, sem contato visual','−3'],['-4','Sedação profunda: só responde a estímulo físico','−4'],['-5','Não despertável','−5']]),
+ calc(){const v=+document.querySelector('input[name="rs"]:checked').value;out(v===0?'ok':Math.abs(v)>=3?'bad':'warn',(v>0?'+':'')+v,'RASS',v>0?'Agitação':v<0?'Sedação':'Alvo usual',v<=-4?'RASS −4 ou −5: CAM-ICU não aplicável. Reavaliar depois.':'Seguir com CAM-ICU para rastrear delirium.')},
+ how:()=>`<p>Observar por 30 s. Se não houver resposta, chamar pelo nome. Se ainda não responder, estímulo físico.</p><p>Alvo de sedação mais comum: 0 a −2, conforme a prescrição.</p>`},
+
+{id:'camicu',cat:'Terapia intensiva',name:'CAM-ICU',sub:'Delirium na UTI',
+ src:'Ely et al., JAMA 2001, worksheet UCSF',
+ form:()=>`<div class="full"><label>1. Início agudo ou curso flutuante</label><div class="seg" id="cm1"><button type="button" data-v="1" aria-pressed="false">Sim</button><button type="button" data-v="0" aria-pressed="false">Não</button></div></div>
+  <div class="form">${field('cm2','2. Erros no teste das letras (0 a 10)','')}<div></div></div>
+  ${sel('cm3','3. RASS atual',[['4','+4'],['3','+3'],['2','+2'],['1','+1'],['0','0'],['-1','−1'],['-2','−2'],['-3','−3'],['-4','−4'],['-5','−5']])}
+  <div class="form">${field('cm4','4. Erros no pensamento (perguntas + comando, 0 a 5)','')}<div></div></div>`,
+ calc(){const f1=segVal('cm1')==='1',e2=num('cm2'),r=+$('cm3').value,e4=num('cm4');
+  if(r<=-4)return out('acc','','','Não avaliável','RASS −4 ou −5: reavaliar quando mais desperto.');
+  if(!f1)return out('ok','Negativo','','Sem delirium','Característica 1 ausente.');
+  if(isNaN(e2))return out('acc','','','','Informe os erros no teste das letras.');
+  if(e2<=2)return out('ok','Negativo','','Sem delirium','Desatenção ausente (≤ 2 erros).');
+  if(r!==0)return out('bad','Positivo','','Delirium','Características 1 + 2 + 3 (RASS ≠ 0).');
+  if(isNaN(e4))return out('acc','','','','Informe os erros no pensamento desorganizado.');
+  out(e4>1?'bad':'ok',e4>1?'Positivo':'Negativo','',e4>1?'Delirium':'Sem delirium',e4>1?'Características 1 + 2 + 4.':'Pensamento organizado (≤ 1 erro).')},
+ how:()=>`<p><b>Positivo</b> = 1 + 2 + (3 ou 4).</p><p><b>Letras:</b> ler S A V E A H A A R T. Erro: não apertar no A ou apertar em outra letra. &gt; 2 erros = desatenção.</p><p><b>Pensamento:</b> 4 perguntas (pedra flutua? há peixes no mar? 1 kg pesa mais que 2? martelo prega prego?) + comando dos dedos. &gt; 1 erro = positivo.</p>`},
+
+{id:'braden',cat:'Enfermagem',name:'Escala de Braden',sub:'Risco de lesão por pressão',
+ src:'Bergstrom et al. 1987, versão brasileira Paranhos & Santos 1999',
+ form:()=>`<div class="stack">${sel('br1','Percepção sensorial',[['1','Totalmente limitado'],['2','Muito limitado'],['3','Levemente limitado'],['4','Nenhuma limitação']])}${sel('br2','Umidade',[['1','Completamente molhado'],['2','Muito molhado'],['3','Ocasionalmente molhado'],['4','Raramente molhado']])}${sel('br3','Atividade',[['1','Acamado'],['2','Confinado à cadeira'],['3','Anda ocasionalmente'],['4','Anda frequentemente']])}${sel('br4','Mobilidade',[['1','Totalmente imóvel'],['2','Bastante limitado'],['3','Levemente limitado'],['4','Sem limitação']])}${sel('br5','Nutrição',[['1','Muito pobre'],['2','Provavelmente inadequada'],['3','Adequada'],['4','Excelente']])}${sel('br6','Fricção e cisalhamento',[['1','Problema'],['2','Problema potencial'],['3','Sem problema aparente']])}</div>`,
+ calc(){const t=sumSel(['br1','br2','br3','br4','br5','br6']);const g=t<=9?['Risco muito alto','bad']:t<=12?['Risco alto','bad']:t<=14?['Risco moderado','warn']:t<=18?['Em risco','warn']:['Sem risco aumentado','ok'];out(g[1],t,'/ 23',g[0],'Quanto menor, maior o risco.')},
+ how:()=>`${table(['Braden','Risco'],[['≤ 9','Muito alto'],['10 a 12','Alto'],['13 a 14','Moderado'],['15 a 16 adulto, 17 a 18 idoso','Em risco']])}`},
+
+{id:'morse',cat:'Enfermagem',name:'Escala de Morse',sub:'Risco de queda',
+ src:'Morse 1989, versão brasileira (POP EBSERH HU-UFGD)',
+ form:()=>`<div class="stack">${sel('mo1','Histórico de quedas (3 meses)',[['0','Não'],['25','Sim']])}${sel('mo2','Diagnóstico secundário',[['0','Não'],['15','Sim']])}${sel('mo3','Auxílio na deambulação',[['0','Nenhum, acamado ou com profissional'],['15','Muletas, bengala ou andador'],['30','Apoia-se em móveis ou paredes']])}${sel('mo4','Terapia endovenosa',[['0','Não'],['20','Sim']])}${sel('mo5','Marcha',[['0','Normal, sem deambulação ou cadeira de rodas'],['10','Fraca'],['20','Comprometida ou cambaleante']])}${sel('mo6','Estado mental',[['0','Orientado e ciente das limitações'],['15','Superestima capacidade ou esquece limitações']])}</div>`,
+ calc(){const t=sumSel(['mo1','mo2','mo3','mo4','mo5','mo6']);const g=t>=45?['Risco alto','bad']:t>=25?['Risco médio','warn']:['Risco baixo','ok'];out(g[1],t,'/ 125',g[0],'')},
+ how:()=>`${table(['Morse','Risco'],[['0 a 24','Baixo'],['25 a 44','Médio'],['≥ 45','Alto']])}<p>Não se aplica a quem não pode cair (comatoso, sedado, tetraplégico).</p>`},
+
+{id:'padua',cat:'Vascular',name:'Padua',sub:'Risco de TEV em paciente clínico',
+ src:'Barbar et al., J Thromb Haemost 2010',
+ form:()=>`<fieldset><legend>Fatores</legend>${chkw('pd1','Câncer ativo',3)}${chkw('pd2','TEV prévio',3)}${chkw('pd3','Mobilidade reduzida (leito ≥ 3 dias)',3)}${chkw('pd4','Trombofilia conhecida',3)}${chkw('pd5','Trauma ou cirurgia no último mês',2)}${chkw('pd6','Idade ≥ 70 anos',1)}${chkw('pd7','Insuficiência cardíaca ou respiratória',1)}${chkw('pd8','IAM ou AVC isquêmico',1)}${chkw('pd9','Infecção aguda ou doença reumatológica',1)}${chkw('pd10','Obesidade (IMC ≥ 30)',1)}${chkw('pd11','Terapia hormonal',1)}</fieldset>`,
+ calc(){const t=wsum(Array.from({length:11},(_,i)=>'pd'+(i+1)));out(t>=4?'bad':'ok',t,'/ 20',t>=4?'Alto risco':'Baixo risco','Risco de TEV em paciente clínico internado.')},
+ how:()=>`<p><b>≥ 4</b> = alto risco de TEV.</p><p>Não avalia risco de sangramento (ver IMPROVE).</p>`},
+
+{id:'caprini',cat:'Vascular',name:'Caprini',sub:'Risco de TEV cirúrgico',
+ src:'Caprini 2005, AHRQ',
+ form:()=>`${radios('cpa','Idade',[['0','≤ 40 anos'],['1','41 a 60 anos','+1'],['2','61 a 74 anos','+2'],['3','≥ 75 anos','+3']])}
+  <fieldset><legend>1 ponto</legend>${['Cirurgia menor planejada','Cirurgia maior há &lt; 1 mês','Edema de MMII atual','Varizes','IMC &gt; 25','IAM','IC há &lt; 1 mês','Sepse há &lt; 1 mês','Doença pulmonar grave ou pneumonia há &lt; 1 mês','DPOC','Paciente clínico acamado','Doença inflamatória intestinal','ACO ou TRH','Gestação ou puerpério','História obstétrica adversa'].map((l,i)=>chkw('k1_'+i,l,1)).join('')}</fieldset>
+  <fieldset><legend>2 pontos</legend>${['Cirurgia maior &gt; 45 min','Laparoscopia &gt; 45 min','Artroscopia','Neoplasia (atual ou prévia)','Acamado &gt; 72 h','Imobilização gessada há &lt; 1 mês','Acesso venoso central'].map((l,i)=>chkw('k2_'+i,l,2)).join('')}</fieldset>
+  <fieldset><legend>3 pontos</legend>${['TVP/TEP prévia','História familiar de trombose','Fator V de Leiden','Protrombina 20210A','Anticoagulante lúpico','Anticardiolipina','Homocisteína elevada','TIH','Outra trombofilia'].map((l,i)=>chkw('k3_'+i,l,3)).join('')}</fieldset>
+  <fieldset><legend>5 pontos</legend>${['AVC há &lt; 1 mês','Artroplastia eletiva de quadril ou joelho','Fratura de quadril, pelve ou perna há &lt; 1 mês','Lesão medular aguda há &lt; 1 mês','Politrauma há &lt; 1 mês'].map((l,i)=>chkw('k5_'+i,l,5)).join('')}</fieldset>`,
+ calc(){const ids=[...$('app').querySelectorAll('input[type=checkbox][id^="k"]')].map(i=>i.id);const t=wsum(ids)+ +document.querySelector('input[name="cpa"]:checked').value;
+  const g=t===0?['Muito baixo','ok']:t<=2?['Baixo','ok']:t<=4?['Moderado','warn']:['Alto','bad'];out(g[1],t,'pontos','Risco '+g[0],'')},
+ how:()=>`${table(['Caprini','Risco'],[['0','Muito baixo'],['1 a 2','Baixo'],['3 a 4','Moderado'],['≥ 5','Alto']])}`},
+
+{id:'ciwa',cat:'Psiquiatria',name:'CIWA-Ar',sub:'Abstinência alcoólica',
+ src:'Sullivan et al., Br J Addict 1989',
+ form:()=>{const o7=(a)=>[0,1,2,3,4,5,6,7].map(n=>[String(n),a[n]||'']);
+  return `<div class="stack">${sel('cw1','Náusea e vômito',o7({0:'Ausente',4:'Náusea intermitente com ânsia',7:'Náusea constante, vômitos'}))}${sel('cw2','Tremor',o7({0:'Ausente',1:'Só sentido nos dedos',4:'Moderado com braços estendidos',7:'Intenso em repouso'}))}${sel('cw3','Sudorese paroxística',o7({0:'Ausente',1:'Palmas úmidas',4:'Gotas na testa',7:'Encharcado'}))}${sel('cw4','Ansiedade',o7({0:'Tranquilo',4:'Moderadamente ansioso',7:'Pânico'}))}${sel('cw5','Agitação',o7({0:'Normal',4:'Moderadamente inquieto',7:'Anda ou se debate sem parar'}))}${sel('cw6','Distúrbio tátil',o7({0:'Ausente',1:'Prurido ou parestesia leve',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw7','Distúrbio auditivo',o7({0:'Ausente',1:'Sensibilidade leve',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw8','Distúrbio visual',o7({0:'Ausente',1:'Sensibilidade leve à luz',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw9','Cefaleia',o7({0:'Ausente',7:'Extremamente intensa'}))}${sel('cw10','Orientação',[['0','Orientado, soma em série'],['1','Não soma ou incerto da data'],['2','Erra a data em até 2 dias'],['3','Erra a data em &gt; 2 dias'],['4','Desorientado em lugar ou pessoa']])}</div>`},
+ calc(){const t=sumSel(Array.from({length:10},(_,i)=>'cw'+(i+1)));const g=t<8?['Leve','ok']:t<15?['Moderada','warn']:['Grave','bad'];out(g[1],t,'/ 67','Abstinência '+g[0],t>=15?'Risco de delirium tremens.':t<10?'Geralmente sem necessidade de medicação adicional.':'')},
+ how:()=>`${table(['CIWA-Ar','Gravidade'],[['&lt; 8 a 10','Leve'],['8 a 15','Moderada'],['≥ 15','Grave']])}<p>Faixas se sobrepõem entre fontes. Seguir o protocolo institucional.</p>`},
+
+{id:'agualivre',cat:'Laboratório',name:'Déficit de água livre',sub:'Hipernatremia',
+ src:'UCSF Hospital Handbook',
+ form:()=>`<div class="form">${field('awn','Na⁺ atual (mEq/L)','')}${field('awt','Na⁺ alvo (mEq/L)','')}${field('aww','Peso (kg)','')}<div class="full">${sel('awf','Água corporal',[['0.6','Homem (0,6)'],['0.5','Mulher (0,5)']])}</div></div>`,
+ calc(){const n=num('awn'),t=num('awt'),w=num('aww'),f=+$('awf').value;if([n,t,w].some(isNaN))return out('acc','','','','Preencha sódio atual, alvo e peso.');
+  if(t>=n)return out('warn','','','Alvo inválido','Na alvo deve ser menor que o atual.');
+  const d=f*w*(n/t-1);out(n-t>10?'bad':'acc',fmt(d,1),'L','Déficit',n-t>10?'Queda &gt; 10 mEq/L em 24 h: risco de edema cerebral. Reduzir o alvo.':`≈ ${fmt(d*1000/24,0)} mL/h em 24 h, além das perdas.`)},
+ how:()=>`<p><code>Déficit = água corporal × (Na atual ÷ Na alvo − 1)</code></p><p>Fórmula não considera perdas em curso.</p>`},
+
+{id:'silverman',cat:'Neonatologia',name:'Silverman-Andersen',sub:'Desconforto respiratório do RN',
+ src:'Silverman & Andersen, Pediatrics 1956, MetricGate',
+ form:()=>`<div class="stack">${sel('sv1','Movimento tórax-abdome',[['0','Sincronizado'],['1','Atraso na inspiração'],['2','Balancim (gangorra)']])}${sel('sv2','Tiragem intercostal',[['0','Ausente'],['1','Pouco visível'],['2','Acentuada']])}${sel('sv3','Retração xifoide',[['0','Ausente'],['1','Pouco visível'],['2','Acentuada']])}${sel('sv4','Batimento de asa nasal',[['0','Ausente'],['1','Mínimo'],['2','Acentuado']])}${sel('sv5','Gemido expiratório',[['0','Ausente'],['1','Só com estetoscópio'],['2','Audível sem estetoscópio']])}</div>`,
+ calc(){const t=sumSel(['sv1','sv2','sv3','sv4','sv5']);const g=t===0?['Sem desconforto','ok']:t<=3?['Leve','ok']:t<=6?['Moderado','warn']:['Grave','bad'];out(g[1],t,'/ 10',g[0],'Ao contrário do Apgar: maior = pior. Avaliar a tendência.')},
+ how:()=>`${table(['Silverman','Desconforto'],[['0','Ausente'],['1 a 3','Leve'],['4 a 6','Moderado'],['7 a 10','Grave']])}<p>Fontes divergem nos cortes de moderado e grave.</p>`},
+
+{id:'capurro',cat:'Neonatologia',name:'Capurro somático',sub:'Idade gestacional do RN',
+ src:'Capurro et al., J Pediatr 1978, Estratégia MED',
+ form:()=>`<div class="stack">${sel('cpu1','Forma da orelha',[['0','Chata, sem curvatura'],['8','Borda parcialmente encurvada'],['16','Toda a borda superior encurvada'],['24','Totalmente encurvada']])}${sel('cpu2','Glândula mamária',[['0','Não palpável'],['5','&lt; 5 mm'],['10','5 a 10 mm'],['15','&gt; 10 mm']])}${sel('cpu3','Formação do mamilo',[['0','Pouco visível, sem aréola'],['5','Nítido, aréola lisa &lt; 7,5 mm'],['10','Puntiforme, aréola &gt; 7,5 mm, borda não elevada'],['15','Puntiforme, aréola &gt; 7,5 mm, borda elevada']])}${sel('cpu4','Textura da pele',[['0','Muito fina, gelatinosa'],['5','Fina e lisa'],['10','Lisa, descamação superficial'],['15','Grossa, sulcos, descamação de mãos e pés']])}${sel('cpu5','Pregas plantares',[['0','Ausentes'],['5','Marcas mal definidas na metade anterior'],['10','Marcas na metade anterior e sulcos no terço anterior'],['15','Sulcos na metade anterior'],['20','Sulcos além da metade anterior']])}</div>`,
+ calc(){const s=sumSel(['cpu1','cpu2','cpu3','cpu4','cpu5']),d=s+204,w=Math.floor(d/7),r=d%7;out(w<37?'warn':w>=42?'warn':'ok',`${w}s ${r}d`,'',w<37?'Pré-termo':w>=42?'Pós-termo':'Termo',`Soma ${s} + 204 = ${d} dias.`)},
+ how:()=>`<p><code>IG (dias) = soma + 204</code>, ÷ 7 = semanas.</p><p>Válido a partir de 29 semanas. Faixa do método: ~29 a ~42 semanas.</p>`},
+
+{id:'rcri',cat:'Pré-operatório',name:'Lee (RCRI)',sub:'Risco cardíaco em cirurgia não cardíaca',
+ src:'Diretriz SBC de Avaliação Cardiovascular Perioperatória 2024, Lee et al., Circulation 1999',
+ form:()=>`<fieldset><legend>Preditores</legend>${chk('lc1','Cirurgia de alto risco (intraperitoneal, intratorácica, vascular suprainguinal)')}${chk('lc2','Doença isquêmica do coração')}${chk('lc3','Insuficiência cardíaca')}${chk('lc4','AVC ou AIT prévio')}${chk('lc5','Diabetes em uso de insulina')}${chk('lc6','Creatinina pré-operatória &gt; 2,0 mg/dL')}</fieldset>`,
+ calc(){const t=pts(['lc1','lc2','lc3','lc4','lc5','lc6']);const c=t<=1?['Baixo','ok']:t===2?['Intermediário','warn']:['Alto','bad'];out(c[1],t,'/ 6','Risco '+c[0],'Classificação SBC 2024 (semiquantitativa). Cirurgia vascular arterial: preferir VSG-CRI.')},
+ how:()=>`${table(['RCRI','Risco (SBC 2024)'],[['0 a 1','Baixo'],['2','Intermediário'],['3 a 6','Alto']])}<p>Desfechos em 30 dias: IAM, edema agudo de pulmão, BAV total, PCR. Validado no Brasil.</p><p>SBC 2024 não adota percentuais absolutos: variam por população. Subestima risco em cirurgia vascular (ex.: aneurisma de aorta).</p><p><b>BNP/NT-proBNP</b> pré-operatório (classe I): &gt; 65 anos, ou 45 a 64 anos com doença CV ou fator de risco.</p>`},
+
+{id:'asa',cat:'Pré-operatório',name:'Classificação ASA',sub:'Estado físico pré-anestésico',
+ src:'American Society of Anesthesiologists (revisão dez/2020)',
+ form:()=>`${radios('asa','Classe',[['1','Saudável, não fumante, álcool mínimo','I'],['2','Doença sistêmica leve: tabagismo, gestação, IMC 30 a 40, DM/HAS controlados','II'],['3','Doença sistêmica grave: DM/HAS mal controlados, DPOC, IMC ≥ 40, diálise, IAM/AVC &gt; 3 meses','III'],['4','Ameaça constante à vida: IAM/AVC &lt; 3 meses, isquemia ativa, choque, sepse, FE muito reduzida','IV'],['5','Moribundo, sem sobrevida sem a cirurgia','V'],['6','Morte encefálica, doação de órgãos','VI']])}<fieldset><legend>Modificador</legend>${chk('asae','Cirurgia de emergência (E)')}</fieldset>`,
+ calc(){const v=+document.querySelector('input[name="asa"]:checked').value,R=['','I','II','III','IV','V','VI'];out(v<=2?'ok':v===3?'warn':'bad','ASA '+R[v]+($('asae').checked?'E':''),'','Estado físico','Classificação final é decisão do anestesiologista.')},
+ how:()=>`<p>E = atraso aumentaria significativamente a ameaça à vida ou a um órgão.</p>`},
+
+{id:'apfel',cat:'Pré-operatório',name:'Apfel',sub:'Náusea e vômito pós-operatório',
+ src:'Apfel et al., Anesthesiology 1999',
+ form:()=>`<fieldset><legend>Fatores</legend>${chk('ap1','Sexo feminino')}${chk('ap2','Não fumante')}${chk('ap3','NVPO ou cinetose prévia')}${chk('ap4','Opioide pós-operatório previsto')}</fieldset>`,
+ calc(){const t=pts(['ap1','ap2','ap3','ap4']),r=['10%','21%','39%','61%','79%'][t];out(t<=1?'ok':t===2?'warn':'bad',t,'/ 4',`Risco ≈ ${r}`,'Risco de NVPO em 24 h.')},
+ how:()=>`${table(['Fatores','Risco de NVPO'],[['0','10%'],['1','21%'],['2','39%'],['3','61%'],['4','79%']])}`},
+
+{id:'sofa2',cat:'Terapia intensiva',name:'SOFA-2',sub:'Disfunção orgânica (2025)',
+ src:'Ranzani et al., JAMA 2025, resumos PCTU e Pinson & Tang',
+ form:()=>`<div class="stack">
+  ${sel('s21','Cérebro',[['0','Glasgow 15, sem delirium tratado'],['1','Glasgow 13 a 14, localiza dor ou delirium medicado'],['2','Glasgow 9 a 12 ou retirada à dor'],['3','Glasgow 6 a 8 ou flexão à dor'],['4','Glasgow 3 a 5, extensão ou sem resposta']])}
+  ${sel('s22','Respiratório',[['0','P/F &gt; 300'],['1','P/F ≤ 300 ou S/F ≤ 300'],['2','P/F ≤ 225 ou S/F ≤ 250'],['3','P/F ≤ 150 ou S/F ≤ 200 + suporte avançado'],['4','P/F ≤ 75 ou S/F ≤ 120 + suporte avançado, ou ECMO']])}
+  ${sel('s23','Cardiovascular',[['0','PAM ≥ 70 sem vasoativo'],['1','PAM &lt; 70 sem vasoativo'],['2','Nora + adrenalina &lt; 0,2 ou outro vasoativo'],['3','Nora + adrenalina 0,2 a 0,4, ou &lt; 0,2 + outro'],['4','Nora + adrenalina &gt; 0,4, ou 0,2 a 0,4 + outro, ou suporte mecânico']])}
+  ${sel('s24','Fígado: bilirrubina (mg/dL)',[['0','≤ 1,2'],['1','&gt; 1,2 a 3,0'],['2','&gt; 3,0 a 6,0'],['3','&gt; 6,0 a 12,0'],['4','&gt; 12,0']])}
+  ${sel('s25','Rim',[['0','Cr ≤ 1,2 e diurese preservada'],['1','Cr &gt; 1,2 a 2,0 ou diurese &lt; 0,5 mL/kg/h por 6 a 12 h'],['2','Cr &gt; 2,0 a 3,5 ou &lt; 0,5 mL/kg/h por &gt; 12 h'],['3','Cr &gt; 3,5 ou &lt; 0,3 mL/kg/h por &gt; 24 h ou anúria &gt; 12 h'],['4','Em diálise ou com critério para diálise']])}
+  ${sel('s26','Hemostasia: plaquetas (×10³/µL)',[['0','&gt; 150'],['1','≤ 150'],['2','≤ 100'],['3','≤ 80'],['4','≤ 50']])}</div>`,
+ calc(){const t=sumSel(['s21','s22','s23','s24','s25','s26']);out(t>=2?'bad':'ok',t,'/ 24','SOFA-2','Vasoativo em µg/kg/min, contínuo por ≥ 1 h.')},
+ how:()=>`<p>Suporte respiratório avançado: CNAF, CPAP, BiPAP, VNI ou VM invasiva.</p><p>Delirium medicado pontua ≥ 1 mesmo com Glasgow 15. Sedado: usar Glasgow pré-sedação.</p><p>Dopamina como único vasopressor tem faixas próprias: não incluída aqui.</p><p>Critério de 0 ponto em cardiovascular e rim deduzido como o complemento dos demais. Conferir no artigo original.</p>`},
+
+{id:'vanco',cat:'Farmacologia',name:'AUC de vancomicina',sub:'Método de dois níveis',
+ src:'Sawchuk-Zaske, consenso ASHP/IDSA 2020, Contagion Live',
+ form:()=>`<div class="form">${field('vti','Tempo de infusão (h)','')}${field('vtau','Intervalo entre doses (h)','')}${field('vc1','Nível 1 (mg/L)','')}${field('vt1','Fim da infusão: nível 1 (h)','')}${field('vc2','Nível 2 (mg/L)','')}${field('vdt','Nível 1: nível 2 (h)','')}</div>`,
+ calc(){const ti=num('vti'),tau=num('vtau'),c1=num('vc1'),t1=num('vt1'),c2=num('vc2'),dt=num('vdt');
+  if([ti,tau,c1,t1,c2,dt].some(isNaN))return out('acc','','','','Preencha todos os campos.');
+  if(c2>=c1)return out('warn','','','Níveis inválidos','O nível 2 deve ser menor que o nível 1.');
+  if(t1+dt+ti>tau)return out('warn','','','Tempos inválidos','Coletas fora do intervalo entre doses.');
+  const k=Math.log(c1/c2)/dt,cmax=c1*Math.exp(k*t1),cmin=cmax*Math.exp(-k*(tau-ti));
+  const auc=(ti*(cmax+cmin)/2+(cmax-cmin)/k)*(24/tau);
+  out(auc<400?'warn':auc>600?'bad':'ok',fmt(auc,0),'mg·h/L',auc<400?'Abaixo do alvo':auc>600?'Acima do alvo':'No alvo','Alvo 400 a 600 (MIC 1). Exige estado de equilíbrio.',[['Kel',fmt(k,3)+' h⁻¹'],['Meia-vida',fmt(Math.log(2)/k,1)+' h'],['Cmax extrapolado',fmt(cmax,1)+' mg/L'],['Cmin extrapolado',fmt(cmin,1)+' mg/L']])},
+ how:()=>`<p><code>Kel = ln(C1 ÷ C2) ÷ Δt</code></p><p><code>Cmax = C1 × e^(Kel × t1)</code>, <code>Cmin = Cmax × e^(−Kel × (τ − Tinf))</code></p><p><code>AUC24 = [Tinf × (Cmax + Cmin) ÷ 2 + (Cmax − Cmin) ÷ Kel] × 24 ÷ τ</code></p><p>Modelo de 1 compartimento: pode subestimar a AUC em ~8%. Prefira software bayesiano quando disponível. Duas coletas após a infusão no mesmo intervalo.</p>`},
+
+/* ---------- AUDITORIA: NOVAS ---------- */
+{id:'grace',cat:'Cardiologia',name:'GRACE',sub:'Mortalidade intra-hospitalar na SCA',
+ src:'Granger et al., Arch Intern Med 2003, tabela de pontos WikiDoc, faixas FPnotebook',
+ form:()=>`<div class="full"><label>Tipo de SCA</label><div class="seg" id="grt"><button type="button" data-v="N" aria-pressed="false">Sem supra de ST</button><button type="button" data-v="S" aria-pressed="false">Com supra de ST</button></div></div>
+  <div class="form">${field('gage','Idade (anos)','')}${field('ghr','FC (bpm)','')}${field('gsbp','PAS (mmHg)','')}${field('gcr','Creatinina (mg/dL)','')}</div>
+  ${sel('gkil','Classe Killip',[['0','I: sem IC'],['20','II: estertores, B3, turgência jugular'],['39','III: edema agudo de pulmão'],['59','IV: choque cardiogênico']])}
+  <fieldset><legend>Na admissão</legend>${chkw('gca','Parada cardíaca',39)}${chkw('gst','Desvio do segmento ST',28)}${chkw('gen','Marcadores de necrose elevados',14)}</fieldset>`,
+ calc(){const a=num('gage'),hr=num('ghr'),s=num('gsbp'),c=num('gcr');if([a,hr,s,c].some(isNaN))return out('acc','','','','Preencha idade, FC, PAS e creatinina.');
+  const pa=a<30?0:a<40?8:a<50?25:a<60?41:a<70?58:a<80?75:a<90?91:100;
+  const ph=hr<50?0:hr<70?3:hr<90?9:hr<110?15:hr<150?24:hr<200?38:46;
+  const ps=s<80?58:s<100?53:s<120?43:s<140?34:s<160?24:s<200?10:0;
+  const pc=c<.4?1:c<.8?4:c<1.2?7:c<1.6?10:c<2?13:c<4?21:28;
+  const t=pa+ph+ps+pc+ +$('gkil').value+wsum(['gca','gst','gen']);
+  const P=[[60,'≤ 0,2%'],[70,'0,3%'],[80,'0,4%'],[90,'0,6%'],[100,'0,8%'],[110,'1,1%'],[120,'1,6%'],[130,'2,1%'],[140,'2,9%'],[150,'3,9%'],[160,'5,4%'],[170,'7,3%'],[180,'9,8%'],[190,'13%'],[200,'18%'],[210,'23%'],[220,'29%'],[230,'36%'],[240,'44%'],[250,'≥ 52%']];
+  let prob=P[0][1];for(const [k,v] of P)if(t>=k)prob=v;
+  const st=segVal('grt')==='S';const g=st?(t<126?['Baixo','ok']:t<=154?['Intermediário','warn']:['Alto','bad']):(t<109?['Baixo','ok']:t<=140?['Intermediário','warn']:['Alto','bad']);
+  out(g[1],t,'pontos','Risco '+g[0],`Morte intra-hospitalar estimada ≈ ${prob}.`,[['Idade',pa],['FC',ph],['PAS',ps],['Creatinina',pc],['Killip',$('gkil').value]])},
+ how:()=>`${table(['SCA','Baixo','Intermediário','Alto'],[['Sem supra (intra-hosp.)','&lt; 109','109 a 140','&gt; 140'],['Com supra (intra-hosp.)','&lt; 126','126 a 154','&gt; 154']])}<p>Estimativa de mortalidade pela tabela de conversão do GRACE original (valor da faixa de 10 pontos imediatamente abaixo).</p><p>Calculadora GRACE 2.0 usa fórmula contínua, não reproduzida aqui.</p>`},
+
+{id:'air',cat:'Cirurgia',name:'AIR',sub:'Apendicite (recomendado WSES 2020)',
+ src:'Andersson & Andersson, World J Surg 2008, WSES Jerusalem 2020, Radiopaedia',
+ form:()=>`<fieldset><legend>Clínica</legend>${chkw('ai1','Vômitos',1)}${chkw('ai2','Dor em fossa ilíaca direita',1)}${chkw('ai3','Temperatura ≥ 38,5 °C',1)}</fieldset>
+  ${sel('ai4','Descompressão dolorosa ou defesa',[['0','Ausente'],['1','Leve'],['2','Moderada'],['3','Intensa']])}
+  <div class="form">${field('ai5','Leucócitos (×10³/µL)','')}${field('ai6','Neutrófilos (%)','')}${field('ai7','PCR (mg/L)','')}</div>`,
+ calc(){const l=num('ai5'),n=num('ai6'),c=num('ai7');if([l,n,c].some(isNaN))return out('acc','','','','Preencha leucócitos, neutrófilos e PCR.');
+  const t=wsum(['ai1','ai2','ai3'])+ +$('ai4').value+(l>=15?2:l>=10?1:0)+(n>=85?2:n>=70?1:0)+(c>=50?2:c>=10?1:0);
+  const g=t<=4?['Baixo','ok','Baixa probabilidade de apendicite.']:t<=8?['Intermediário','warn','Probabilidade intermediária de apendicite.']:['Alto','bad','Alta probabilidade de apendicite.'];
+  out(g[1],t,'/ 12','Risco '+g[0],g[2])},
+ how:()=>`${table(['Item','Pontos'],[['Vômitos','1'],['Dor em FID','1'],['Descompressão leve / moderada / intensa','1 / 2 / 3'],['T ≥ 38,5 °C','1'],['Neutrófilos 70 a 84% / ≥ 85%','1 / 2'],['Leucócitos 10 a 14,9 / ≥ 15 mil','1 / 2'],['PCR 10 a 49 / ≥ 50 mg/L','1 / 2']])}${table(['AIR','Risco'],[['0 a 4','Baixo'],['5 a 8','Intermediário'],['9 a 12','Alto']])}<p>WSES 2020: AIR e AAS são os escores com melhor desempenho em adultos (1A). Em crianças, não diagnosticar só por escore.</p>`},
+
+{id:'vsg',cat:'Pré-operatório',name:'VSG-CRI',sub:'Risco cardíaco em cirurgia vascular arterial',
+ src:'Diretriz SBC de Avaliação Cardiovascular Perioperatória 2024',
+ form:()=>`${radios('vsa','Idade',[['0','&lt; 60 anos'],['2','60 a 69 anos','+2'],['3','70 a 79 anos','+3'],['4','≥ 80 anos','+4']])}
+  <fieldset><legend>Fatores</legend>${chkw('vs1','Doença arterial coronariana',2)}${chkw('vs2','Insuficiência cardíaca',2)}${chkw('vs3','DPOC',2)}${chkw('vs4','Creatinina &gt; 1,8 mg/dL',2)}${chkw('vs5','Tabagismo',1)}${chkw('vs6','Diabetes em uso de insulina',1)}${chkw('vs7','Uso crônico de betabloqueador',1)}${chkw('vs8','Revascularização miocárdica prévia',-1)}</fieldset>`,
+ calc(){const t=+document.querySelector('input[name="vsa"]:checked').value+wsum(['vs1','vs2','vs3','vs4','vs5','vs6','vs7','vs8']);const g=t<=4?['Baixo','ok']:t<=6?['Intermediário','warn']:['Alto','bad'];out(g[1],t,'pontos','Risco '+g[0],'SBC 2024: preferir ao RCRI em cirurgia vascular arterial.')},
+ how:()=>`${table(['VSG-CRI','Risco'],[['0 a 4','Baixo'],['5 a 6','Intermediário'],['≥ 7','Alto']])}`},
+
+{id:'aub',cat:'Pré-operatório',name:'AUB-HAS2',sub:'IAM, AVC ou óbito em 30 dias',
+ src:'Diretriz SBC de Avaliação Cardiovascular Perioperatória 2024',
+ form:()=>`<fieldset><legend>Fatores</legend>${chk('au1','<b>H</b>istória de doença cardíaca (IAM, revascularização, IC, FA, valvopatia moderada a grave)')}${chk('au2','<b>A</b>ngina ou dispneia')}${chk('au3','Idade ≥ 75 anos')}${chk('au4','Hemoglobina &lt; 12 g/dL')}${chk('au5','Cirurgia vascular arterial')}${chk('au6','Cirurgia de emergência')}</fieldset>`,
+ calc(){const t=pts(['au1','au2','au3','au4','au5','au6']);const g=t<=1?['Baixo','ok']:t<=3?['Intermediário','warn']:['Alto','bad'];out(g[1],t,'/ 6','Risco '+g[0],'Ainda não validado na população brasileira (SBC 2024).')},
+ how:()=>`${table(['AUB-HAS2','Risco'],[['0 a 1','Baixo'],['2 a 3','Intermediário'],['4 a 6','Alto']])}`},
+
+{id:'ilas',cat:'Infectologia',name:'Sepse (ILAS)',sub:'Triagem e abertura de protocolo',
+ src:'ILAS, Implementação de protocolo gerenciado de sepse, protocolo EBSERH HC-UFTM v4, critérios SIRS (MSD)',
+ form:()=>`<fieldset><legend>SIRS</legend>${chk('il1','T &gt; 38 °C ou &lt; 36 °C')}${chk('il2','FC &gt; 90 bpm')}${chk('il3','FR &gt; 20 irpm ou PaCO₂ &lt; 32 mmHg')}${chk('il4','Leucócitos &gt; 12.000 ou &lt; 4.000 ou &gt; 10% bastões')}</fieldset>
+  <fieldset><legend>Disfunção orgânica</legend>${chk('id1','PAS &lt; 90 ou PAM &lt; 65 mmHg')}${chk('id2','SpO₂ &lt; 93% ou piora respiratória aguda')}${chk('id3','Rebaixamento ou confusão aguda')}${chk('id4','Diurese &lt; 0,5 mL/kg/h por &gt; 2 h')}${chk('id5','Creatinina &gt; 2,0 mg/dL ou piora em 24 h')}${chk('id6','Bilirrubina &gt; 2,0 mg/dL ou piora em 24 h')}${chk('id7','Lactato &gt; 2× o limite normal')}${chk('id8','Plaquetas &lt; 100.000')}${chk('id9','INR &gt; 1,5 ou TTPA &gt; 60 s')}</fieldset>`,
+ calc(){const s=pts(['il1','il2','il3','il4']),d=pts(['id1','id2','id3','id4','id5','id6','id7','id8','id9']);
+  if(d)return out('bad','Sepse','',`${d} disfunção(ões)`,'Suspeita de infecção + disfunção orgânica preenche o critério de sepse do ILAS.');
+  if(s>=2)return out('warn','Alerta','',`SIRS ${s}/4`,'SIRS ≥ 2: critério de alerta para sepse no ILAS.');
+  out('ok','Sem critério','',`SIRS ${s}/4`,'Sem critério de alerta no momento.')},
+ how:()=>`<p><b>ILAS:</b> mantém SIRS para triagem (alerta com ≥ 2 critérios). Sepse = infecção suspeita + disfunção orgânica.</p><p>Choque séptico: PAM &lt; 65 após volume com necessidade de vasopressor.</p><p>Sepsis-3 usa aumento ≥ 2 no SOFA. SSC 2021 recomenda não usar qSOFA isolado.</p>`},
+
+{id:'lund',cat:'Trauma',name:'Queimaduras (Lund-Browder)',sub:'%SCQ ajustada pela idade',
+ src:'Lund & Browder 1944, tabelas Pabau e Carepatron, reposição ATLS 11ª ed.',
+ form:()=>{const fr=[['0','Nada'],['0.25','¼'],['0.5','½'],['0.75','¾'],['1','Toda']];
+  const R=[['lh','Cabeça'],['ln','Pescoço'],['lta','Tronco anterior'],['ltp','Tronco posterior'],['lbd','Nádega D'],['lbe','Nádega E'],['lg','Genitália'],['lad','Braço D'],['lae','Braço E'],['lfd','Antebraço D'],['lfe','Antebraço E'],['lmd','Mão D'],['lme','Mão E'],['lcd','Coxa D'],['lce','Coxa E'],['lpd','Perna D'],['lpe','Perna E'],['lpdd','Pé D'],['lpee','Pé E']];
+  return `<div class="form">${field('lwa','Idade (anos)','')}${field('lww','Peso (kg)','')}<div class="full"><label>Tipo</label><div class="seg" id="lty"><button type="button" data-v="T" aria-pressed="false">Térmica</button><button type="button" data-v="E" aria-pressed="false">Elétrica</button></div></div></div>
+  <p class="note">Marque a fração queimada (2º e 3º grau) de cada região.</p>
+  <div class="form">${R.map(r=>`<label>${r[1]}<select id="${r[0]}" data-cfg="1">${fr.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join('')}</select></label>`).join('')}</div>`},
+ calc(){const a=num('lwa'),w=num('lww'),ty=segVal('lty');if(isNaN(a))return out('acc','','','','Informe a idade.');
+  const col=a<1?0:a<5?1:a<10?2:a<15?3:a<16?4:5;
+  const P={lh:[19,17,13,11,9,7][col],ln:2,lta:13,ltp:13,lbd:2.5,lbe:2.5,lg:1,lad:4,lae:4,lfd:3,lfe:3,lmd:2.5,lme:2.5,lcd:[5.5,6.5,8,8.5,9,9.5][col],lce:[5.5,6.5,8,8.5,9,9.5][col],lpd:[5,5,5.5,6,6.5,7][col],lpe:[5,5,5.5,6,6.5,7][col],lpdd:3.5,lpee:3.5};
+  const tb=Object.keys(P).reduce((s,k)=>s+P[k]*parseFloat($(k).value),0);
+  if(!(tb>0))return out('acc','0','% SCQ','','Marque as regiões queimadas.');
+  const rows=[['Faixa da tabela',['&lt; 1 ano','1 a 4 anos','5 a 9 anos','10 a 14 anos','15 anos','Adulto'][col]]];
+  const thr=a>=13?20:10;
+  if(!isNaN(w)&&ty){const fat=ty==='E'?4:(a>=13?2:3),tot=fat*w*tb;rows.push(['Fator',fat+' mL/kg/%SCQ'],['Taxa inicial RL',fmt(tot/16,0)+' mL/h'],['Diurese alvo',a>=13?fmt(.5*w,0)+' mL/h':fmt(w,0)+' mL/h']);if(w<=30)rows.push(['≤ 30 kg','+ manutenção com glicose'])}
+  out(tb>thr?'bad':'warn',fmt(tb,1),'% SCQ',tb>thr?'Reposição formal':'Abaixo do limiar',`Limiar: &gt; ${thr}% SCQ.`,rows)},
+ how:()=>`${table(['Região variável','&lt; 1','1 a 4','5 a 9','10 a 14','15','Adulto'],[['Cabeça','19','17','13','11','9','7'],['Cada coxa','5,5','6,5','8','8,5','9','9,5'],['Cada perna','5','5','5,5','6','6,5','7']])}<p>Fixas: pescoço 2, tronco anterior 13, posterior 13, cada nádega 2,5, genitália 1, cada braço 4, antebraço 3, mão 2,5, pé 3,5.</p><p>Mais precisa que a regra dos 9, sobretudo em crianças. Reposição ATLS 11ª ed.: ≥ 13 anos 2 mL, &lt; 13 anos 3 mL, elétrica 4 mL × kg × %SCQ; taxa inicial = ÷ 16 h.</p>`},
+
+/* ---------- LOTE DIA A DIA ---------- */
+{id:'got',cat:'Farmacologia',name:'Gotejamento',sub:'Gotas, microgotas e mL/h',
+ src:'Fórmulas de enfermagem: 1 mL = 20 gotas = 60 microgotas',
+ form:()=>`<div class="form">${field('gtv','Volume (mL)','')}${field('gtt','Tempo (h)','')}</div>`,
+ calc(){const v=num('gtv'),t=num('gtt');if(!(v>0&&t>0))return out('acc','','','','Informe volume e tempo.');
+  const g=v/(t*3),m=v/t;
+  out('acc',fmt(g,0),'gotas/min','Macrogotas',`${fmt(v,0)} mL em ${fmt(t,t%1?1:0)} h`,[['Microgotas',fmt(m,0)+' µgotas/min'],['Bomba de infusão',fmt(m,1)+' mL/h'],['Gotas exatas',fmt(g,1)+' gotas/min']])},
+ how:()=>`<p><code>Gotas/min = V ÷ (T × 3)</code><br><code>Microgotas/min = V ÷ T</code><br><code>mL/h = V ÷ T</code></p><p>V em mL, T em horas. Microgotas por minuto têm o mesmo número que mL/h.</p>`},
+
+{id:'holl',cat:'Pediatria',name:'Holliday-Segar',sub:'Hidratação venosa de manutenção',
+ src:'Holliday & Segar, Pediatrics 1957, AAP (Feld et al., Pediatrics 2018)',
+ form:()=>`<div class="form">${field('hsw','Peso (kg)','')}</div>`,
+ calc(){const w=num('hsw');if(!(w>0))return out('acc','','','','Informe o peso.');
+  const d=w<=10?100*w:w<=20?1000+50*(w-10):1500+20*(w-20);
+  const h=w<=10?4*w:w<=20?40+2*(w-10):60+(w-20);
+  out('acc',fmt(d,0),'mL/dia','Manutenção','Volume de manutenção pela regra 4-2-1.',[['Por hora (4-2-1)',fmt(h,0)+' mL/h'],['Por dia ÷ 24',fmt(d/24,1)+' mL/h']])},
+ how:()=>`${table(['Peso','mL/dia','mL/h'],[['Até 10 kg','100 por kg','4 por kg'],['10 a 20 kg','1.000 + 50 por kg acima de 10','40 + 2 por kg acima de 10'],['Acima de 20 kg','1.500 + 20 por kg acima de 20','60 + 1 por kg acima de 20']])}<p>Não inclui reposição de déficit nem perdas. Ajustar em ICC, LRA, SIADH.</p>`},
+
+{id:'cort',cat:'Farmacologia',name:'Corticoides',sub:'Equivalência de dose',
+ src:'Tabela clássica de potência glicocorticoide (Liu et al., Allergy Asthma Clin Immunol 2013)',
+ form:()=>`<div class="stack">${sel('cod','Corticoide em uso',[['_20','Hidrocortisona'],['_5','Prednisona'],['_5p','Prednisolona'],['_4','Metilprednisolona'],['_0.75','Dexametasona']])}<div class="form">${field('cdd','Dose (mg)','')}</div></div>`,
+ calc(){const e=parseFloat($('cod').value.slice(1)),d=num('cdd');if(!(e>0))return out('acc','','','','Escolha o corticoide.');if(!(d>0))return out('acc','','','','Informe a dose.');
+  const u=d/e;const L=[['Hidrocortisona',20],['Prednisona',5],['Prednisolona',5],['Metilprednisolona',4],['Dexametasona',0.75]];
+  out('acc',fmt(u*5,1),'mg','Prednisona equivalente','',L.map(([n,q])=>[n,fmt(u*q,q<1?2:1)+' mg']))},
+ how:()=>`${table(['Corticoide','Dose equivalente','Meia-vida biológica'],[['Hidrocortisona','20 mg','Curta (8 a 12 h)'],['Prednisona','5 mg','Intermediária (12 a 36 h)'],['Prednisolona','5 mg','Intermediária'],['Metilprednisolona','4 mg','Intermediária'],['Dexametasona','0,75 mg','Longa (36 a 72 h)']])}<p>Equivale só o efeito glicocorticoide. Hidrocortisona tem efeito mineralocorticoide relevante. Dexametasona quase nenhum.</p>`},
+
+{id:'pam',cat:'Cardiologia',name:'PAM',sub:'Pressão arterial média',
+ src:'Fórmula clássica, alvo em choque séptico: Surviving Sepsis Campaign 2021, ILAS',
+ form:()=>`<div class="form">${field('pms','PAS (mmHg)','')}${field('pmd','PAD (mmHg)','')}</div>`,
+ calc(){const s=num('pms'),d=num('pmd');if(!(s>0&&d>0))return out('acc','','','','Informe PAS e PAD.');if(d>=s)return out('bad','','','Valores incoerentes','PAD deve ser menor que PAS.');
+  const p=(s+2*d)/3;out(p<65?'bad':'ok',fmt(p,0),'mmHg',p<65?'Abaixo de 65':'≥ 65',`Pressão de pulso ${fmt(s-d,0)} mmHg`)},
+ how:()=>`<p><code>PAM = (PAS + 2 × PAD) ÷ 3</code></p><p>Choque séptico: alvo inicial de PAM ≥ 65 mmHg.</p>`},
+
+{id:'pid',cat:'Antropometria',name:'Peso ideal e ajustado',sub:'Devine e peso ajustado',
+ src:'Devine 1974, peso ajustado com fator 0,4',
+ form:()=>`<div class="form">${field('pih','Altura (cm)','')}${field('piw','Peso real (kg)','')}${seg('pis',SEX)}</div>`,
+ calc(){const h=num('pih'),w=num('piw'),s=segVal('pis');if(!(h>0&&w>0))return out('acc','','','','Informe altura e peso.');
+  const i=(s==='F'?45.5:50)+.91*(h-152.4);const a=i+.4*(w-i);const r=w/i*100;
+  out('acc',fmt(i,1),'kg','Peso ideal',r>=120?'Peso real ≥ 120% do ideal.':'',[['Peso ajustado',fmt(a,1)+' kg'],['Peso real / ideal',fmt(r,0)+'%']])},
+ how:()=>`<p><code>Homem = 50 + 0,91 × (altura − 152,4)</code><br><code>Mulher = 45,5 + 0,91 × (altura − 152,4)</code><br><code>Ajustado = ideal + 0,4 × (real − ideal)</code></p><p>Válido para altura ≥ 152 cm. Usado em doses de aminoglicosídeos, anestésicos e ventilação.</p>`},
+
+{id:'cl24',cat:'Nefrologia',name:'ClCr urina 24 h',sub:'Clearance de creatinina medido',
+ src:'Fórmula clássica de depuração',
+ form:()=>`<div class="form">${field('cuc','Creatinina urinária (mg/dL)','')}${field('cuv','Volume urinário 24 h (mL)','')}${field('cpc','Creatinina sérica (mg/dL)','')}</div>`,
+ calc(){const u=num('cuc'),v=num('cuv'),p=num('cpc');if(!(u>0&&v>0&&p>0))return out('acc','','','','Preencha os três valores.');
+  const c=u*v/(p*1440);out(c<60?'warn':'ok',fmt(c,0),'mL/min','Clearance medido','Confirmar coleta completa de 24 h.',[['Creatinina excretada',fmt(u*v/100,0)+' mg/24 h']])},
+ how:()=>`<p><code>ClCr = (Cr urinária × volume) ÷ (Cr sérica × 1.440)</code></p><p>Creatinina excretada esperada: cerca de 15 a 20 mg/kg/dia na mulher e 20 a 25 no homem. Valor muito abaixo sugere coleta incompleta.</p>`},
+
+{id:'rac',cat:'Nefrologia',name:'Albuminúria (RAC)',sub:'Relação albumina/creatinina',
+ src:'KDIGO 2012 (DRC)',
+ form:()=>`<div class="form">${field('raa','Albumina urinária (mg/L)','')}${field('rac2','Creatinina urinária (mg/dL)','')}</div>`,
+ calc(){const a=num('raa'),c=num('rac2');if(!(a>=0&&c>0))return out('acc','','','','Preencha os dois valores.');
+  const r=a/c*100;const g=r<30?['A1','ok','Normal a levemente aumentada']:r<=300?['A2','warn','Moderadamente aumentada']:['A3','bad','Gravemente aumentada'];
+  out(g[1],fmt(r,0),'mg/g',g[0],g[2])},
+ how:()=>`<p><code>RAC (mg/g) = albumina (mg/L) ÷ creatinina (mg/dL) × 100</code></p>${table(['Categoria','RAC (mg/g)'],[['A1','&lt; 30'],['A2','30 a 300'],['A3','&gt; 300']])}<p>Confirmar com 2 de 3 amostras em 3 a 6 meses.</p>`},
+
+{id:'homa',cat:'Endocrinologia',name:'HOMA-IR e HOMA-β',sub:'Resistência insulínica',
+ src:'Matthews et al., Diabetologia 1985',
+ form:()=>`<div class="form">${field('hog','Glicemia de jejum (mg/dL)','')}${field('hoi','Insulina de jejum (µU/mL)','')}</div>`,
+ calc(){const g=num('hog'),i=num('hoi');if(!(g>0&&i>0))return out('acc','','','','Preencha os dois valores.');
+  const r=g*i/405;const b=g>63?360*i/(g-63):NaN;
+  out('acc',fmt(r,2),'','HOMA-IR','Ponto de corte varia com população e método.',[['HOMA-β',isNaN(b)?'Não calculável':fmt(b,0)+'%']])},
+ how:()=>`<p><code>HOMA-IR = glicemia (mg/dL) × insulina ÷ 405</code><br><code>HOMA-β = 360 × insulina ÷ (glicemia − 63)</code></p><p>Não usar em quem usa insulina. Não há corte universal.</p>`},
+
+{id:'ganz',cat:'Farmacologia',name:'Ferro (Ganzoni)',sub:'Dose total de ferro EV',
+ src:'Ganzoni, Schweiz Med Wochenschr 1970',
+ form:()=>`<div class="form">${field('gzw','Peso (kg)','')}${field('gza','Hb atual (g/dL)','')}${field('gzt','Hb alvo (g/dL)','')}</div>`,
+ calc(){const w=num('gzw'),a=num('gza'),t=num('gzt');if(!(w>0&&a>0&&t>0))return out('acc','','','','Preencha os três valores.');if(t<=a)return out('bad','','','Alvo inválido','Hb alvo deve ser maior que a atual.');
+  const st=w>=35?500:15*w;const d=w*(t-a)*2.4+st;
+  out('acc',fmt(d,0),'mg','Ferro elementar total','Dividir conforme dose máxima do produto.',[['Hemoglobina',fmt(w*(t-a)*2.4,0)+' mg'],['Estoque',fmt(st,0)+' mg']])},
+ how:()=>`<p><code>Déficit = peso × (Hb alvo − Hb atual) × 2,4 + estoque</code></p><p>Estoque: 500 mg se ≥ 35 kg. 15 mg/kg se &lt; 35 kg. Alvo usual: 15 g/dL (≥ 35 kg) e 13 g/dL (&lt; 35 kg).</p>`},
+
+{id:'phq9',cat:'Psiquiatria',name:'PHQ-9',sub:'Rastreio e gravidade de depressão',
+ src:'Kroenke et al., J Gen Intern Med 2001, validação brasileira Santos et al., Cad Saúde Pública 2013',
+ form:()=>{const o=[['0','Nenhuma vez'],['1','Vários dias'],['2','Mais da metade dos dias'],['3','Quase todos os dias']];
+  const it=['Pouco interesse ou prazer nas coisas','Desânimo, tristeza ou falta de esperança','Dificuldade para dormir ou dormir demais','Cansaço ou pouca energia','Falta de apetite ou comer demais','Sentir-se mal consigo ou um fracasso','Dificuldade de concentração','Lentidão ou agitação percebida por outros','Pensar em se ferir ou que seria melhor estar morto'];
+  return `<p class="note">Nas últimas 2 semanas, com que frequência:</p><div class="stack">${it.map((t,i)=>sel('pq'+(i+1),(i+1)+'. '+t,o)).join('')}</div>`},
+ calc(){const t=sumSel(Array.from({length:9},(_,i)=>'pq'+(i+1)));const s9=+$('pq9').value>0;
+  const g=t<=4?['Mínima','ok']:t<=9?['Leve','ok']:t<=14?['Moderada','warn']:t<=19?['Moderadamente grave','bad']:['Grave','bad'];
+  out(s9?'bad':g[1],t,'/ 27',g[0],(s9?'Item 9 positivo (pensamentos de morte ou autolesão). ':'')+(t>=10?'≥ 10: rastreio positivo para depressão maior.':''))},
+ how:()=>`${table(['PHQ-9','Gravidade'],[['0 a 4','Mínima'],['5 a 9','Leve'],['10 a 14','Moderada'],['15 a 19','Moderadamente grave'],['20 a 27','Grave']])}<p>Rastreio, não diagnóstico. Item 9 positivo exige avaliação de risco.</p>`},
+
+{id:'gad7',cat:'Psiquiatria',name:'GAD-7',sub:'Rastreio de ansiedade',
+ src:'Spitzer et al., Arch Intern Med 2006',
+ form:()=>{const o=[['0','Nenhuma vez'],['1','Vários dias'],['2','Mais da metade dos dias'],['3','Quase todos os dias']];
+  const it=['Nervosismo, ansiedade ou tensão','Não conseguir parar ou controlar a preocupação','Preocupação excessiva com várias coisas','Dificuldade para relaxar','Inquietação, difícil ficar parado','Irritação fácil','Medo de que algo horrível aconteça'];
+  return `<p class="note">Nas últimas 2 semanas, com que frequência:</p><div class="stack">${it.map((t,i)=>sel('ga'+(i+1),(i+1)+'. '+t,o)).join('')}</div>`},
+ calc(){const t=sumSel(Array.from({length:7},(_,i)=>'ga'+(i+1)));
+  const g=t<=4?['Mínima','ok']:t<=9?['Leve','ok']:t<=14?['Moderada','warn']:['Grave','bad'];
+  out(g[1],t,'/ 21',g[0],t>=10?'≥ 10: rastreio positivo para ansiedade.':'')},
+ how:()=>`${table(['GAD-7','Ansiedade'],[['0 a 4','Mínima'],['5 a 9','Leve'],['10 a 14','Moderada'],['15 a 21','Grave']])}<p>Rastreio, não diagnóstico.</p>`},
+
+{id:'fager',cat:'Psiquiatria',name:'Fagerström',sub:'Dependência de nicotina',
+ src:'Heatherton et al., Br J Addict 1991, classificação INCA',
+ form:()=>`<div class="stack">
+  ${sel('fg1','Tempo até o 1º cigarro ao acordar',[['3','Até 5 min'],['2','6 a 30 min'],['1','31 a 60 min'],['0','Mais de 60 min']])}
+  ${sel('fg2','Difícil não fumar em locais proibidos?',[['1','Sim'],['0','Não']])}
+  ${sel('fg3','Cigarro que traz mais satisfação',[['1','O primeiro da manhã'],['0','Outros']])}
+  ${sel('fg4','Cigarros por dia',[['0','Até 10'],['1','11 a 20'],['2','21 a 30'],['3','31 ou mais']])}
+  ${sel('fg5','Fuma mais pela manhã?',[['1','Sim'],['0','Não']])}
+  ${sel('fg6','Fuma mesmo doente, acamado?',[['1','Sim'],['0','Não']])}</div>`,
+ calc(){const t=sumSel(['fg1','fg2','fg3','fg4','fg5','fg6']);
+  const g=t<=2?['Muito baixa','ok']:t<=4?['Baixa','ok']:t===5?['Média','warn']:t<=7?['Elevada','bad']:['Muito elevada','bad'];
+  out(g[1],t,'/ 10',g[0],t>=6?'Dependência alta: maior chance de abstinência intensa.':'')},
+ how:()=>`${table(['Pontos','Dependência'],[['0 a 2','Muito baixa'],['3 a 4','Baixa'],['5','Média'],['6 a 7','Elevada'],['8 a 10','Muito elevada']])}`},
+
+{id:'findrisc',cat:'Endocrinologia',name:'FINDRISC',sub:'Risco de DM2 em 10 anos',
+ src:'Lindström & Tuomilehto, Diabetes Care 2003',
+ form:()=>`<div class="form">${field('fda','Idade (anos)','')}${field('fdw','Peso (kg)','')}${field('fdh','Altura (cm)','')}${field('fdc','Cintura (cm)','')}${seg('fds',SEX)}</div>
+  <div class="stack">${sel('fd1','Atividade física ≥ 30 min por dia',[['0','Sim'],['2','Não']])}
+  ${sel('fd2','Come verduras ou frutas todo dia',[['0','Sim'],['1','Não']])}
+  ${sel('fd3','Usa remédio para pressão',[['0','Não'],['2','Sim']])}
+  ${sel('fd4','Já teve glicemia alta',[['0','Não'],['5','Sim']])}
+  ${sel('fd5','Familiar com diabetes',[['0','Não'],['3','Avô, tio ou primo'],['5','Pai, mãe, irmão ou filho']])}</div>`,
+ calc(){const a=num('fda'),w=num('fdw'),h=num('fdh')/100,c=num('fdc'),s=segVal('fds');if(!(a>0&&w>0&&h>0&&c>0))return out('acc','','','','Preencha idade, peso, altura e cintura.');
+  const b=w/(h*h);const pa=a<45?0:a<55?2:a<65?3:4;const pb=b<25?0:b<=30?1:3;
+  const pc=s==='M'?(c<94?0:c<=102?3:4):(c<80?0:c<=88?3:4);
+  const t=pa+pb+pc+sumSel(['fd1','fd2','fd3','fd4','fd5']);
+  const g=t<7?['Baixo','ok','cerca de 1 em 100']:t<=11?['Levemente elevado','ok','cerca de 1 em 25']:t<=14?['Moderado','warn','cerca de 1 em 6']:t<=20?['Alto','bad','cerca de 1 em 3']:['Muito alto','bad','cerca de 1 em 2'];
+  out(g[1],t,'/ 26',g[0],`Risco de DM2 em 10 anos: ${g[2]}.`,[['IMC',fmt(b,1)+' kg/m²']])},
+ how:()=>`${table(['Item','Pontos'],[['Idade 45 a 54 / 55 a 64 / &gt; 64','2 / 3 / 4'],['IMC 25 a 30 / &gt; 30','1 / 3'],['Cintura H 94 a 102 / &gt; 102','3 / 4'],['Cintura M 80 a 88 / &gt; 88','3 / 4'],['Sem atividade física diária','2'],['Sem verduras ou frutas diárias','1'],['Anti-hipertensivo','2'],['Glicemia alta prévia','5'],['Familiar 2º / 1º grau','3 / 5']])}${table(['Total','Risco','10 anos'],[['&lt; 7','Baixo','1%'],['7 a 11','Levemente elevado','4%'],['12 a 14','Moderado','17%'],['15 a 20','Alto','33%'],['&gt; 20','Muito alto','50%']])}`},
+
+{id:'meem',cat:'Geriatria',name:'MEEM',sub:'Mini-Exame do Estado Mental',
+ src:'Folstein et al. 1975, versão brasileira e notas de Brucki et al., Arq Neuropsiquiatr 2003',
+ form:()=>`<div class="form">${field('me1','Tempo (0 a 5)','')}${field('me2','Espaço (0 a 5)','')}${field('me3','Registro (0 a 3)','')}${field('me4','Atenção (0 a 5)','')}${field('me5','Evocação (0 a 3)','')}${field('me6','Linguagem (0 a 8)','')}${field('me7','Desenho (0 a 1)','')}</div>
+  <div class="stack">${sel('mesc','Escolaridade',[['_20','Analfabeto'],['_25','1 a 4 anos'],['_26.5','5 a 8 anos'],['_28','9 a 11 anos'],['_29','Mais de 11 anos']])}</div>`,
+ calc(){const v=['me1','me2','me3','me4','me5','me6','me7'].map(num);if(v.some(x=>isNaN(x)))return out('acc','','','','Preencha os 7 domínios.');if(v.some(x=>x%1))return out('bad','','','Valor inválido','Use números inteiros.');const t=v.reduce((a,b)=>a+b,0);const c=parseFloat($('mesc').value.slice(1));
+  const low=t<c;out(low?'warn':'ok',t,'/ 30',low?'Abaixo da referência':'Dentro da referência',`Referência para a escolaridade: ${fmt(c,c%1?1:0)}. ${low?'Abaixo da mediana para a escolaridade.':''}`)},
+ how:()=>`${table(['Escolaridade','Referência (Brucki 2003)'],[['Analfabeto','20'],['1 a 4 anos','25'],['5 a 8 anos','26,5'],['9 a 11 anos','28'],['Mais de 11 anos','29']])}<p>Tempo e espaço: orientação. Atenção: cálculo seriado ou soletrar. Desenho: pentágonos.</p><p>Valores são medianas da população brasileira, usados como referência. Rastreio, não diagnóstico.</p>`},
+
+/* ---------- LOTE 10 ---------- */
+{id:'spesi',cat:'Vascular',name:'sPESI',sub:'Gravidade do TEP',
+ src:'Jiménez et al., Arch Intern Med 2010, ESC 2019 (TEP agudo)',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('sp1','Idade &gt; 80 anos')}${chk('sp2','Câncer')}${chk('sp3','Doença cardiopulmonar crônica (IC ou pneumopatia)')}${chk('sp4','FC ≥ 110 bpm')}${chk('sp5','PAS &lt; 100 mmHg')}${chk('sp6','SpO₂ &lt; 90%')}</fieldset>`,
+ calc(){const t=pts(['sp1','sp2','sp3','sp4','sp5','sp6']);
+  out(t?'bad':'ok',t,'pontos',t?'Alto risco':'Baixo risco',t?'Maior mortalidade em 30 dias.':'Baixa mortalidade em 30 dias.')},
+ how:()=>`<p>1 ponto por critério. 0 = baixo risco. ≥ 1 = alto risco de mortalidade em 30 dias.</p><p>Não usar em TEP com instabilidade hemodinâmica, que já é alto risco.</p>`},
+
+{id:'westley',cat:'Pediatria',name:'Westley',sub:'Gravidade do crupe',
+ src:'Westley et al., Am J Dis Child 1978',
+ form:()=>`<div class="stack">
+  ${sel('wy1','Nível de consciência',[['0','Normal'],['5','Desorientado']])}
+  ${sel('wy2','Cianose',[['0','Ausente'],['4','Com agitação'],['5','Em repouso']])}
+  ${sel('wy3','Estridor',[['0','Ausente'],['1','Com agitação'],['2','Em repouso']])}
+  ${sel('wy4','Entrada de ar',[['0','Normal'],['1','Diminuída'],['2','Muito diminuída']])}
+  ${sel('wy5','Retrações',[['0','Ausentes'],['1','Leves'],['2','Moderadas'],['3','Graves']])}</div>`,
+ calc(){const t=sumSel(['wy1','wy2','wy3','wy4','wy5']);
+  const g=t<=2?['Leve','ok']:t<=5?['Moderado','warn']:t<=11?['Grave','bad']:['Insuficiência respiratória iminente','bad'];
+  out(g[1],t,'/ 17',g[0],'')},
+ how:()=>`${table(['Westley','Gravidade'],[['≤ 2','Leve'],['3 a 5','Moderado'],['6 a 11','Grave'],['≥ 12','Insuficiência respiratória iminente']])}`},
+
+{id:'ich',cat:'Neurologia',name:'ICH Score',sub:'Hemorragia intracerebral',
+ src:'Hemphill et al., Stroke 2001',
+ form:()=>`<div class="stack">
+  ${sel('ih1','Glasgow',[['2','3 a 4'],['1','5 a 12'],['0','13 a 15']])}
+  ${sel('ih2','Volume do hematoma',[['1','≥ 30 mL'],['0','&lt; 30 mL']])}
+  ${sel('ih3','Inundação ventricular',[['1','Sim'],['0','Não']])}
+  ${sel('ih4','Origem infratentorial',[['1','Sim'],['0','Não']])}
+  ${sel('ih5','Idade',[['1','≥ 80 anos'],['0','&lt; 80 anos']])}</div>`,
+ calc(){const t=sumSel(['ih1','ih2','ih3','ih4','ih5']);const m=['0%','13%','26%','72%','97%','100%'][t]||'sem dados (nenhum caso na coorte)';
+  out(t<=1?'ok':t<=2?'warn':'bad',t,'/ 6',`Mortalidade em 30 dias: ${m}`,'Dado da coorte original.')},
+ how:()=>`<p>Volume (ABC/2): A × B × C ÷ 2, em cm, na TC.</p>${table(['ICH','Mortalidade 30 dias'],[['0','0%'],['1','13%'],['2','26%'],['3','72%'],['4','97%'],['5','100%']])}<p>Nenhum paciente com 6 pontos na coorte original.</p>`},
+
+{id:'hunt',cat:'Neurologia',name:'Hunt-Hess',sub:'Hemorragia subaracnóidea',
+ src:'Hunt & Hess, J Neurosurg 1968',
+ form:()=>radios('hh','Quadro clínico',[['1','Assintomático ou cefaleia leve e leve rigidez de nuca','I'],['2','Cefaleia moderada a grave, rigidez de nuca, sem déficit além de par craniano','II'],['3','Sonolência, confusão ou déficit focal leve','III'],['4','Torpor, hemiparesia moderada a grave','IV'],['5','Coma profundo, descerebração, aspecto moribundo','V']]),
+ calc(){const v=+document.querySelector('input[name="hh"]:checked').value;
+  out(v<=2?'ok':v===3?'warn':'bad',['','I','II','III','IV','V'][v],'','Grau '+['','I','II','III','IV','V'][v],'Doença sistêmica grave ou vasoespasmo importante: somar 1 grau.')},
+ how:()=>`<p>Graus I a V. Maior grau, pior prognóstico. Somar 1 grau se houver doença sistêmica grave (HAS, DM, DPOC) ou vasoespasmo grave na angiografia.</p>`},
+
+{id:'rankin',cat:'Neurologia',name:'Rankin modificada',sub:'Incapacidade após AVC',
+ src:'van Swieten et al., Stroke 1988',
+ form:()=>radios('rk','Situação atual',[['0','Sem sintomas','0'],['1','Sintomas sem incapacidade. Faz todas as atividades habituais','1'],['2','Incapacidade leve. Cuida de si sem ajuda, mas não faz tudo o que fazia','2'],['3','Incapacidade moderada. Precisa de alguma ajuda, anda sem auxílio','3'],['4','Incapacidade moderada a grave. Não anda sem ajuda nem cuida de si','4'],['5','Incapacidade grave. Acamado, incontinente, cuidado constante','5'],['6','Óbito','6']]),
+ calc(){const v=+document.querySelector('input[name="rk"]:checked').value;
+  out(v<=2?'ok':v<=3?'warn':'bad',v,'/ 6',v<=2?'Independente':v<=5?'Dependente':'Óbito','mRS 0 a 2 costuma ser usado como desfecho favorável.')},
+ how:()=>`${table(['mRS','Descrição'],[['0','Sem sintomas'],['1','Sem incapacidade significativa'],['2','Incapacidade leve'],['3','Incapacidade moderada'],['4','Moderada a grave'],['5','Grave'],['6','Óbito']])}`},
+
+{id:'killip',cat:'Cardiologia',name:'Killip',sub:'Classificação no IAM',
+ src:'Killip & Kimball, Am J Cardiol 1967',
+ form:()=>radios('kl','Exame clínico',[['1','Sem sinais de IC','I'],['2','Estertores em bases, B3 ou turgência jugular','II'],['3','Edema agudo de pulmão','III'],['4','Choque cardiogênico','IV']]),
+ calc(){const v=+document.querySelector('input[name="kl"]:checked').value;
+  out(v===1?'ok':v===2?'warn':'bad',['','I','II','III','IV'][v],'','Killip '+['','I','II','III','IV'][v],`Mortalidade hospitalar na série original: ${['','6%','17%','38%','81%'][v]}.`)},
+ how:()=>`${table(['Classe','Achado','Mortalidade (1967)'],[['I','Sem IC','6%'],['II','Estertores, B3, turgência jugular','17%'],['III','Edema agudo de pulmão','38%'],['IV','Choque cardiogênico','81%']])}<p>Mortalidade atual é menor com reperfusão. A classe segue como marcador prognóstico.</p>`},
+
+{id:'stopbang',cat:'Pré-operatório',name:'STOP-Bang',sub:'Rastreio de apneia do sono',
+ src:'Chung et al., Anesthesiology 2008 e Chest 2016',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('sb1','Ronco alto')}${chk('sb2','Cansaço ou sonolência durante o dia')}${chk('sb3','Alguém viu parar de respirar dormindo')}${chk('sb4','Pressão alta tratada')}${chk('sb5','IMC &gt; 35')}${chk('sb6','Idade &gt; 50 anos')}${chk('sb7','Pescoço &gt; 40 cm')}${chk('sb8','Sexo masculino')}</fieldset>`,
+ calc(){const t=pts(['sb1','sb2','sb3','sb4','sb5','sb6','sb7','sb8']);
+  const g=t<=2?['Baixo risco','ok']:t<=4?['Risco intermediário','warn']:['Alto risco','bad'];
+  out(g[1],t,'/ 8',g[0],t>=3&&t<=4?'Alto risco se ≥ 2 dos 4 primeiros itens + sexo masculino, IMC &gt; 35 ou pescoço &gt; 40 cm.':'')},
+ how:()=>`${table(['Pontos','Risco de AOS moderada a grave'],[['0 a 2','Baixo'],['3 a 4','Intermediário'],['5 a 8','Alto']])}`},
+
+{id:'cage',cat:'Psiquiatria',name:'CAGE',sub:'Rastreio de uso problemático de álcool',
+ src:'Ewing, JAMA 1984, versão brasileira Masur & Monteiro 1983',
+ form:()=>`<fieldset><legend>Perguntas</legend>${chk('cg1','Já sentiu que devia diminuir a bebida?')}${chk('cg2','Já se irritou com críticas ao seu modo de beber?')}${chk('cg3','Já se sentiu culpado pela maneira de beber?')}${chk('cg4','Já bebeu pela manhã para diminuir o nervosismo ou a ressaca?')}</fieldset>`,
+ calc(){const t=pts(['cg1','cg2','cg3','cg4']);out(t>=2?'bad':'ok',t,'/ 4',t>=2?'Positivo':'Negativo',t>=2?'≥ 2: rastreio positivo.':'')},
+ how:()=>`<p>≥ 2 respostas positivas sugerem uso problemático ou dependência.</p>`},
+
+{id:'auditc',cat:'Psiquiatria',name:'AUDIT-C',sub:'Consumo de álcool de risco',
+ src:'Bush et al., Arch Intern Med 1998, cortes de Bradley et al. 2007',
+ form:()=>`<div class="stack">
+  ${sel('au1','Com que frequência toma bebida alcoólica?',[['0','Nunca'],['1','Mensal ou menos'],['2','2 a 4 vezes por mês'],['3','2 a 3 vezes por semana'],['4','4 ou mais vezes por semana']])}
+  ${sel('au2','Quantas doses num dia típico?',[['0','1 ou 2'],['1','3 ou 4'],['2','5 ou 6'],['3','7 a 9'],['4','10 ou mais']])}
+  ${sel('au3','Com que frequência toma 6 ou mais doses de uma vez?',[['0','Nunca'],['1','Menos que mensal'],['2','Mensal'],['3','Semanal'],['4','Diária ou quase']])}
+  </div><div class="form">${seg('aus',SEX)}</div>`,
+ calc(){const t=sumSel(['au1','au2','au3']);const s=segVal('aus');const c=s==='M'?4:3;
+  out(t>=c?'bad':'ok',t,'/ 12',t>=c?'Consumo de risco':'Abaixo do corte',`Corte: ≥ ${c} para ${s==='M'?'homens':'mulheres'}.`)},
+ how:()=>`<p>3 primeiras perguntas do AUDIT. Corte ≥ 4 em homens e ≥ 3 em mulheres. Rastreio, não diagnóstico.</p><p>1 dose ≈ 14 g de álcool (1 lata de cerveja, 1 taça de vinho, 1 dose de destilado).</p>`},
+
+{id:'brugada',cat:'Cardiologia',name:'Critérios de Brugada',sub:'Taquicardia de QRS largo: TV ou TSV',
+ src:'Brugada et al., Circulation 1991',
+ form:()=>`<p class="note">Siga a ordem. Basta 1 critério para TV.</p><fieldset><legend>Presente no ECG</legend>${[['bg1','Nenhuma derivação precordial com complexo RS'],['bg2','Intervalo RS &gt; 100 ms em alguma precordial'],['bg3','Dissociação atrioventricular'],['bg4','Morfologia de TV em V1-V2 e V6']].map(([i,l],n)=>`<label class="opt"><input type="checkbox" id="${i}"><b>${n+1}</b><span>${l}</span></label>`).join('')}</fieldset>`,
+ calc(){const f=['bg1','bg2','bg3','bg4'].findIndex(i=>$(i).checked);
+  if(f<0)return out('warn','','','TSV com aberrância','Nenhum critério de TV presente.');
+  out('bad','','','Taquicardia ventricular',`Critério ${f+1} positivo. Os seguintes não precisam ser avaliados.`)},
+ how:()=>`${table(['Passo','Critério','Se sim'],[['1','Ausência de RS em todas as precordiais','TV'],['2','RS &gt; 100 ms (início do R ao nadir do S) em alguma precordial','TV'],['3','Dissociação AV','TV'],['4','Morfologia de TV em V1-V2 e V6','TV']])}<p>Nenhum positivo: TSV com condução aberrante. Na série original: sensibilidade 98,7% e especificidade 96,5%.</p>`},
+
+{id:'mascc',cat:'Infectologia',name:'MASCC',sub:'Neutropenia febril de baixo risco',
+ src:'Klastersky et al., J Clin Oncol 2000',
+ form:()=>`<div class="stack">
+  ${sel('ma1','Carga de sintomas',[['5','Nenhum ou leves'],['3','Moderados'],['0','Graves']])}
+  ${sel('ma2','Hipotensão (PAS &lt; 90)',[['5','Não'],['0','Sim']])}
+  ${sel('ma3','DPOC ativa',[['4','Não'],['0','Sim']])}
+  ${sel('ma4','Tipo de câncer',[['4','Tumor sólido ou hematológico sem infecção fúngica prévia'],['0','Hematológico com infecção fúngica prévia']])}
+  ${sel('ma5','Desidratação com necessidade de soro',[['3','Não'],['0','Sim']])}
+  ${sel('ma6','Local no início da febre',[['3','Ambulatorial'],['0','Internado']])}
+  ${sel('ma7','Idade',[['2','&lt; 60 anos'],['0','≥ 60 anos']])}</div>`,
+ calc(){const t=sumSel(['ma1','ma2','ma3','ma4','ma5','ma6','ma7']);
+  out(t>=21?'ok':'bad',t,'/ 26',t>=21?'Baixo risco':'Alto risco',t>=21?'Baixo risco de complicações graves.':'Alto risco de complicações graves.')},
+ how:()=>`<p>≥ 21 pontos: baixo risco de complicações graves. &lt; 21: alto risco.</p>`},
+
+{id:'idcor',cat:'Pediatria',name:'Idade corrigida',sub:'Prematuros',
+ src:'Cálculo padrão: idade cronológica menos as semanas que faltaram para 40',
+ form:()=>`<div class="form">${field('icg','IG ao nascer: semanas','')}${field('icd','IG ao nascer: dias','')}${field('icw','Idade cronológica: semanas','')}</div>`,
+ calc(){const g=num('icg'),d=num('icd')||0,c=num('icw');if(isNaN(g)||isNaN(c))return out('acc','','','','Informe IG ao nascer e idade cronológica.');
+  const ig=g+d/7;if(ig>=37)return out('ok','','','A termo','Nasceu com ≥ 37 semanas. Não precisa corrigir.');
+  const falta=40-ig,cor=c-falta;
+  if(cor<0)return out('acc',fmt(ig+c,1),'semanas','Idade pós-menstrual',`Ainda não chegou a 40 semanas. Faltam ${fmt(-cor,1)} semanas.`);
+  out('acc',fmt(cor,1),'semanas','Idade corrigida',`≈ ${fmt(cor/4.345,1)} meses`,[['Semanas descontadas',fmt(falta,1)]])},
+ how:()=>`<p><code>Idade corrigida = idade cronológica − (40 − IG ao nascer)</code></p><p>Usar para avaliar crescimento e desenvolvimento, em geral até 2 anos. Vacinas seguem a idade cronológica.</p>`},
+
+{id:'cfs',cat:'Geriatria',name:'Fragilidade clínica (CFS)',sub:'Clinical Frailty Scale 2.0',
+ src:'Rockwood et al., CMAJ 2005, versão 2.0 (2020)',
+ form:()=>radios('cf','Estado nas últimas 2 semanas',[['1','Muito em forma. Ativo, faz exercício regular','1'],['2','Em forma. Sem doença ativa, menos ativo que o nível 1','2'],['3','Bem controlado. Problemas de saúde controlados, sem atividade regular além de caminhar','3'],['4','Fragilidade muito leve. Independente, mas sintomas limitam atividades','4'],['5','Fragilidade leve. Precisa de ajuda em atividades instrumentais (finanças, transporte, casa)','5'],['6','Fragilidade moderada. Precisa de ajuda em todas as atividades externas e em parte das de casa e do banho','6'],['7','Fragilidade grave. Totalmente dependente para cuidados pessoais, mas estável','7'],['8','Fragilidade muito grave. Totalmente dependente, perto do fim da vida','8'],['9','Doente terminal. Expectativa de vida &lt; 6 meses, sem outra fragilidade evidente']]),
+ calc(){const v=+document.querySelector('input[name="cf"]:checked').value;
+  out(v<=3?'ok':v<=4?'warn':'bad',v,'/ 9',v<=3?'Não frágil':v===4?'Fragilidade muito leve':'Frágil','Avaliar como estava 2 semanas antes da doença aguda.')},
+ how:()=>`<p>≥ 5: frágil. Não validada em &lt; 65 anos nem em incapacidade estável (por exemplo, paralisia cerebral).</p>`},
+
+/* ---------- LOTE 11 ---------- */
+{id:'tkcole',cat:'Gastroenterologia',name:'Tokyo: colecistite aguda',sub:'Diagnóstico e gravidade (TG18)',
+ src:'Yokoe et al., Tokyo Guidelines 2018, J Hepatobiliary Pancreat Sci 2018',
+ form:()=>`<fieldset><legend>A. Sinais locais</legend>${chk0('tc1','Murphy positivo')}${chk0('tc2','Massa, dor ou defesa em hipocôndrio direito')}</fieldset>
+  <fieldset><legend>B. Sinais sistêmicos</legend>${chk0('tc3','Febre')}${chk0('tc4','PCR elevada')}${chk0('tc5','Leucocitose')}</fieldset>
+  <fieldset><legend>C. Imagem</legend>${chk0('tc6','Achado de imagem compatível com colecistite')}</fieldset>
+  <fieldset><legend>Grau II (moderado)</legend>${chk0('tc7','Leucócitos &gt; 18.000/mm³')}${chk0('tc8','Massa palpável em hipocôndrio direito')}${chk0('tc9','Sintomas há mais de 72 h')}${chk0('tc10','Inflamação local importante (gangrena, abscesso, enfisema, peritonite biliar)')}</fieldset>
+  <fieldset><legend>Grau III (grave): disfunção orgânica</legend>${chk0('tc11','Hipotensão com dopamina ≥ 5 µg/kg/min ou noradrenalina')}${chk0('tc12','Alteração do nível de consciência')}${chk0('tc13','P/F &lt; 300')}${chk0('tc14','Oligúria ou creatinina &gt; 2,0 mg/dL')}${chk0('tc15','INR &gt; 1,5')}${chk0('tc16','Plaquetas &lt; 100.000/mm³')}</fieldset>`,
+ calc(){const c=i=>$(i).checked,A=c('tc1')||c('tc2'),B=c('tc3')||c('tc4')||c('tc5'),C=c('tc6');
+  const dx=A&&B&&C?'Diagnóstico definitivo':A&&B?'Suspeita diagnóstica':'Critérios diagnósticos não preenchidos';
+  const g3=['tc11','tc12','tc13','tc14','tc15','tc16'].some(c),g2=['tc7','tc8','tc9','tc10'].some(c);
+  const g=g3?['Grau III (grave)','bad']:g2?['Grau II (moderado)','warn']:['Grau I (leve)','ok'];
+  out(A&&B?g[1]:'acc','','',dx,A&&B?g[0]+'.':'Suspeita exige 1 item de A + 1 de B. Definitivo exige também C.')},
+ how:()=>`<p><b>Suspeita:</b> 1 item de A + 1 item de B. <b>Definitivo:</b> A + B + C.</p><p><b>Grau III:</b> qualquer disfunção orgânica. <b>Grau II:</b> qualquer critério de grau II, sem disfunção. <b>Grau I:</b> nenhum dos anteriores.</p>`},
+
+{id:'tkcolang',cat:'Gastroenterologia',name:'Tokyo: colangite aguda',sub:'Diagnóstico e gravidade (TG18)',
+ src:'Kiriyama et al., Tokyo Guidelines 2018, J Hepatobiliary Pancreat Sci 2018',
+ form:()=>`<fieldset><legend>A. Inflamação sistêmica</legend>${chk0('tg1','Febre &gt; 38 °C ou calafrios')}${chk0('tg2','Leucócitos &lt; 4.000 ou &gt; 10.000/µL, ou PCR ≥ 1 mg/dL')}</fieldset>
+  <fieldset><legend>B. Colestase</legend>${chk0('tg3','Icterícia (bilirrubina total ≥ 2 mg/dL)')}${chk0('tg4','FA, GGT, AST ou ALT &gt; 1,5× o limite superior')}</fieldset>
+  <fieldset><legend>C. Imagem</legend>${chk0('tg5','Dilatação biliar')}${chk0('tg6','Causa visível na imagem (cálculo, estenose, prótese)')}</fieldset>
+  <fieldset><legend>Grau II (moderado): 2 ou mais</legend>${chk0('tg7','Leucócitos &gt; 12.000 ou &lt; 4.000/µL')}${chk0('tg8','Febre ≥ 39 °C')}${chk0('tg9','Idade ≥ 75 anos')}${chk0('tg10','Bilirrubina total ≥ 5 mg/dL')}${chk0('tg11','Albumina &lt; 0,7× o limite inferior')}</fieldset>
+  <fieldset><legend>Grau III (grave): disfunção orgânica</legend>${chk0('tg12','Hipotensão com dopamina ≥ 5 µg/kg/min ou noradrenalina')}${chk0('tg13','Alteração do nível de consciência')}${chk0('tg14','P/F &lt; 300')}${chk0('tg15','Oligúria ou creatinina &gt; 2,0 mg/dL')}${chk0('tg16','INR &gt; 1,5')}${chk0('tg17','Plaquetas &lt; 100.000/mm³')}</fieldset>`,
+ calc(){const c=i=>$(i).checked,A=c('tg1')||c('tg2'),B=c('tg3')||c('tg4'),C=c('tg5')||c('tg6');
+  const dx=A&&B&&C?'Diagnóstico definitivo':A&&(B||C)?'Suspeita diagnóstica':'Critérios diagnósticos não preenchidos';
+  const g3=['tg12','tg13','tg14','tg15','tg16','tg17'].some(c),n2=['tg7','tg8','tg9','tg10','tg11'].filter(c).length;
+  const g=g3?['Grau III (grave)','bad']:n2>=2?['Grau II (moderado)','warn']:['Grau I (leve)','ok'];
+  out(A&&(B||C)?g[1]:'acc','','',dx,A&&(B||C)?g[0]+'.':'Suspeita exige 1 item de A + 1 de B ou C. Definitivo exige A + B + C.')},
+ how:()=>`<p><b>Suspeita:</b> 1 item de A + 1 item de B ou C. <b>Definitivo:</b> A + B + C.</p><p><b>Grau III:</b> qualquer disfunção orgânica. <b>Grau II:</b> 2 ou mais critérios de grau II, sem disfunção. <b>Grau I:</b> nenhum dos anteriores.</p>`},
+
+{id:'pf',cat:'Terapia intensiva',name:'Relação P/F e S/F',sub:'Oxigenação e SDRA (Berlim)',
+ src:'ARDS Definition Task Force, JAMA 2012 (Berlim), Matthay et al., AJRCCM 2024 (definição global)',
+ form:()=>`<div class="form">${field('pfp','PaO₂ (mmHg)','')}${field('pff','FiO₂ (%)','')}${field('pfs','SpO₂ (%), opcional','')}${field('pfe','PEEP (cmH₂O), opcional','')}</div>`,
+ calc(){const pa=num('pfp'),fi=num('pff'),sp=num('pfs'),pe=num('pfe');if(!(fi>0))return out('acc','','','','Informe a FiO₂.');
+  const f=fi/100,rows=[];
+  if(!(pa>0)&&!(sp>0))return out('acc','','','','Informe PaO₂ ou SpO₂.');
+  if(sp>0){rows.push(['S/F',sp<=97?fmt(sp/f,0):'SpO₂ &gt; 97%: não usar']);}
+  if(!(pa>0))return out('acc',sp<=97?fmt(sp/f,0):'','','S/F',sp<=97?(sp/f<=315?'S/F ≤ 315: critério de oxigenação da definição global de SDRA.':'S/F &gt; 315.'):'S/F só é válida com SpO₂ ≤ 97%.');
+  const r=pa/f,peep=isNaN(pe)?'':pe>=5?'':' PEEP &lt; 5: classificação de Berlim não se aplica.';
+  const g=r>300?['Acima de 300','ok','Fora da faixa de SDRA de Berlim.']:r>200?['SDRA leve (Berlim)','warn','200 &lt; P/F ≤ 300.']:r>100?['SDRA moderada (Berlim)','bad','100 &lt; P/F ≤ 200.']:['SDRA grave (Berlim)','bad','P/F ≤ 100.'];
+  out(g[1],fmt(r,0),'mmHg','P/F: '+g[0],g[2]+peep+' Exige também opacidades bilaterais e causa não cardiogênica.',rows.length?rows:undefined)},
+ how:()=>`<p><code>P/F = PaO₂ ÷ FiO₂</code> (FiO₂ em fração: 40% = 0,40)</p>${table(['Berlim (PEEP ≥ 5)','P/F'],[['Leve','201 a 300'],['Moderada','101 a 200'],['Grave','≤ 100']])}<p><b>Definição global 2024:</b> aceita S/F ≤ 315 com SpO₂ ≤ 97%.</p>`},
+
+{id:'bps',cat:'Terapia intensiva',name:'Escala BPS',sub:'Dor no paciente em ventilação mecânica',
+ src:'Payen et al., Crit Care Med 2001, versão brasileira Azevedo-Santos et al., Braz J Anesthesiol 2017',
+ form:()=>`<div class="stack">
+  ${sel('bp1','Expressão facial',[['1','Relaxada'],['2','Parcialmente contraída (sobrancelhas)'],['3','Totalmente contraída (pálpebras fechadas)'],['4','Careta']])}
+  ${sel('bp2','Membros superiores',[['1','Sem movimento'],['2','Parcialmente fletidos'],['3','Totalmente fletidos, com flexão dos dedos'],['4','Retraídos permanentemente']])}
+  ${sel('bp3','Adaptação ao ventilador',[['1','Tolera movimentos'],['2','Tosse, mas tolera a maior parte do tempo'],['3','Briga com o ventilador'],['4','Impossível controlar a ventilação']])}</div>`,
+ calc(){const t=sumSel(['bp1','bp2','bp3']);out(t>5?'bad':'ok',t,'/ 12',t>5?'Dor presente':'Sem dor relevante','BPS &gt; 5 indica dor.')},
+ how:()=>`<p>3 itens de 1 a 4. Total de 3 (sem dor) a 12 (dor máxima). <b>&gt; 5:</b> dor.</p>`},
+
+{id:'wfns',cat:'Neurologia',name:'WFNS',sub:'Hemorragia subaracnóidea',
+ src:'Teasdale et al., J Neurol Neurosurg Psychiatry 1988 (World Federation of Neurosurgical Societies)',
+ form:()=>`<div class="stack">${sel('wf1','Glasgow',[['15','15'],['13','13 a 14'],['7','7 a 12'],['3','3 a 6']])}${sel('wf2','Déficit motor',[['0','Ausente'],['1','Presente']])}</div>`,
+ calc(){const g=+$('wf1').value,d=+$('wf2').value;
+  const r=g===15?(d?null:'I'):g===13?(d?'III':'II'):g===7?'IV':'V';
+  if(!r)return out('acc','','','Não classificável','Glasgow 15 com déficit motor não tem grau definido na escala.');
+  out(r==='I'||r==='II'?'ok':r==='III'?'warn':'bad',r,'','WFNS '+r,'')},
+ how:()=>`${table(['Grau','Glasgow','Déficit motor'],[['I','15','Ausente'],['II','13 a 14','Ausente'],['III','13 a 14','Presente'],['IV','7 a 12','Ausente ou presente'],['V','3 a 6','Ausente ou presente']])}`},
+
+{id:'fisher',cat:'Neurologia',name:'Fisher modificada',sub:'HSA: risco de vasoespasmo pela TC',
+ src:'Frontera et al., Neurosurgery 2006',
+ form:()=>radios('fm','Achado na TC',[['0','Sem sangue subaracnóideo nem intraventricular','0'],['1','Sangue fino, sem hemorragia intraventricular','1'],['2','Sangue fino, com hemorragia intraventricular','2'],['3','Sangue espesso, sem hemorragia intraventricular','3'],['4','Sangue espesso, com hemorragia intraventricular','4']]),
+ calc(){const v=+document.querySelector('input[name="fm"]:checked').value;
+  out(v<=1?'ok':v<=3?'warn':'bad',v,'/ 4','Grau '+v,`Vasoespasmo sintomático no estudo original: ${['0%','24%','33%','33%','40%'][v]}.`)},
+ how:()=>`<p>Sangue espesso: &gt; 1 mm de espessura em cisterna ou fissura.</p>${table(['Grau','Vasoespasmo sintomático'],[['0','0%'],['1','24%'],['2','33%'],['3','33%'],['4','40%']])}`},
+
+{id:'phoenix',cat:'Pediatria',name:'Phoenix',sub:'Sepse e choque séptico pediátricos',
+ src:'Schlapbach et al., JAMA 2024 (Phoenix Sepsis Criteria, SCCM)',
+ form:()=>`<div class="stack">${sel('px0','Idade',[['_0','&lt; 1 mês'],['_1','1 a 11 meses'],['_2','1 ano'],['_3','2 a 4 anos'],['_4','5 a 11 anos'],['_5','12 a 17 anos']])}</div>
+  <p class="sec">Respiratório</p><div class="stack">${sel('px1','Suporte',[['_0','Nenhum'],['_1','Suporte sem ventilação invasiva'],['_2','Ventilação mecânica invasiva']])}</div>
+  <div class="form">${field('pxp','PaO₂ (mmHg)','')}${field('pxs','SpO₂ (%), se sem gasometria','')}${field('pxf','FiO₂ (%)','')}</div>
+  <p class="sec">Cardiovascular</p><div class="stack">${sel('px2','Drogas vasoativas',[['0','Nenhuma'],['1','1 droga'],['2','2 ou mais']])}</div>
+  <div class="form">${field('pxl','Lactato (mmol/L)','')}${field('pxm','PAM (mmHg)','')}</div>
+  <fieldset><legend>Coagulação</legend>${chk0('pxc1','Plaquetas &lt; 100.000/µL')}${chk0('pxc2','INR &gt; 1,3')}${chk0('pxc3','D-dímero &gt; 2 mg/L FEU')}${chk0('pxc4','Fibrinogênio &lt; 100 mg/dL')}</fieldset>
+  <div class="stack">${sel('px3','Neurológico',[['0','Glasgow ≥ 11'],['1','Glasgow ≤ 10'],['2','Pupilas fixas bilaterais']])}</div>
+  <fieldset><legend>Infecção</legend>${chk0('pxi','Infecção suspeita ou confirmada')}</fieldset>`,
+ calc(){const ag=+$('px0').value.slice(1),sup=+$('px1').value.slice(1),pa=num('pxp'),sp=num('pxs'),fi=num('pxf'),lac=num('pxl'),map=num('pxm');
+  let r=0;const f=fi/100;
+  if(sup>0&&f>0){const pf=pa>0?pa/f:NaN,sf=!(pa>0)&&sp>0&&sp<=97?sp/f:NaN;
+   const lv=!isNaN(pf)?(pf<100?3:pf<200?2:pf<400?1:0):!isNaN(sf)?(sf<148?3:sf<220?2:sf<292?1:0):0;
+   r=sup===2?lv:Math.min(lv,1)}
+  const cut=[[31,17],[39,25],[44,31],[45,32],[49,36],[52,38]][ag];
+  const pm=isNaN(map)?0:map<cut[1]?2:map<cut[0]?1:0,pl=isNaN(lac)?0:lac>=11?2:lac>=5?1:0;
+  const cv=+$('px2').value+pl+pm,co=Math.min(2,['pxc1','pxc2','pxc3','pxc4'].filter(i=>$(i).checked).length),ne=+$('px3').value;
+  const t=r+cv+co+ne,inf=$('pxi').checked;
+  const g=inf&&t>=2?(cv>=1?['Choque séptico','bad']:['Sepse','bad']):inf?['Não preenche sepse','ok']:['Sem infecção marcada','acc'];
+  out(g[1],t,'pontos',g[0],inf?'Sepse: infecção + escore ≥ 2. Choque séptico: sepse + cardiovascular ≥ 1.':'Os critérios exigem infecção suspeita ou confirmada.',[['Respiratório',r],['Cardiovascular',cv],['Coagulação',co],['Neurológico',ne]])},
+ how:()=>`<p><b>Respiratório (0 a 3):</b> P/F &lt; 400 ou S/F &lt; 292 com qualquer suporte = 1. Com ventilação invasiva: P/F &lt; 200 ou S/F &lt; 220 = 2. P/F &lt; 100 ou S/F &lt; 148 = 3. S/F só com SpO₂ ≤ 97%.</p>
+  <p><b>Cardiovascular (0 a 6):</b> 1 droga vasoativa = 1, ≥ 2 = 2. Lactato 5 a 10,9 = 1, ≥ 11 = 2. PAM por idade:</p>
+  ${table(['Idade','1 ponto','2 pontos'],[['&lt; 1 mês','17 a 30','&lt; 17'],['1 a 11 meses','25 a 38','&lt; 25'],['1 ano','31 a 43','&lt; 31'],['2 a 4 anos','32 a 44','&lt; 32'],['5 a 11 anos','36 a 48','&lt; 36'],['12 a 17 anos','38 a 51','&lt; 38']])}
+  <p><b>Coagulação (0 a 2):</b> 1 ponto por item, máximo 2. <b>Neurológico (0 a 2):</b> Glasgow ≤ 10 = 1, pupilas fixas bilaterais = 2.</p><p>Usar o pior valor das primeiras 24 h. Dado ausente vale 0.</p>`},
+
+/* ---------- LOTE 12: OBSTETRÍCIA E GINECOLOGIA ---------- */
+{id:'pbf',cat:'Obstetrícia',name:'Perfil biofísico fetal',sub:'Manning',
+ src:'Manning et al., Am J Obstet Gynecol 1980',
+ form:()=>`<div class="stack">
+  ${sel('pb1','Movimentos respiratórios',[['2','≥ 1 episódio ≥ 30 s em 30 min'],['0','Ausentes ou insuficientes']])}
+  ${sel('pb2','Movimentos corporais',[['2','≥ 3 movimentos em 30 min'],['0','&lt; 3 movimentos']])}
+  ${sel('pb3','Tônus',[['2','≥ 1 episódio de extensão e flexão'],['0','Ausente']])}
+  ${sel('pb4','Líquido amniótico',[['2','Maior bolsão ≥ 2 cm'],['0','Maior bolsão &lt; 2 cm']])}
+  ${sel('pb5','Cardiotocografia',[['2','Reativa'],['0','Não reativa'],['_n','Não realizada']])}</div>`,
+ calc(){const v=['pb1','pb2','pb3','pb4','pb5'].map(i=>$(i).value),ctg=v[4]!=='_n';const t=v.reduce((a,x)=>a+(x[0]==='_'?0:+x),0),max=ctg?10:8;
+  const g=ctg?(t>=8?['Normal','ok']:t===6?['Duvidoso','warn']:['Alterado','bad']):(t===8?['Normal','ok']:t===6?['Duvidoso','warn']:['Alterado','bad']);
+  out(g[1],t,'/ '+max,g[0],ctg?'':'Sem cardiotocografia: escore sobre 8.')},
+ how:()=>`<p>5 parâmetros, 2 ou 0 pontos cada, em até 30 min de observação.</p>${table(['Pontos (de 10)','Interpretação'],[['8 a 10','Normal'],['6','Duvidoso'],['≤ 4','Alterado']])}<p>Líquido reduzido tem peso próprio, mesmo com escore total normal.</p>`},
+
+{id:'ila',cat:'Obstetrícia',name:'Líquido amniótico (ILA)',sub:'ILA e maior bolsão vertical',
+ src:'Phelan et al. 1987, FEBRASGO (oligoidrâmnio), SMFM 2018 (polidrâmnio)',
+ form:()=>`<div class="form">${field('il1','Quadrante 1 (cm)','')}${field('il2','Quadrante 2 (cm)','')}${field('il3','Quadrante 3 (cm)','')}${field('il4','Quadrante 4 (cm)','')}${field('ilb','Maior bolsão vertical (cm), opcional','')}</div>`,
+ calc(){const q=['il1','il2','il3','il4'].map(num),b=num('ilb');
+  if(q.some(isNaN)&&isNaN(b))return out('acc','','','','Informe os 4 quadrantes ou o maior bolsão.');
+  const rows=[];if(!isNaN(b))rows.push(['Maior bolsão',fmt(b,1)+' cm: '+(b<2?'oligoidrâmnio':b>=8?'polidrâmnio':'normal')]);
+  if(q.some(isNaN))return out(b<2||b>=8?'bad':'ok',fmt(b,1),'cm','Maior bolsão vertical',b<2?'Oligoidrâmnio.':b>=8?'Polidrâmnio.':'Normal.');
+  const t=q.reduce((a,x)=>a+x,0);const g=t<=5?['Oligoidrâmnio','bad']:t>=24?['Polidrâmnio','bad']:['Normal','ok'];
+  out(g[1],fmt(t,1),'cm','ILA: '+g[0],'',rows.length?rows:undefined)},
+ how:()=>`<p><code>ILA = soma do maior bolsão vertical de cada um dos 4 quadrantes</code></p>${table(['Medida','Oligoidrâmnio','Polidrâmnio'],[['ILA','≤ 5 cm','≥ 24 cm'],['Maior bolsão','&lt; 2 cm','≥ 8 cm']])}<p>Oligoidrâmnio: FEBRASGO. Polidrâmnio: SMFM 2018. Algumas fontes usam ILA ≥ 25 cm.</p>`},
+
+{id:'gpg',cat:'Obstetrícia',name:'Ganho de peso gestacional',sub:'Meta total pelo IMC pré-gestacional',
+ src:'Kac et al., PLoS One 2021, Ministério da Saúde (Caderneta da Gestante), FEBRASGO 2023',
+ form:()=>`<div class="form">${field('gwp','Peso pré-gestacional (kg)','')}${field('gwh','Altura (cm)','')}${field('gwa','Peso atual (kg), opcional','')}</div>`,
+ calc(){const w=num('gwp'),h=num('gwh')/100,a=num('gwa');if(!(w>0&&h>0))return out('acc','','','','Informe peso pré-gestacional e altura.');
+  const b=w/(h*h);const c=b<18.5?['Baixo peso','9,7 a 12,2']:b<25?['Eutrofia','8,0 a 12,0']:b<30?['Sobrepeso','7,0 a 9,0']:['Obesidade','5,0 a 7,2'];
+  const rows=[['IMC pré-gestacional',fmt(b,1)+' kg/m²']];if(a>0)rows.push(['Ganho até agora',fmt(a-w,1)+' kg']);
+  out('acc',c[1],'kg',c[0],'Ganho total recomendado até 40 semanas.',rows)},
+ how:()=>`${table(['IMC pré-gestacional','Categoria','Ganho total (kg)'],[['&lt; 18,5','Baixo peso','9,7 a 12,2'],['18,5 a 24,9','Eutrofia','8,0 a 12,0'],['25 a 29,9','Sobrepeso','7,0 a 9,0'],['≥ 30','Obesidade','5,0 a 7,2']])}<p>Curvas brasileiras de ganho de peso (Kac 2021), adotadas pelo Ministério da Saúde. Gestação única, adulta.</p>`},
+
+{id:'hadlock',cat:'Obstetrícia',name:'Peso fetal estimado',sub:'Hadlock (DBP, CC, CA, CF)',
+ src:'Hadlock et al., Am J Obstet Gynecol 1985 (fórmula com 4 medidas)',
+ form:()=>`<div class="form">${field('hdb','DBP (mm)','')}${field('hdc','Circ. cefálica (mm)','')}${field('hda','Circ. abdominal (mm)','')}${field('hdf','Fêmur (mm)','')}</div>`,
+ calc(){const[b,c,a,f]=['hdb','hdc','hda','hdf'].map(i=>num(i)/10);if([b,c,a,f].some(x=>!(x>0)))return out('acc','','','','Preencha as 4 medidas.');
+  const l=1.3596-0.00386*a*f+0.0064*c+0.00061*b*a+0.0424*a+0.174*f;const p=10**l;
+  out('acc',fmt(p,0),'g','Peso fetal estimado','Estimativa ultrassonográfica, com margem de erro.')},
+ how:()=>`<p><code>log₁₀ PFE = 1,3596 − 0,00386 × CA × CF + 0,0064 × CC + 0,00061 × DBP × CA + 0,0424 × CA + 0,174 × CF</code></p><p>Medidas em cm na fórmula. Percentil depende da curva usada pelo serviço.</p>`},
+
+{id:'amsel',cat:'Ginecologia',name:'Critérios de Amsel',sub:'Vaginose bacteriana',
+ src:'Amsel et al., Am J Med 1983',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('am1','Corrimento branco-acinzentado, fino e homogêneo')}${chk('am2','pH vaginal &gt; 4,5')}${chk('am3','Teste das aminas (KOH 10%) positivo')}${chk('am4','Células-guia (clue cells) &gt; 20% na microscopia')}</fieldset>`,
+ calc(){const t=pts(['am1','am2','am3','am4']);out(t>=3?'bad':'ok',t,'/ 4',t>=3?'Vaginose bacteriana':'Critérios insuficientes','Diagnóstico com 3 ou mais dos 4 critérios.')},
+ how:()=>`<p>3 de 4 critérios confirmam vaginose bacteriana.</p>`},
+
+{id:'rotterdam',cat:'Ginecologia',name:'Critérios de Rotterdam',sub:'Síndrome dos ovários policísticos',
+ src:'Rotterdam ESHRE/ASRM 2003, diretriz internacional de SOP 2023',
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('ro1','Oligo ou anovulação')}${chk('ro2','Hiperandrogenismo clínico ou laboratorial')}${chk('ro3','Ovários policísticos na USG ou AMH elevado (adulta)')}</fieldset><fieldset><legend>Obrigatório</legend>${chk0('ro4','Outras causas excluídas (tireoide, prolactina, HAC não clássica, entre outras)')}</fieldset>`,
+ calc(){const t=pts(['ro1','ro2','ro3']),ex=$('ro4').checked;
+  out(t>=2&&ex?'bad':t>=2?'warn':'ok',t,'/ 3',t>=2&&ex?'Critérios de SOP preenchidos':t>=2?'Excluir outras causas':'Critérios insuficientes','SOP exige 2 de 3 critérios e exclusão de outras causas.')},
+ how:()=>`<p>2 de 3 critérios, após excluir outras causas. <b>Diretriz 2023:</b> em adolescentes, USG e AMH não entram. Exige oligo-ovulação + hiperandrogenismo.</p>`},
+
+{id:'ferriman',cat:'Ginecologia',name:'Ferriman-Gallwey',sub:'Hirsutismo (versão modificada)',
+ src:'Ferriman & Gallwey 1961, modificada por Hatch et al. 1981',
+ form:()=>{const o=[['0','Ausente'],['1','Leve'],['2','Moderado'],['3','Acentuado'],['4','Intenso']];
+  const R=['Lábio superior','Queixo','Tórax','Abdome superior','Abdome inferior','Braços','Coxas','Dorso superior','Dorso inferior'];
+  return `<div class="stack">${R.map((r,i)=>sel('fg'+(i+10),r,o)).join('')}</div>`},
+ calc(){const t=sumSel(Array.from({length:9},(_,i)=>'fg'+(i+10)));out(t>=8?'bad':'ok',t,'/ 36',t>=8?'Hirsutismo':'Abaixo do corte','Corte clássico ≥ 8. O corte varia com a etnia.')},
+ how:()=>`<p>9 áreas, 0 a 4 pontos cada. <b>≥ 8:</b> hirsutismo pelo corte clássico.</p><p>Algumas populações usam cortes menores (4 a 6). Avaliar antes de depilação recente.</p>`},
+
+/* ---------- LOTE 13 ---------- */
+{id:'ramsay',cat:'Terapia intensiva',name:'Ramsay',sub:'Nível de sedação',
+ src:'Ramsay et al., BMJ 1974',
+ form:()=>radios('rm','Nível',[['1','Ansioso, agitado ou inquieto','1'],['2','Cooperativo, orientado e tranquilo','2'],['3','Responde só a comandos','3'],['4','Dorme, resposta rápida a toque na glabela ou som alto','4'],['5','Dorme, resposta lenta a toque na glabela ou som alto','5'],['6','Sem resposta','6']]),
+ calc(){const v=+document.querySelector('input[name="rm"]:checked').value;out(v===1||v>=5?'warn':'ok',v,'/ 6','Ramsay '+v,['','Agitação','Sedação leve','Sedação leve','Sedação moderada','Sedação profunda','Sedação profunda'][v]+'.')},
+ how:()=>`<p>1: acordado e agitado. 2 a 3: acordado. 4 a 6: dormindo, com resposta decrescente.</p>`},
+
+{id:'eva',cat:'Enfermagem',name:'Escala visual analógica (dor)',sub:'Intensidade da dor de 0 a 10',
+ src:'Escala numérica e visual analógica de dor, uso padrão',
+ form:()=>`<div class="stack">${sel('ev','Nota da dor',Array.from({length:11},(_,i)=>[String(i),String(i)]).map(([v,l])=>['_'+v,l]))}</div>`,
+ calc(){const v=+$('ev').value.slice(1);const g=v===0?['Sem dor','ok']:v<=3?['Dor leve','ok']:v<=6?['Dor moderada','warn']:['Dor intensa','bad'];out(g[1],v,'/ 10',g[0],'')},
+ how:()=>`${table(['Nota','Intensidade'],[['0','Sem dor'],['1 a 3','Leve'],['4 a 6','Moderada'],['7 a 10','Intensa']])}`},
+
+{id:'borg',cat:'Pneumologia',name:'Borg modificada (CR-10)',sub:'Dispneia ou esforço percebido',
+ src:'Borg, Med Sci Sports Exerc 1982',
+ form:()=>radios('bg','Sensação',[['0','Nenhuma','0'],['0.5','Muito, muito leve','0,5'],['1','Muito leve','1'],['2','Leve','2'],['3','Moderada','3'],['4','Pouco intensa','4'],['5','Intensa','5'],['6','Entre intensa e muito intensa','6'],['7','Muito intensa','7'],['8','Entre muito intensa e máxima','8'],['9','Muito, muito intensa','9'],['10','Máxima','10']]),
+ calc(){const v=parseFloat(document.querySelector('input[name="bg"]:checked').value);out(v<=2?'ok':v<=4?'warn':'bad',String(v).replace('.',','),'/ 10','Borg '+String(v).replace('.',','),'')},
+ how:()=>`<p>Pergunta: "Quanta falta de ar (ou cansaço) você sente agora?". 0 = nenhuma, 10 = máxima.</p>`},
+
+{id:'flebite',cat:'Enfermagem',name:'Classificação da flebite',sub:'Escala da INS',
+ src:'Infusion Nurses Society, Infusion Therapy Standards of Practice',
+ form:()=>radios('fl','Achado no local',[['0','Sem sinais clínicos','0'],['1','Eritema no local, com ou sem dor','1'],['2','Dor no local com eritema e/ou edema','2'],['3','Dor, eritema, estria e cordão venoso palpável','3'],['4','Dor, eritema, estria, cordão venoso &gt; 2,5 cm e drenagem purulenta','4']]),
+ calc(){const v=+document.querySelector('input[name="fl"]:checked').value;out(v===0?'ok':v<=2?'warn':'bad',v,'/ 4',v===0?'Sem flebite':'Flebite grau '+v,'')},
+ how:()=>`${table(['Grau','Achado'],[['0','Sem sinais'],['1','Eritema, com ou sem dor'],['2','Dor + eritema e/ou edema'],['3','+ estria e cordão palpável'],['4','+ cordão &gt; 2,5 cm e drenagem purulenta']])}`},
+
+{id:'fugulin',cat:'Enfermagem',name:'Fugulin',sub:'Classificação de pacientes por grau de dependência',
+ src:'Fugulin et al., Rev Esc Enferm USP 2005 (revisão de 1994)',
+ form:()=>{const A=[['Estado mental',['Orientado no tempo e espaço','Períodos de desorientação','Períodos de inconsciência','Inconsciente']],['Oxigenação',['Não depende de oxigênio','Oxigênio intermitente','Oxigênio contínuo','Ventilação mecânica']],['Sinais vitais',['Controle de rotina','A cada 6 h','A cada 4 h','A cada 2 h ou menos']],['Motilidade',['Movimenta todos os segmentos','Limitação de movimentos','Dificuldade, mudança de decúbito com ajuda','Não movimenta, mudança de decúbito pela enfermagem']],['Deambulação',['Deambula','Precisa de ajuda','Locomoção em cadeira de rodas','Restrito ao leito']],['Alimentação',['Autossuficiente','Por boca com ajuda','Por sonda','Por cateter central']],['Cuidado corporal',['Autossuficiente','Ajuda no banho e/ou higiene oral','Banho de chuveiro e higiene oral pela enfermagem','Banho no leito e higiene oral pela enfermagem']],['Eliminação',['Autossuficiente','Uso do vaso com ajuda','Comadre ou eliminação no leito','Evacuação no leito e sonda vesical']],['Terapêutica',['IM ou VO','EV intermitente','EV contínua ou por sonda','Drogas vasoativas']],['Integridade cutâneo-mucosa',['Pele íntegra','Alteração de cor e/ou perda de epiderme ou derme','Perda até subcutâneo e músculo, incisão, ostomia, dreno','Perda total, até tendão e cápsula']],['Frequência de curativo',['Sem curativo ou limpeza no banho','1 vez ao dia','2 vezes ao dia','3 ou mais vezes ao dia']],['Tempo de curativo',['Sem curativo ou limpeza no banho','5 a 15 min','15 a 30 min','Mais de 30 min']]];
+  return `<div class="stack">${A.map((a,i)=>sel('fu'+i,a[0],a[1].map((d,k)=>[String(k+1),d]))).join('')}</div>`},
+ calc(){const t=sumSel(Array.from({length:12},(_,i)=>'fu'+i));const g=t<=17?['Cuidados mínimos','ok']:t<=22?['Cuidados intermediários','ok']:t<=28?['Alta dependência','warn']:t<=34?['Cuidados semi-intensivos','bad']:['Cuidados intensivos','bad'];out(g[1],t,'/ 48',g[0],'')},
+ how:()=>`${table(['Pontos','Categoria'],[['12 a 17','Mínimos'],['18 a 22','Intermediários'],['23 a 28','Alta dependência'],['29 a 34','Semi-intensivos'],['&gt; 34','Intensivos']])}`},
+
+{id:'charlson',cat:'Geriatria',name:'Índice de Charlson',sub:'Comorbidades e sobrevida em 10 anos',
+ src:'Charlson et al., J Chronic Dis 1987, ajuste por idade de Charlson et al., J Clin Epidemiol 1994',
+ form:()=>`<div class="stack">${sel('chA','Idade',[['0','&lt; 50 anos'],['1','50 a 59'],['2','60 a 69'],['3','70 a 79'],['4','≥ 80']])}${sel('chL','Doença hepática',[['0','Nenhuma'],['1','Leve (hepatite crônica, cirrose sem hipertensão portal)'],['3','Moderada a grave (com hipertensão portal)']])}${sel('chD','Diabetes',[['0','Não'],['1','Sem lesão de órgão-alvo'],['2','Com lesão de órgão-alvo']])}${sel('chT','Tumor sólido',[['0','Não'],['2','Localizado'],['6','Metastático']])}</div>
+  <fieldset><legend>Comorbidades</legend>${chkw('ch1','Infarto do miocárdio',1)}${chkw('ch2','Insuficiência cardíaca',1)}${chkw('ch3','Doença vascular periférica',1)}${chkw('ch4','AVC ou AIT',1)}${chkw('ch5','Demência',1)}${chkw('ch6','DPOC',1)}${chkw('ch7','Doença do tecido conjuntivo',1)}${chkw('ch8','Úlcera péptica',1)}${chkw('ch9','Hemiplegia',2)}${chkw('ch10','DRC moderada a grave',2)}${chkw('ch11','Leucemia',2)}${chkw('ch12','Linfoma',2)}${chkw('ch13','AIDS',6)}</fieldset>`,
+ calc(){const t=sumSel(['chA','chL','chD','chT'])+wsum(Array.from({length:13},(_,i)=>'ch'+(i+1)));const s=Math.pow(0.983,Math.exp(t*0.9))*100;
+  out(t<=2?'ok':t<=4?'warn':'bad',t,'pontos','Sobrevida estimada em 10 anos: '+fmt(s,0)+'%','')},
+ how:()=>`<p><code>Sobrevida em 10 anos = 0,983^(e^(0,9 × índice))</code></p><p>Idade: 1 ponto por década a partir de 50 anos.</p>`},
+
+{id:'mnasf',cat:'Geriatria',name:'Mini Avaliação Nutricional (MAN)',sub:'Versão reduzida (MNA-SF)',
+ src:'Rubenstein et al. 2001, Kaiser et al., J Nutr Health Aging 2009 (Nestlé Nutrition Institute)',
+ form:()=>`<div class="stack">
+  ${sel('mn1','A. Ingestão diminuiu nos últimos 3 meses?',[['0','Diminuição grave'],['1','Diminuição moderada'],['2','Sem diminuição']])}
+  ${sel('mn2','B. Perda de peso nos últimos 3 meses',[['0','&gt; 3 kg'],['1','Não sabe'],['2','1 a 3 kg'],['3','Sem perda']])}
+  ${sel('mn3','C. Mobilidade',[['0','Restrito ao leito ou cadeira'],['1','Sai da cama, mas não sai de casa'],['2','Sai de casa']])}
+  ${sel('mn4','D. Estresse psicológico ou doença aguda nos últimos 3 meses',[['0','Sim'],['2','Não']])}
+  ${sel('mn5','E. Problemas neuropsicológicos',[['0','Demência ou depressão grave'],['1','Demência leve'],['2','Nenhum']])}
+  ${sel('mn6','F. IMC (ou panturrilha, se sem IMC)',[['0','IMC &lt; 19'],['1','IMC 19 a &lt; 21'],['2','IMC 21 a &lt; 23'],['3','IMC ≥ 23'],['0p','Panturrilha &lt; 31 cm'],['3p','Panturrilha ≥ 31 cm']])}</div>`,
+ calc(){const t=['mn1','mn2','mn3','mn4','mn5','mn6'].reduce((a,i)=>a+parseInt($(i).value),0);const g=t>=12?['Estado nutricional normal','ok']:t>=8?['Risco de desnutrição','warn']:['Desnutrição','bad'];out(g[1],t,'/ 14',g[0],'')},
+ how:()=>`${table(['Pontos','Classificação'],[['12 a 14','Normal'],['8 a 11','Risco de desnutrição'],['0 a 7','Desnutrição']])}`},
+
+{id:'nrs',cat:'Enfermagem',name:'NRS 2002',sub:'Triagem de risco nutricional',
+ src:'Kondrup et al., Clin Nutr 2003 (ESPEN)',
+ form:()=>`<div class="stack">
+  ${sel('nr1','Estado nutricional',[['0','Normal'],['1','Leve: perda &gt; 5% em 3 meses ou ingestão de 50 a 75% na última semana'],['2','Moderado: perda &gt; 5% em 2 meses, IMC 18,5 a 20,5 + estado geral ruim, ou ingestão de 25 a 60%'],['3','Grave: perda &gt; 5% em 1 mês, IMC &lt; 18,5 + estado geral ruim, ou ingestão de 0 a 25%']])}
+  ${sel('nr2','Gravidade da doença',[['0','Ausente'],['1','Leve: fratura de quadril, doença crônica com complicação, hemodiálise, DM, câncer'],['2','Moderada: cirurgia abdominal de grande porte, AVC, pneumonia grave, neoplasia hematológica'],['3','Grave: TCE, transplante de medula, paciente de UTI (APACHE &gt; 10)']])}
+  ${sel('nr3','Idade',[['0','&lt; 70 anos'],['1','≥ 70 anos']])}</div>`,
+ calc(){const t=sumSel(['nr1','nr2','nr3']);out(t>=3?'bad':'ok',t,'/ 7',t>=3?'Risco nutricional':'Sem risco no momento',t>=3?'':'Repetir a triagem semanalmente durante a internação, como prevê a NRS 2002.')},
+ how:()=>`<p>Triagem inicial (se qualquer resposta for sim, faz a final): IMC &lt; 20,5; perda de peso em 3 meses; redução da ingestão na última semana; doença grave.</p><p><b>≥ 3:</b> risco nutricional.</p>`},
+
+{id:'cirsg',cat:'Geriatria',name:'CIRS-G',sub:'Doenças cumulativas em idosos',
+ src:'Miller et al., Psychiatry Res 1992 (Cumulative Illness Rating Scale for Geriatrics)',
+ form:()=>{const S=['Cardíaco','Vascular (inclui hipertensão)','Hematopoético','Respiratório','Olhos, ouvidos, nariz, garganta e laringe','Gastrointestinal superior','Gastrointestinal inferior','Hepático e pancreático','Renal','Geniturinário','Musculoesquelético e pele','Neurológico','Endócrino, metabólico e mamas','Psiquiátrico'];
+  const o=[['0','Nenhum problema'],['1','Leve ou passado'],['2','Moderado, precisa de tratamento'],['3','Grave ou incapacitante'],['4','Extremamente grave']];
+  return `<div class="stack">${S.map((x,i)=>sel('cg'+(i+20),x,o)).join('')}</div>`},
+ calc(){const v=Array.from({length:14},(_,i)=>+$('cg'+(i+20)).value);const t=v.reduce((a,b)=>a+b,0),n=v.filter(x=>x>0).length;
+  out(v.some(x=>x>=3)?'bad':t>0?'warn':'ok',t,'/ 56','Escore total',`${n} sistemas acometidos.`,[['Índice de gravidade',n?fmt(t/n,2):'0'],['Sistemas com grau 3',v.filter(x=>x===3).length],['Sistemas com grau 4',v.filter(x=>x===4).length]])},
+ how:()=>`<p>14 sistemas, 0 a 4 cada. Índice de gravidade = total ÷ número de sistemas acometidos.</p>`},
+
+{id:'carg',cat:'Geriatria',name:'Toxicidade de quimioterapia (Hurria)',sub:'Escore CARG em idosos',
+ src:'Hurria et al., J Clin Oncol 2011 (Cancer and Aging Research Group)',
+ form:()=>`<fieldset><legend>Fatores</legend>${chkw('cr1','Idade ≥ 72 anos',2)}${chkw('cr2','Câncer gastrointestinal ou geniturinário',2)}${chkw('cr3','Quimioterapia em dose padrão',2)}${chkw('cr4','Poliquimioterapia',2)}${chkw('cr5','Hb &lt; 11 (homem) ou &lt; 10 g/dL (mulher)',3)}${chkw('cr6','ClCr &lt; 34 mL/min (Jelliffe)',3)}${chkw('cr7','Audição regular ou pior',2)}${chkw('cr8','≥ 1 queda nos últimos 6 meses',3)}${chkw('cr9','Limitação para andar 1 quarteirão',2)}${chkw('cr10','Precisa de ajuda com medicações',1)}${chkw('cr11','Atividades sociais reduzidas pela saúde',1)}</fieldset>`,
+ calc(){const t=wsum(Array.from({length:11},(_,i)=>'cr'+(i+1)));const g=t<=5?['Baixo risco','ok','30%']:t<=9?['Risco intermediário','warn','52%']:['Alto risco','bad','83%'];out(g[1],t,'/ 23',g[0],`Toxicidade grau 3 a 5 no estudo original: ${g[2]}.`)},
+ how:()=>`${table(['Pontos','Risco','Toxicidade grau 3 a 5'],[['0 a 5','Baixo','30%'],['6 a 9','Intermediário','52%'],['10 a 23','Alto','83%']])}`},
+
+{id:'nyha',cat:'Cardiologia',name:'NYHA',sub:'Classe funcional na insuficiência cardíaca',
+ src:'New York Heart Association, Criteria Committee 1994',
+ form:()=>radios('ny','Sintomas',[['1','Sem limitação. Atividade habitual sem sintomas','I'],['2','Limitação leve. Sintomas com atividade habitual','II'],['3','Limitação acentuada. Sintomas com atividade menor que a habitual','III'],['4','Sintomas em repouso ou com qualquer atividade','IV']]),
+ calc(){const v=+document.querySelector('input[name="ny"]:checked').value;out(v===1?'ok':v===2?'warn':'bad',['','I','II','III','IV'][v],'','Classe '+['','I','II','III','IV'][v],'')},
+ how:()=>`<p>Classe funcional pelos sintomas (dispneia, fadiga, palpitação) em relação à atividade física.</p>`},
+
+{id:'lpp',cat:'Enfermagem',name:'Lesão por pressão',sub:'Classificação NPIAP',
+ src:'NPIAP 2016, consenso NPIAP/EPUAP/PPPIA 2019, SOBEST',
+ form:()=>radios('lp','Achado',[['1','Pele íntegra com eritema que não embranquece','1'],['2','Perda parcial da pele com exposição da derme','2'],['3','Perda total da pele, gordura visível, sem fáscia ou músculo','3'],['4','Perda total da pele e tecidos, com fáscia, músculo, tendão, ligamento, cartilagem ou osso','4'],['N','Perda total encoberta por esfacelo ou escara','NC'],['T','Descoloração vermelho-escura, marrom ou púrpura persistente (tissular profunda)','TP']]),
+ calc(){const v=document.querySelector('input[name="lp"]:checked').value;const N={1:'Estágio 1',2:'Estágio 2',3:'Estágio 3',4:'Estágio 4',N:'Não classificável',T:'Lesão tissular profunda'};out(v==='1'?'warn':'bad','','',N[v],'Lesões por dispositivo médico e de mucosa são registradas à parte.')},
+ how:()=>`<p>Estágios 1 a 4, não classificável e tissular profunda. Lesão de mucosa não se estadia.</p>`},
+
+{id:'gold',cat:'Pneumologia',name:'GOLD (DPOC)',sub:'Gravidade espirométrica e grupo ABE',
+ src:'GOLD 2025 (Global Initiative for Chronic Obstructive Lung Disease)',
+ form:()=>`<div class="form">${field('gdv','VEF₁ pós-BD (% do previsto)','')}</div><fieldset><legend>Confirmação</legend>${chk0('gdr','VEF₁/CVF pós-broncodilatador &lt; 0,70')}</fieldset>
+  <div class="stack">${sel('gde','Exacerbações no último ano',[['_0','0 ou 1 moderada, sem internação'],['_1','≥ 2 moderadas ou ≥ 1 com internação']])}${sel('gds','Sintomas',[['_0','mMRC 0 a 1 ou CAT &lt; 10'],['_1','mMRC ≥ 2 ou CAT ≥ 10']])}</div>`,
+ calc(){const v=num('gdv');if(!$('gdr').checked)return out('acc','','','Sem obstrução confirmada','O diagnóstico exige VEF₁/CVF pós-broncodilatador &lt; 0,70.');if(isNaN(v))return out('acc','','','','Informe o VEF₁.');
+  const g=v>=80?1:v>=50?2:v>=30?3:4,e=+$('gde').value.slice(1),s=+$('gds').value.slice(1),grp=e?'E':s?'B':'A';
+  out(g<=2?'warn':'bad','GOLD '+g,'','Grupo '+grp,['','Leve','Moderada','Grave','Muito grave'][g]+' (VEF₁ '+fmt(v,0)+'%).')},
+ how:()=>`${table(['GOLD','VEF₁ (% previsto)'],[['1 (leve)','≥ 80'],['2 (moderada)','50 a 79'],['3 (grave)','30 a 49'],['4 (muito grave)','&lt; 30']])}${table(['Grupo','Critério'],[['A','Poucas exacerbações e poucos sintomas'],['B','Poucas exacerbações e mais sintomas'],['E','≥ 2 moderadas ou ≥ 1 com internação']])}`},
+
+{id:'tencs',cat:'Geriatria',name:'10-CS',sub:'Rastreio cognitivo de 10 pontos',
+ src:'Apolinario et al., J Am Geriatr Soc 2016, protocolo da APS do RS 2024',
+ form:()=>`<div class="stack">${sel('tc20','Orientação (ano, mês e dia do mês)',[['0','0 acertos'],['1','1 acerto'],['2','2 acertos'],['3','3 acertos']])}${sel('tc21','Fluência verbal: animais em 1 minuto',[['0','0 a 5'],['1','6 a 8'],['2','9 a 11'],['3','12 a 14'],['4','15 ou mais']])}${sel('tc22','Evocação das 3 palavras',[['0','Nenhuma'],['1','1 palavra'],['2','2 palavras'],['3','3 palavras']])}${sel('tc23','Escolaridade',[['2','Analfabeto'],['1','1 a 3 anos'],['0','4 anos ou mais']])}</div>`,
+ calc(){const t=Math.min(10,sumSel(['tc20','tc21','tc22','tc23']));const g=t>=8?['Normal','ok']:t>=6?['Possível comprometimento','warn']:['Provável comprometimento','bad'];out(g[1],t,'/ 10',g[0],'Rastreio, não diagnóstico.')},
+ how:()=>`<p>Orientação (3) + fluência (4) + evocação (3) + ajuste por escolaridade, máximo 10.</p>${table(['Pontos','Interpretação'],[['8 a 10','Normal'],['6 a 7','Possível comprometimento'],['0 a 5','Provável comprometimento']])}`},
+
+{id:'mmrc',cat:'Pneumologia',name:'mMRC',sub:'Escala de dispneia',
+ src:'Medical Research Council modificada, GOLD 2025',
+ form:()=>radios('mr','Falta de ar',[['0','Só com exercício intenso','0'],['1','Ao andar rápido no plano ou subir ladeira leve','1'],['2','Anda mais devagar que pessoas da mesma idade ou para para respirar no próprio ritmo','2'],['3','Para para respirar após cerca de 100 m ou poucos minutos no plano','3'],['4','Não sai de casa ou tem falta de ar para se vestir','4']]),
+ calc(){const v=+document.querySelector('input[name="mr"]:checked').value;out(v<=1?'ok':'warn',v,'/ 4','mMRC '+v,v>=2?'mMRC ≥ 2: mais sintomático pelo GOLD.':'')},
+ how:()=>`<p>0 a 4. GOLD usa mMRC ≥ 2 para separar os grupos A e B.</p>`},
+
+{id:'epworth',cat:'Pneumologia',name:'Epworth',sub:'Sonolência diurna',
+ src:'Johns, Sleep 1991, versão brasileira Bertolazi et al., J Bras Pneumol 2009',
+ form:()=>{const o=[['0','Nenhuma chance'],['1','Pequena chance'],['2','Moderada chance'],['3','Grande chance']];const S=['Sentado e lendo','Assistindo TV','Sentado, quieto, em lugar público','Passageiro de carro por 1 hora, sem parar','Deitado à tarde para descansar','Sentado conversando com alguém','Sentado após o almoço, sem álcool','No carro, parado no trânsito por alguns minutos'];
+  return `<p class="note">Chance de cochilar em cada situação:</p><div class="stack">${S.map((x,i)=>sel('ep'+i,x,o)).join('')}</div>`},
+ calc(){const t=sumSel(Array.from({length:8},(_,i)=>'ep'+i));out(t>10?'bad':'ok',t,'/ 24',t>10?'Sonolência diurna excessiva':'Normal','')},
+ how:()=>`<p>8 situações, 0 a 3 cada. <b>&gt; 10:</b> sonolência diurna excessiva.</p>`},
+
+{id:'forrest',cat:'Gastroenterologia',name:'Forrest',sub:'Úlcera péptica na endoscopia',
+ src:'Forrest et al., Lancet 1974, ESGE 2021',
+ form:()=>radios('fo','Achado endoscópico',[['Ia','Sangramento em jato','Ia'],['Ib','Sangramento em babação','Ib'],['IIa','Vaso visível','IIa'],['IIb','Coágulo aderido','IIb'],['IIc','Mancha pigmentada plana','IIc'],['III','Base limpa','III']]),
+ calc(){const v=document.querySelector('input[name="fo"]:checked').value;const g=['Ia','Ib','IIa'].includes(v)?['Alto risco de ressangramento','bad']:v==='IIb'?['Risco intermediário','warn']:['Baixo risco de ressangramento','ok'];out(g[1],v,'','Forrest '+v,g[0]+'.')},
+ how:()=>`${table(['Classe','Achado','Risco'],[['Ia','Jato','Alto'],['Ib','Babação','Alto'],['IIa','Vaso visível','Alto'],['IIb','Coágulo aderido','Intermediário'],['IIc','Mancha pigmentada','Baixo'],['III','Base limpa','Baixo']])}`},
+
+{id:'mfi5',cat:'Pré-operatório',name:'mFI-5',sub:'Índice modificado de fragilidade',
+ src:'Subramaniam et al., J Am Coll Surg 2018',
+ form:()=>`<fieldset><legend>Presente</legend>${chk('mf1','Diabetes')}${chk('mf2','Insuficiência cardíaca nos últimos 30 dias')}${chk('mf3','DPOC ou pneumonia')}${chk('mf4','Hipertensão em uso de medicação')}${chk('mf5','Estado funcional dependente (parcial ou total)')}</fieldset>`,
+ calc(){const t=pts(['mf1','mf2','mf3','mf4','mf5']);out(t>=2?'bad':t===1?'warn':'ok',t,'/ 5',t>=2?'Fragilidade maior':t===1?'Fragilidade leve':'Sem fragilidade pelo índice','Pontuação maior se associa a mais complicações e mortalidade pós-operatória.')},
+ how:()=>`<p>1 ponto por item. Versão reduzida do mFI-11, com desempenho semelhante.</p>`},
+
+{id:'timist',cat:'Cardiologia',name:'TIMI (IAMCSST)',sub:'Mortalidade em 30 dias no IAM com supra',
+ src:'Morrow et al., Circulation 2000',
+ form:()=>`<div class="stack">${sel('ts0','Idade',[['0','&lt; 65 anos'],['2','65 a 74'],['3','≥ 75']])}</div><fieldset><legend>Fatores</legend>${chkw('ts1','Diabetes, hipertensão ou angina',1)}${chkw('ts2','PAS &lt; 100 mmHg',3)}${chkw('ts3','FC &gt; 100 bpm',2)}${chkw('ts4','Killip II a IV',2)}${chkw('ts5','Peso &lt; 67 kg',1)}${chkw('ts6','Supra de ST anterior ou BRE',1)}${chkw('ts7','Tempo até o tratamento &gt; 4 h',1)}</fieldset>`,
+ calc(){const t=+$('ts0').value+wsum(['ts1','ts2','ts3','ts4','ts5','ts6','ts7']);const m=['0,8%','1,6%','2,2%','4,4%','7,3%','12,4%','16,1%','23,4%','26,8%'][t]||'35,9%';out(t<=2?'ok':t<=4?'warn':'bad',t,'/ 14','Mortalidade em 30 dias: '+m,'Dado da coorte original (InTIME II).')},
+ how:()=>`${table(['TIMI','Mortalidade 30 dias'],[['0','0,8%'],['1','1,6%'],['2','2,2%'],['3','4,4%'],['4','7,3%'],['5','12,4%'],['6','16,1%'],['7','23,4%'],['8','26,8%'],['&gt; 8','35,9%']])}`},
+
+{id:'apache2',cat:'Terapia intensiva',name:'APACHE II',sub:'Gravidade nas primeiras 24 h de UTI',
+ src:'Knaus et al., Crit Care Med 1985, tabela do MSD Manual',
+ form:()=>`<p class="note">Usar o pior valor das primeiras 24 h.</p><div class="form">${field('ap1','Temperatura (°C)','')}${field('ap2','PAM (mmHg)','')}${field('ap3','FC (bpm)','')}${field('ap4','FR (irpm)','')}${field('ap5','FiO₂ (%)','')}${field('ap6','PaO₂ (mmHg), se FiO₂ &lt; 50%','')}${field('ap7','Gradiente A-a, se FiO₂ ≥ 50%','')}${field('ap8','pH arterial','')}${field('ap9','Sódio (mEq/L)','')}${field('ap10','Potássio (mEq/L)','')}${field('ap11','Creatinina (mg/dL)','')}${field('ap12','Hematócrito (%)','')}${field('ap13','Leucócitos (×10³/µL)','')}${field('ap14','Glasgow','')}${field('ap15','Idade (anos)','')}</div>
+  <fieldset><legend>Rim</legend>${chk0('apr','Lesão renal aguda (dobra os pontos da creatinina)')}</fieldset>
+  <div class="stack">${sel('apc','Doença crônica grave ou imunossupressão',[['0','Não'],['2','Sim, pós-operatório eletivo'],['5','Sim, clínico ou pós-operatório de urgência']])}</div>`,
+ calc(){const g=i=>num(i);const ids=Array.from({length:15},(_,i)=>'ap'+(i+1)).filter(i=>i!=='ap6'&&i!=='ap7');if(ids.some(i=>isNaN(g(i))))return out('acc','','','','Preencha todas as variáveis.');
+  const R=(x,t)=>{for(const[a,p]of t)if(x>=a)return p;return t[t.length-1][1]};
+  const T=g('ap1'),M=g('ap2'),H=g('ap3'),F=g('ap4'),fi=g('ap5'),pa=g('ap6'),aa=g('ap7'),ph=g('ap8'),na=g('ap9'),k=g('ap10'),cr=g('ap11'),ht=g('ap12'),wb=g('ap13'),gc=g('ap14'),age=g('ap15');
+  let ox;if(fi>=50){if(isNaN(aa))return out('acc','','','','FiO₂ ≥ 50%: informe o gradiente A-a.');ox=aa>=500?4:aa>=350?3:aa>=200?2:0}else{if(isNaN(pa))return out('acc','','','','FiO₂ &lt; 50%: informe a PaO₂.');ox=pa>70?0:pa>=61?1:pa>=55?3:4}
+  const pT=T>=41?4:T>=39?3:T>=38.5?1:T>=36?0:T>=34?1:T>=32?2:T>=30?3:4;
+  const pM=M>=160?4:M>=130?3:M>=110?2:M>=70?0:M>=50?2:4;
+  const pH_=H>=180?4:H>=140?3:H>=110?2:H>=70?0:H>=55?2:H>=40?3:4;
+  const pF=F>=50?4:F>=35?3:F>=25?1:F>=12?0:F>=10?1:F>=6?2:4;
+  const pph=ph>=7.7?4:ph>=7.6?3:ph>=7.5?1:ph>=7.33?0:ph>=7.25?2:ph>=7.15?3:4;
+  const pna=na>=180?4:na>=160?3:na>=155?2:na>=150?1:na>=130?0:na>=120?2:na>=111?3:4;
+  const pk=k>=7?4:k>=6?3:k>=5.5?1:k>=3.5?0:k>=3?1:k>=2.5?2:4;
+  let pcr=cr>=3.5?4:cr>=2?3:cr>=1.5?2:cr>=0.6?0:2;if($('apr').checked)pcr*=2;
+  const pht=ht>=60?4:ht>=50?2:ht>=46?1:ht>=30?0:ht>=20?2:4;
+  const pwb=wb>=40?4:wb>=20?2:wb>=15?1:wb>=3?0:wb>=1?2:4;
+  const pg=15-Math.min(15,Math.max(3,gc));
+  const aps=pT+pM+pH_+pF+ox+pph+pna+pk+pcr+pht+pwb+pg;
+  const pa_=age>=75?6:age>=65?5:age>=55?3:age>=45?2:0;const ch=+$('apc').value;const t=aps+pa_+ch;
+  out(t<15?'ok':t<25?'warn':'bad',t,'/ 71','APACHE II','Mortalidade depende da categoria diagnóstica de admissão, não incluída aqui.',[['Fisiologia aguda',aps],['Idade',pa_],['Doença crônica',ch]])},
+ how:()=>`<p>Soma: fisiologia aguda (12 variáveis) + idade + doença crônica. Glasgow: 15 − Glasgow. Oxigenação: gradiente A-a se FiO₂ ≥ 50%, PaO₂ se &lt; 50%.</p><p>Idade: ≤ 44 = 0, 45 a 54 = 2, 55 a 64 = 3, 65 a 74 = 5, ≥ 75 = 6.</p>`},
+
+{id:'saps2',cat:'Terapia intensiva',name:'SAPS II',sub:'Gravidade e mortalidade hospitalar estimada',
+ src:'Le Gall et al., JAMA 1993',
+ form:()=>`<p class="note">Usar o pior valor das primeiras 24 h.</p><div class="form">${field('sa1','Idade (anos)','')}${field('sa2','FC (bpm)','')}${field('sa3','PAS (mmHg)','')}${field('sa4','Temperatura (°C)','')}${field('sa5','Diurese em 24 h (mL)','')}${field('sa6','Ureia (mg/dL)','')}${field('sa7','Leucócitos (×10³/µL)','')}${field('sa8','Potássio (mEq/L)','')}${field('sa9','Sódio (mEq/L)','')}${field('sa10','Bicarbonato (mEq/L)','')}${field('sa11','Bilirrubina (mg/dL)','')}${field('sa12','Glasgow','')}${field('sa13','P/F, se em VM ou CPAP','')}</div>
+  <div class="stack">${sel('sac','Doença crônica',[['0','Nenhuma'],['9','Câncer metastático'],['10','Neoplasia hematológica'],['17','AIDS']])}${sel('sat','Tipo de admissão',[['0','Cirúrgica eletiva'],['6','Clínica'],['8','Cirúrgica de urgência']])}</div>`,
+ calc(){const g=i=>num(i);const ids=Array.from({length:12},(_,i)=>'sa'+(i+1));if(ids.some(i=>isNaN(g(i))))return out('acc','','','','Preencha todas as variáveis (P/F só se ventilado).');
+  const a=g('sa1'),h=g('sa2'),s=g('sa3'),t=g('sa4'),u=g('sa5')/1000,bun=g('sa6')/2.14,w=g('sa7'),k=g('sa8'),na=g('sa9'),hc=g('sa10'),bi=g('sa11'),gc=g('sa12'),pf=g('sa13');
+  const p=[a<40?0:a<60?7:a<70?12:a<75?15:a<80?16:18, h<40?11:h<70?2:h<120?0:h<160?4:7, s<70?13:s<100?5:s<200?0:2, t>=39?3:0, isNaN(pf)?0:pf<100?11:pf<200?9:6, u<0.5?11:u<1?4:0, bun<28?0:bun<84?6:10, w<1?12:w<20?0:3, k<3?3:k<5?0:3, na<125?5:na<145?0:1, hc<15?6:hc<20?3:0, bi<4?0:bi<6?4:9, gc<6?26:gc<9?13:gc<11?7:gc<14?5:0];
+  const sc=p.reduce((x,y)=>x+y,0)+ +$('sac').value+ +$('sat').value;const lg=-7.7631+0.0737*sc+0.9971*Math.log(sc+1),m=Math.exp(lg)/(1+Math.exp(lg))*100;
+  out(m<15?'ok':m<40?'warn':'bad',sc,'pontos','Mortalidade hospitalar estimada: '+fmt(m,1)+'%','Calibração original de 1993. Pode superestimar em UTIs atuais.')},
+ how:()=>`<p><code>logit = −7,7631 + 0,0737 × SAPS II + 0,9971 × ln(SAPS II + 1)</code></p><p>Ureia convertida em BUN (÷ 2,14). P/F só pontua se o paciente estiver em ventilação mecânica ou CPAP.</p>`},
+];
+const CATS=['Antropometria', 'Cardiologia', 'Cirurgia', 'Endocrinologia', 'Enfermagem', 'Farmacologia', 'Gastroenterologia', 'Geriatria', 'Ginecologia', 'Hepatologia', 'Infectologia', 'Laboratório', 'Nefrologia', 'Neonatologia', 'Neurologia', 'Obstetrícia', 'Pediatria', 'Pneumologia', 'Pré-operatório', 'Psiquiatria', 'Terapia intensiva', 'Trauma', 'Vascular'];
+const SCORE_IDS=['ramsay','eva','borg','flebite','fugulin','charlson','mnasf','nrs','cirsg','carg','nyha','lpp','gold','tencs','mmrc','epworth','forrest','mfi5','timist','apache2','saps2','pbf','amsel','rotterdam','ferriman','tkcole','tkcolang','bps','wfns','fisher','phoenix','spesi','westley','ich','hunt','rankin','killip','stopbang','cage','auditc','mascc','cfs','phq9','gad7','fager','findrisc','meem','grace','air','vsg','aub','ilas','news2','blatch','abcd2','cchr','nexus','pecarn','rass','camicu','sofa2','braden','morse','padua','caprini','ciwa','silverman','capurro','rcri','asa','apfel','gcs','qsofa','sofa','curb','psi','light','heart','timi','meld','child','fib4','ranson','bisap','nihss','apgar','bishop','snap','wellsp','perc','wellst','cha','hasbled','centor','alvarado','katz','barthel'];
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+
+const KW={"ramsay": "ramsay sedacao uti", "eva": "eva escala visual analogica dor numerica", "borg": "borg dispneia esforco cansaco cr10", "flebite": "flebite acesso venoso ins enfermagem", "fugulin": "fugulin classificacao pacientes dependencia enfermagem", "charlson": "charlson comorbidades sobrevida", "mnasf": "man mini avaliacao nutricional mna desnutricao idoso", "nrs": "nrs 2002 triagem nutricional risco nutricional", "cirsg": "cirs g doencas cumulativas idoso comorbidade", "carg": "hurria carg toxicidade quimioterapia idoso oncologia", "nyha": "nyha classe funcional insuficiencia cardiaca", "lpp": "lesao por pressao lpp escara ulcera npiap estagio", "gold": "gold dpoc espirometria vef1 grupo abe", "tencs": "10 cs cognitive screener rastreio cognitivo demencia", "mmrc": "mmrc dispneia dpoc", "epworth": "epworth sonolencia apneia sono", "forrest": "forrest ulcera hemorragia digestiva endoscopia", "mfi5": "mfi fragilidade modificado cirurgia", "timist": "timi iamcsst supra st infarto mortalidade", "apache2": "apache ii gravidade uti mortalidade", "saps2": "saps ii gravidade uti mortalidade", "pbf": "perfil biofisico fetal manning vitalidade fetal", "ila": "ila liquido amniotico oligoamnio oligoidramnio polidramnio maior bolsao", "gpg": "ganho de peso gestacional gestante imc pre gestacional", "hadlock": "peso fetal estimado hadlock usg ultrassom biometria", "amsel": "amsel vaginose bacteriana corrimento gardnerella", "rotterdam": "rotterdam sop ovario policistico hiperandrogenismo", "ferriman": "ferriman gallwey hirsutismo pelos sop", "tkcole": "tokyo tg18 colecistite vesicula biliar murphy", "tkcolang": "tokyo tg18 colangite via biliar charcot coledocolitiase", "pf": "pf p/f relacao pao2 fio2 sf spo2 sdra ards berlim oxigenacao ventilacao mecanica", "bps": "bps behavioral pain scale dor sedado ventilacao uti", "wfns": "wfns hsa hemorragia subaracnoidea aneurisma", "fisher": "fisher modificada hsa vasoespasmo tc hemorragia subaracnoidea", "phoenix": "phoenix sepse pediatrica choque septico crianca", "brugada": "brugada taquicardia qrs largo tv tsv aberrancia ecg arritmia ventricular", "spesi": "spesi pesi tep embolia pulmonar gravidade prognostico", "westley": "westley crupe laringotraqueite estridor pediatria", "ich": "ich hemorragia intracerebral avc hemorragico hematoma", "hunt": "hunt hess hemorragia subaracnoidea hsa aneurisma", "rankin": "rankin mrs incapacidade avc funcional", "killip": "killip iam infarto insuficiencia cardiaca choque", "stopbang": "stop bang apneia sono ronco aos", "cage": "cage alcool alcoolismo etilismo", "auditc": "audit c alcool consumo etilismo bebida", "mascc": "mascc neutropenia febril cancer oncologia", "idcor": "idade corrigida prematuro pretermo rn", "cfs": "fragilidade clinica cfs rockwood idoso frail", "got": "gotejamento gotas microgotas soro infusao velocidade ml h bomba", "holl": "holliday segar hidratacao venosa manutencao soro pediatria liquidos 4 2 1", "cort": "corticoide equivalencia conversao prednisona dexametasona hidrocortisona metilprednisolona prednisolona", "pam": "pressao arterial media pam choque hipotensao", "pid": "peso ideal ajustado devine obesidade dose", "cl24": "clearance creatinina urina 24 horas depuracao funcao renal", "rac": "albuminuria microalbuminuria relacao albumina creatinina rac drc proteinuria", "homa": "homa ir resistencia insulina insulinica beta", "ganz": "ganzoni ferro deficit anemia ferropriva endovenoso sacarato carboximaltose", "phq9": "phq 9 depressao humor rastreio suicidio", "gad7": "gad 7 ansiedade transtorno ansiedade generalizada", "fager": "fagerstrom tabagismo cigarro nicotina dependencia fumo", "findrisc": "findrisc diabetes risco dm2 rastreio", "meem": "meem mini exame estado mental minimental demencia cognicao folstein", "tfg": "taxa filtracao glomerular funcao renal clearance creatinina drc doenca renal cronica ckd epi mdrd rim", "ag": "anion gap acidose metabolica gasometria", "ca": "calcio corrigido hipocalcemia hipercalcemia albumina", "nac": "sodio corrigido hiperglicemia cetoacidose hiponatremia pseudo", "ldl": "colesterol dislipidemia lipidograma friedewald martin sampson triglicerides", "qtc": "qt corrigido intervalo qt ecg eletrocardiograma bazett fridericia torsades arritmia", "eixo": "eixo cardiaco ecg eletrocardiograma desvio", "imc": "indice massa corporal obesidade peso altura", "gcs": "glasgow coma consciencia tce trauma craniano rebaixamento", "qsofa": "sepse infeccao choque septico", "curb": "pneumonia pac comunitaria internacao crb", "heart": "dor toracica sindrome coronariana sca infarto iam", "timi": "sindrome coronariana sca angina instavel infarto iam sem supra", "meld": "cirrose hepatopatia transplante figado insuficiencia hepatica", "nihss": "avc acidente vascular cerebral derrame isquemico trombolise", "apgar": "recem nascido rn neonatal parto vitalidade", "ig": "idade gestacional dpp data provavel parto gestacao gravidez dum usg pre natal", "bishop": "inducao parto colo uterino gestacao", "pedem": "emergencia pediatrica pediatria crianca pcr parada cardiaca dose peso broselow tubo", "oms": "curva crescimento pediatria percentil escore z peso altura crianca desnutricao", "sc": "superficie corporal quimioterapia mosteller", "queim": "queimadura queimado parkland regra dos nove scq", "snap": "tdah deficit atencao hiperatividade crianca", "wellsp": "embolia pulmonar tep tromboembolismo", "perc": "embolia pulmonar tep tromboembolismo", "wellst": "trombose venosa profunda tvp tromboembolismo perna", "cha": "fibrilacao atrial fa anticoagulacao avc", "hasbled": "sangramento hemorragia anticoagulacao fibrilacao atrial", "child": "cirrose hepatopatia figado", "cg": "clearance creatinina funcao renal ajuste dose", "osm": "osmolaridade gap osmolar intoxicacao", "adrogue": "hiponatremia sodio correcao soro hipertonico", "centor": "faringite amigdalite estreptococo dor garganta", "alvarado": "apendicite abdome agudo", "gaso": "gasometria acido base acidose alcalose ph", "infusao": "droga vasoativa dva noradrenalina bomba infusao gotejamento", "vm": "ventilacao mecanica volume corrente peso ideal sdra intubacao", "lra": "lesao renal aguda insuficiencia renal aguda ira kdigo creatinina oliguria diurese", "fe": "fracao excrecao sodio fena ureia lesao renal aguda pre renal", "ttkg": "potassio hipercalemia hipocalemia", "sofa": "sepse disfuncao organica uti", "light": "derrame pleural toracocentese exsudato", "psi": "pneumonia pac comunitaria internacao port", "fib4": "fibrose hepatica esteatose figado", "ranson": "pancreatite", "bisap": "pancreatite", "katz": "idoso funcionalidade dependencia atividades", "barthel": "idoso funcionalidade dependencia atividades avc", "news2": "deterioracao alerta sinais vitais piora", "blatch": "hemorragia digestiva alta hda sangramento", "abcd2": "ait ataque isquemico transitorio avc", "cchr": "tce trauma craniano tomografia cabeca", "nexus": "trauma coluna cervical pescoco", "pecarn": "tce trauma craniano crianca tomografia", "rass": "sedacao agitacao uti", "camicu": "delirium confusao uti", "braden": "lesao por pressao escara ulcera", "morse": "queda", "padua": "trombose profilaxia tev clinico", "caprini": "trombose profilaxia tev cirurgico", "ciwa": "abstinencia alcool etilismo", "agualivre": "hipernatremia desidratacao sodio", "silverman": "desconforto respiratorio recem nascido rn neonatal", "capurro": "idade gestacional recem nascido rn", "rcri": "pre operatorio risco cirurgico cardiaco lee", "asa": "anestesia pre operatorio risco cirurgico", "apfel": "nausea vomito pos operatorio", "sofa2": "sepse disfuncao organica uti", "vanco": "vancomicina antibiotico nivel serico", "grace": "sindrome coronariana sca infarto iam", "air": "apendicite abdome agudo", "vsg": "pre operatorio cirurgia vascular risco", "aub": "pre operatorio risco cirurgico", "ilas": "sepse infeccao choque septico protocolo", "lund": "queimadura queimado crianca scq"};
+const SCORES=SCORE_IDS;
+const ICON={
+ calc:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm1 3v4h10V5H7Zm0 7v2h2v-2H7Zm4 0v2h2v-2h-2Zm4 0v6h2v-6h-2Zm-8 4v2h2v-2H7Zm4 0v2h2v-2h-2Z"/></svg>',
+ list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9z" fill="currentColor"/><path d="M8.5 10.5h7M8.5 14h7M8.5 17.5h4.5" stroke-width="2.2"/></svg>',
+ steth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 3v5a4 4 0 0 0 8 0V3"/><path d="M4 3h2M12 3h2"/><path d="M9 12v2a5 5 0 0 0 10 0v-2"/><circle cx="19" cy="10" r="2.2" fill="currentColor"/></svg>',
+ book:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M6 2h13v16H7a1 1 0 0 0 0 2h12v2H7a3 3 0 0 1-3-3V4a2 2 0 0 1 2-2Zm5 4v2.5H8.5v2H11V13h2v-2.5h2.5v-2H13V6h-2Z"/></svg>',
+ pill:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.8 3.2a5 5 0 0 1 7 7l-4.6 4.6-7-7 4.6-4.6Z"/><path d="M8.8 9.2l7 7-4.6 4.6a5 5 0 0 1-7-7l4.6-4.6Z" opacity=".55"/></svg>',
+ watch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="14" r="7.5"/><path d="M12 14V9.5M9.5 2.5h5M12 2.5v4M18.5 6.5l1.5-1.5"/></svg>',
+ info:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm-1.2 8v8h2.4v-8h-2.4Zm1.2-4.2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9L12 2.8Z"/></svg>',
+ dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3M10 18.5h4"/></svg>',
+ search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>'
+};
+function bar(title,back){document.body.classList.remove('nobar');$('bar').innerHTML=`<div class="bar">${back!==undefined?`<a href="#${back}" aria-label="Voltar">‹</a>`:''}<h1>${title}</h1><button type="button" class="thm" aria-label="Trocar tema">${themeIcon()}</button></div>`;$('bar').querySelector('.thm').onclick=toggleTheme}
+function curTheme(){const t=document.documentElement.dataset.theme;return t||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
+function themeIcon(){return curTheme()==='dark'?'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a.6.6 0 0 0-.8-.7A9.5 9.5 0 1 0 21.2 15.4a.6.6 0 0 0-.7-.8Z"/></svg>'}
+function toggleTheme(){const n=curTheme()==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem('theme',n)}catch(e){}document.querySelectorAll('.thm,.thm2').forEach(b=>b.innerHTML=themeIcon())}
+try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+const toolRow=t=>`<a class="item" href="#${t.id}"><div><b>${t.name}</b><span>${t.sub}</span></div><i>›</i></a>`;
+function listView(title,tools,grouped){
+  bar(title,'');
+  $('app').innerHTML=`<div class="stack">${grouped?CATS.map(c=>{const it=tools.filter(t=>t.cat===c);return it.length?`<div class="group"><h2>${c}</h2>${it.map(toolRow).join('')}</div>`:''}).join(''):tools.map(toolRow).join('')}</div>
+  <footer>${DISC}</footer>`;
+}
+const getFav=()=>{try{return JSON.parse(localStorage.getItem('fav')||'[]')}catch(e){return[]}};
+const setFav=f=>{try{localStorage.setItem('fav',JSON.stringify(f))}catch(e){}};
+const getRecent=()=>{try{return JSON.parse(localStorage.getItem('recent')||'[]')}catch(e){return[]}};
+function pushRecent(id){try{const r=[id,...getRecent().filter(x=>x!==id)].slice(0,4);localStorage.setItem('recent',JSON.stringify(r))}catch(e){}}
+function home(q=''){
+  $('bar').innerHTML='';document.body.classList.add('nobar');
+  const k=norm(q);
+  const results=k?TOOLS.map(t=>{const n=norm(t.name),hay=norm(t.name+' '+t.sub+' '+t.cat+' '+(KW[t.id]||'')+' '+t.src);const ws=k.split(/\s+/).filter(Boolean);if(!ws.every(w=>w.length<=3?new RegExp('(^|[^a-z0-9])'+w.replace(/[^a-z0-9]/g,'')+'([^a-z0-9]|$)').test(hay):hay.includes(w)))return null;return [t,n.startsWith(k)?0:n.includes(k)?1:2]}).filter(Boolean).sort((a,b)=>a[1]-b[1]).map(x=>x[0]):null;
+  const card=(href,ic,label,sub)=>`<a class="hcard" href="#${href}"><span class="hic">${ICON[ic]}</span><span class="ht"><b>${label}</b><small>${sub}</small></span><span class="chev">›</span></a>`;
+  const tile=(href,ic,label)=>`<a class="htile" href="#${href}"><span class="hti">${ICON[ic]}</span><span>${label}</span></a>`;
+  $('app').innerHTML=`<header class="hhead"><div class="brand"><b>Med<em>Prumo</em></b>${isInstalled()?'':`<a class="inst" href="#instalar">${ICON.dl}<span>Instalar</span></a>`}</div><button type="button" class="thm2" aria-label="Trocar tema">${themeIcon()}</button></header>
+  <label class="search hsearch" aria-label="Pesquisar">${ICON.search}<input id="q" type="search" placeholder="Buscar escore, cálculo ou doença" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
+  ${results?`<div class="stack">${results.length?results.map(toolRow).join(''):'<p class="empty">Nada encontrado. Tente outro termo.</p>'}</div>`:
+  `<nav class="hcards">${card('calc','calc','Calculadoras','Fórmulas e conversões')}${card('esc','list','Escores','Risco, gravidade e triagem')}${card('esp','steth','Especialidades','Escores e calculadoras por área')}</nav>
+  <nav class="htiles">${tile('med','pill','Medicamentos')}${tile('cid10','book','CID-10')}${tile('cron','watch','Cronômetro')}${tile('fav','star','Favoritos')}</nav>
+  <footer class="hfoot"><a href="#sobre">${ICON.info.replace('<svg ','<svg width="16" height="16" style="vertical-align:-3px;margin-right:5px" ')}Sobre e fontes <span aria-hidden="true">›</span></a><span>${DISC}</span></footer>`}`;
+  $('app').querySelector('.thm2').onclick=()=>toggleTheme();
+  const qi=$('q');qi.addEventListener('input',()=>{const p=qi.selectionStart;home(qi.value);const n=$('q');n.focus();n.setSelectionRange(p,p)});
+}
+/* ===== CRONÔMETRO: Simples, RCP, Dinâmica uterina ===== */
+const now=()=>Date.now();
+const pad=n=>String(n).padStart(2,'0');
+const ms2=ms=>{const s=Math.floor(ms/1000);return `${pad(Math.floor(s/60))}:${pad(s%60)}<small>,${pad(Math.floor(ms%1000/10))}</small>`};
+const mmss=ms=>{const s=Math.max(0,Math.floor(ms/1000));return `${pad(Math.floor(s/60))}:${pad(s%60)}`};
+const elapsed=o=>o.acc+(o.run?now()-o.t0:0);
+function startStop(o){if(o.run){o.acc=elapsed(o);o.run=false}else{o.t0=now();o.run=true}wake(CR.s.run||CR.r.run)}
+let AC=null;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function beep(f=880,d=.08,when=0,vol=.3){const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.frequency.value=f;o.connect(g);g.connect(a.destination);const t=when||a.currentTime;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}
+const alarm=()=>{const a=ac();if(!a)return;[0,.25,.5].forEach(x=>beep(1320,.18,a.currentTime+x,.4));try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}};
+let WL=null;
+async function wake(on){try{if(on&&!WL&&navigator.wakeLock){WL=await navigator.wakeLock.request('screen');WL.addEventListener('release',()=>WL=null)}else if(!on&&WL){await WL.release();WL=null}}catch(e){}}
+const MET={on:false,vent:false,bpm:110,next:0,nextV:0,timer:0};
+function metSync(){
+  const a=ac();clearInterval(MET.timer);
+  if(!a||!(MET.on||MET.vent))return;
+  MET.next=a.currentTime+.05;MET.nextV=a.currentTime+.05;
+  MET.timer=setInterval(()=>{const t=AC.currentTime+.12;
+    while(MET.next<t){if(MET.on)beep(1000,.03,MET.next,.25);MET.next+=60/MET.bpm}
+    while(MET.nextV<t){if(MET.vent)beep(520,.35,MET.nextV,.35);MET.nextV+=6}},25);
+}
+const CR={mode:'simples',
+  s:{t0:0,acc:0,run:false,laps:[],beep:false,lastMin:0},
+  r:{t0:0,acc:0,run:false,cyc:0,alerted:false,adr:[],ami:[],shock:0,log:[],armReset:0},
+  u:{list:[],cur:null,armReset:0}};
+const rlog=txt=>CR.r.log.push({t:elapsed(CR.r),txt});
+let CRON_PAINT=null;
+setInterval(()=>{
+  const s=CR.s,r=CR.r;
+  if(s.run&&s.beep){const m=Math.floor(elapsed(s)/60000);if(m>s.lastMin){s.lastMin=m;alarm()}}
+  if(r.run&&!r.alerted&&elapsed(r)-r.cyc>=120000){r.alerted=true;alarm();rlog('2 min: checar ritmo / trocar compressor')}
+  CRON_PAINT&&CRON_PAINT();
+},50);
+const tgl=(id,label,on,sub)=>`<button type="button" class="tgl" id="${id}" aria-pressed="${on}"><span class="sw"></span><span><b>${label}</b>${sub?`<small>${sub}</small>`:''}</span></button>`;
+
+/* Confirmação antes de apagar */
+function askConfirm(title,msg,yes,fn){document.querySelector('.dlg')?.remove();const d=document.createElement('div');d.className='dlg';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+  d.innerHTML=`<div class="dlgb"><b>${title}</b><p>${msg}</p><div class="btns"><button type="button" data-a="n">Cancelar</button><button type="button" class="danger" data-a="y">${yes}</button></div></div>`;
+  d.onclick=e=>{const a=e.target.closest('button')?.dataset.a;if(e.target===d||a==='n')d.remove();else if(a==='y'){d.remove();fn()}};
+  document.body.appendChild(d);d.querySelector('[data-a="n"]').focus()}
+function cron(){
+  bar('Cronômetro','');
+  $('app').innerHTML=`<div class="modes" role="tablist">
+    ${[['simples','Simples'],['rcp','RCP'],['du','Dinâmica uterina']].map(m=>`<button type="button" role="tab" data-m="${m[0]}" aria-selected="${CR.mode===m[0]}">${m[1]}</button>`).join('')}</div>
+    <div id="cv" class="stack"></div>`;
+  $('app').querySelectorAll('.modes button').forEach(b=>b.onclick=()=>{CR.mode=b.dataset.m;cron()});
+  ({simples:cronSimples,rcp:cronRCP,du:cronDU})[CR.mode]();
+}
+
+function cronSimples(){
+  const s=CR.s;
+  $('cv').innerHTML=`<div class="watch" id="w"></div>
+  <div class="btns"><button type="button" id="b1" class="primary"></button><button type="button" id="b2"></button></div>
+  ${tgl('tb','Bipe a cada minuto',s.beep,'Útil para contar FR e FC')}
+  <div class="laps" id="laps"></div>`;
+  $('b1').onclick=()=>{ac();startStop(s)};
+  $('b2').onclick=()=>{if(s.run)s.laps.push(elapsed(s));else if(elapsed(s)||s.laps.length)askConfirm('Tem certeza que quer zerar?','O tempo e as voltas serão apagados.','Zerar',()=>{s.acc=0;s.laps=[];s.lastMin=0;CRON_PAINT&&CRON_PAINT()})};
+  $('tb').onclick=()=>{ac();s.beep=!s.beep;s.lastMin=Math.floor(elapsed(s)/60000);$('tb').setAttribute('aria-pressed',s.beep)};
+  CRON_PAINT=()=>{const e=elapsed(s);$('w').innerHTML=ms2(e);$('b1').textContent=s.run?'Pausar':(e?'Continuar':'Iniciar');$('b2').textContent=s.run?'Volta':'Zerar';
+    const h=s.laps.map((l,i)=>`<div><span>Volta ${i+1}</span><span>${mmss(l)}, +${mmss(l-(s.laps[i-1]||0))}</span></div>`).reverse().join('');if($('laps').innerHTML!==h)$('laps').innerHTML=h};
+}
+
+function cronRCP(){
+  const r=CR.r;
+  $('cv').innerHTML=`<div class="ctl">
+    ${tgl('tm','Metrônomo',MET.on,'Bipe no ritmo das compressões')}
+    <div class="seg3" id="bpm">${[100,110,120].map(b=>`<button type="button" data-b="${b}" aria-pressed="${MET.bpm===b}">${b}</button>`).join('')}</div>
+    ${tgl('tv','Bipe de ventilação',MET.vent,'Bipe a cada 6 s. Só intubado. Adulto.')}</div>
+  <div class="watch big" id="w"></div>
+  <div class="cyc"><div class="cyc-top"><span id="cl">Ciclo</span><b id="cr"></b></div><div class="track"><div id="cp"></div></div></div>
+  <div class="btns"><button type="button" id="b1" class="primary"></button><button type="button" id="b2">Novo ciclo</button></div>
+  <div class="drugs">
+    <button type="button" class="drug" id="dA"><span class="dn">Adrenalina</span><span class="dc" id="cA">0</span><span class="dt" id="tA">ainda não</span><small id="sA">1 mg a cada 3 a 5 min</small></button>
+    <button type="button" class="drug" id="dM"><span class="dn">Amiodarona</span><span class="dc" id="cM">0</span><span class="dt" id="tM">ainda não</span><small id="sM">Próx.: 300 mg</small></button>
+    <button type="button" class="drug" id="dS"><span class="dn">Choque</span><span class="dc" id="cS">0</span><span class="dt" id="tS">ainda não</span><small>Desfibrilação</small></button>
+  </div>
+  <details><summary>Causas reversíveis: 5H / 5T</summary>
+    ${table(['5H','5T'],[['Hipovolemia','Tensão no tórax (pneumotórax)'],['Hipóxia','Tamponamento cardíaco'],['H⁺ (acidose)','Toxinas'],['Hipo/hipercalemia','Trombose pulmonar'],['Hipotermia','Trombose coronária']])}</details>
+  <details><summary>Parâmetros (AHA 2025)</summary><p>Compressão 100 a 120/min, ≥ 5 cm, retorno total do tórax. Sem via aérea avançada: 30:2. Com via aérea avançada: 1 ventilação a cada 6 s, compressão contínua. Checar ritmo e trocar compressor a cada 2 min.</p><p>Adrenalina 1 mg IV/IO a cada 3 a 5 min. Amiodarona 300 mg, depois 150 mg. Alternativa: lidocaína 1 a 1,5 mg/kg, depois 0,5 a 0,75 mg/kg.</p></details>
+  <div class="loghead"><b>Registro</b><span><button type="button" id="cp2" class="mini">Copiar</button><button type="button" id="rz" class="mini">Zerar RCP</button></span></div>
+  <div class="laps" id="log"></div>`;
+  $('tm').onclick=()=>{MET.on=!MET.on;$('tm').setAttribute('aria-pressed',MET.on);metSync()};
+  $('tv').onclick=()=>{MET.vent=!MET.vent;$('tv').setAttribute('aria-pressed',MET.vent);metSync()};
+  $('bpm').querySelectorAll('button').forEach(b=>b.onclick=()=>{MET.bpm=+b.dataset.b;$('bpm').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+  $('b1').onclick=()=>{ac();const first=!elapsed(r)&&!r.run;startStop(r);rlog(r.run?(first?'Início da RCP':'Retomada'):'Pausa')};
+  $('b2').onclick=()=>{r.cyc=elapsed(r);r.alerted=false;rlog('Novo ciclo')};
+  $('dA').onclick=()=>{r.adr.push(elapsed(r));rlog(`Adrenalina 1 mg (${r.adr.length}ª)`)};
+  $('dM').onclick=()=>{if(r.ami.length>=2)return;r.ami.push(elapsed(r));rlog(`Amiodarona ${r.ami.length===1?'300':'150'} mg`)};
+  $('dS').onclick=()=>{r.shock++;r.lastShock=elapsed(r);rlog(`Choque ${r.shock}`)};
+  $('cp2').onclick=()=>{const txt=r.log.map(l=>`${mmss(l.t)}  ${l.txt}`).join('\n')||'Sem registros';
+    navigator.clipboard?.writeText(txt).then(()=>{$('cp2').textContent='Copiado'},()=>{$('cp2').textContent='Selecione o texto'}).catch(()=>{});};
+  $('rz').onclick=()=>askConfirm('Tem certeza que quer terminar?','O tempo, as drogas e o registro da RCP serão apagados.','Terminar e zerar',()=>{Object.assign(r,{t0:0,acc:0,run:false,cyc:0,alerted:false,adr:[],ami:[],shock:0,log:[],armReset:0});MET.on=false;MET.vent=false;metSync();wake(CR.s.run);cron()});
+  CRON_PAINT=()=>{
+    const e=elapsed(r),left=120000-(e-r.cyc);
+    $('w').innerHTML=mmss(e);
+    $('b1').textContent=r.run?'Pausar':(e?'Retomar':'Iniciar RCP');
+    $('cr').textContent=left>0?mmss(left):'Checar ritmo';
+    $('cl').textContent=left>0?'Ciclo: próxima checagem':'2 min completos';
+    $('cp').style.width=Math.min(100,(e-r.cyc)/1200)+'%';
+    $('cp').parentElement.parentElement.dataset.state=left>0?'':'due';
+    if(r.armReset&&now()-r.armReset>3000){r.armReset=0;$('rz').textContent='Zerar RCP'}
+    const since=a=>a.length?e-a[a.length-1]:null;
+    const sa=since(r.adr);$('cA').textContent=r.adr.length;$('tA').textContent=sa==null?'ainda não':'há '+mmss(sa);
+    $('dA').dataset.state=sa==null?'':sa>=300000?'late':sa>=180000?'due':'';
+    $('sA').textContent=sa==null?'1 mg a cada 3 a 5 min':sa>=300000?'Atrasada (> 5 min)':sa>=180000?'Pode repetir':'Aguardar 3 min';
+    const sm=since(r.ami);$('cM').textContent=r.ami.length;$('tM').textContent=sm==null?'ainda não':'há '+mmss(sm);
+    $('sM').textContent=r.ami.length===0?'Próx.: 300 mg':r.ami.length===1?'Próx.: 150 mg':'Dose máxima';
+    $('cS').textContent=r.shock;$('tS').textContent=r.shock?'há '+mmss(e-r.lastShock):'ainda não';
+    const h=r.log.map(l=>`<div><span>${mmss(l.t)}</span><span>${l.txt}</span></div>`).reverse().join('');if($('log').innerHTML!==h)$('log').innerHTML=h||'<p class="note">Os eventos aparecem aqui com o tempo de RCP.</p>';
+  };
+}
+
+function cronDU(){
+  const u=CR.u;
+  $('cv').innerHTML=`<button type="button" class="contr" id="bc"></button>
+  <div class="wl" id="wl"></div><div class="watch" id="w"></div>
+  <div class="result" id="du"></div>
+  <div class="loghead"><b>Contrações</b><span><button type="button" id="rz" class="mini">Zerar</button></span></div>
+  <div class="laps" id="log"></div>
+  <details><summary>Como interpretar</summary><p>Toque no início e no fim de cada contração. O app calcula frequência em 10 min, duração e intervalo (início a início).</p><p><b>Taquissistolia:</b> &gt; 5 contrações em 10 min, na média de 30 min (ACOG).</p><p>Ritmo de referência em trabalho de parto ativo varia. Correlacionar com cardiotocografia e protocolo do serviço.</p></details>`;
+  $('bc').onclick=()=>{if(u.cur){u.list.push({s:u.cur,e:now()});u.cur=null}else u.cur=now()};
+  $('rz').onclick=()=>askConfirm('Tem certeza que quer zerar?','Todas as contrações registradas serão apagadas.','Zerar',()=>{u.list=[];u.cur=null;u.armReset=0;cron()});
+  CRON_PAINT=()=>{
+    const t=now(),L=u.list;
+    $('bc').textContent=u.cur?'Fim da contração':'Início da contração';$('bc').dataset.on=!!u.cur;
+    $('w').innerHTML=u.cur?mmss(t-u.cur):(L.length?mmss(t-L[L.length-1].e):'00:00');
+    if(u.armReset&&t-u.armReset>3000){u.armReset=0;$('rz').textContent='Zerar'}
+    const in10=L.filter(c=>c.s>=t-600000).length+(u.cur?1:0);
+    const first=L.length?L[0].s:(u.cur||t),span=Math.min(t-first,1800000);
+    const in30=L.filter(c=>c.s>=t-1800000).length+(u.cur?1:0);
+    const avg30=span>=1800000?in30/3:null;
+    const dur=L.length?L.reduce((a,c)=>a+(c.e-c.s),0)/L.length:0;
+    const ints=L.slice(1).map((c,i)=>c.s-L[i].s),int=ints.length?ints.reduce((a,b)=>a+b,0)/ints.length:0;
+    const taqui=avg30!=null&&avg30>5;
+    const el=$('du');el.style.setProperty('--state',S[taqui?'bad':'acc']);
+    el.innerHTML=`<div class="big">${in10}<small>contrações / 10 min</small></div>${taqui?'<span class="pill">Taquissistolia</span>':''}
+    <div class="rows"><div><span>Duração média</span><b>${L.length?Math.round(dur/1000)+' s':'sem dados'}</b></div><div><span>Intervalo médio</span><b>${ints.length?mmss(int):'sem dados'}</b></div>
+    <div><span>Média/10 min (30 min)</span><b>${avg30==null?(L.length?'aguardando 30 min':'sem dados'):fmt(avg30,1)}</b></div></div>`;
+    $('wl').textContent=u.cur?'Duração da contração atual':(L.length?'Desde o fim da última':'Toque ao sentir a contração');
+    const h=L.map((c,i)=>`<div><span>${i+1}. ${new Date(c.s).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span><span>${Math.round((c.e-c.s)/1000)} s${i?`, int. ${mmss(c.s-L[i-1].s)}`:''}</span></div>`).reverse().join('');
+    if($('log').innerHTML!==h)$('log').innerHTML=h;
+  };
+}
+
+const cidCat=c=>c.slice(0,3);
+const cidChap=c=>CID10_CAP.findIndex(([a,b])=>cidCat(c)>=a&&cidCat(c)<=b);
+function cidCopy(t,el){const done=()=>{toast('Copiado: '+t.split(' - ')[0])};
+  try{navigator.clipboard.writeText(t).then(done,()=>toast('Não foi possível copiar'))}catch(e){toast('Não foi possível copiar')}}
+function toast(m){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t)}t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1600)}
+const cidRow=r=>`<button type="button" class="item cid${r[0].length===3?' cat':''}" data-c="${r[0]} - ${r[1].replace(/"/g,'&quot;')}"><div><b>${r[0]}</b><span>${r[1]}</span></div><i class="cpi" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="3"/><path d="M15.5 8.5V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v5.5a3 3 0 0 0 3 3h1.5"/></svg></i></button>`;
+CID10_CAP.forEach(c=>{c[2]=c[2].replace(/\s+-\s+/,': ')});
+function cid10(view=''){
+  const sv=view.startsWith('q:')?view.slice(2):'';
+  const chH=t=>{const[c,n]=String(t).split(': ');return `<div class="chh"><small>${c}</small><b>${n||c}</b></div>`};
+  let body='',back='',copy=false;
+  if(sv){back='cid10';const k=norm(sv.trim()),code=sv.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');let res=[];
+    if(k.length>=2){const words=k.split(/\s+/);for(const r of CID10){const c=r[0].replace('.','');if((/^[A-Z]\d/.test(code)&&c.startsWith(code))||words.every(w=>norm(r[1]).includes(w))){res.push(r);if(res.length>=100)break}}}
+    if(k.length<2)body='';
+    else if(!res.length)body='<p class="empty">Nada encontrado. Tente outro termo ou o código (ex.: J18).</p>';
+    else{copy=true;let last=-1;body=res.map(r=>{const ch=cidChap(r[0]);const hd=ch!==last?chH(CID10_CAP[ch]?.[2]||''):'';last=ch;return hd+cidRow(r)}).join('')+(res.length>=100?'<p class="note">Mostrando 100. Refine a busca.</p>':'')}
+  }else if(/^c\d+$/.test(view)){back='cid10';const n=+view.slice(1),[a,b,t]=CID10_CAP[n];
+    body=chH(t)+CID10.filter(r=>r[0].length===3&&r[0]>=a&&r[0]<=b).map(r=>`<a class="item" href="#cid10-${r[0]}"><div><b>${r[0]}</b><span>${r[1]}</span></div><i>›</i></a>`).join('');
+  }else if(/^[A-Z]\d\d$/.test(view)){const ch=cidChap(view),rows=CID10.filter(r=>cidCat(r[0])===view);back='cid10-c'+ch;copy=true;
+    body=chH(CID10_CAP[ch]?.[2]||'')+rows.map(cidRow).join('');
+  }else{body=CID10_CAP.map(([a,b,t],n)=>{const[c,nm]=t.split(': ');return `<a class="item" href="#cid10-c${n}"><div><b>${a} a ${b}</b><span>${nm||t}</span><small class="chn">${c}</small></div><i>›</i></a>`}).join('')}
+  bar('CID-10',back);
+  $('app').innerHTML=`<label class="search" aria-label="Buscar na CID-10">${ICON.search}<input id="cq" type="search" placeholder="Código ou termo" value="${sv.replace(/"/g,'&quot;')}" autocomplete="off"></label>
+  <div class="stack">${body}</div>
+  <footer>CID-10 oficial do DATASUS.</footer>`;
+  const qi=$('cq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;cid10(v.trim()?'q:'+v:'');const n=$('cq');n.focus();n.setSelectionRange(p,p)});
+  $('app').querySelectorAll('.cid').forEach(b=>b.onclick=()=>cidCopy(b.dataset.c,b));
+}
+
+const FORMX=[['SOL GOT','solução oral em gotas'],['COM REV LIB PROL','comprimido revestido de liberação prolongada'],['COM LIB PROL','comprimido de liberação prolongada'],['COM REV LIB','comprimido revestido de liberação modificada'],['COM REV','comprimido revestido'],['COM ORODISP','comprimido orodispersível'],['COM SUBL','comprimido sublingual'],['COM MAST','comprimido mastigável'],['COM EFEV','comprimido efervescente'],['COM','comprimido'],['CAP GEL DURA','cápsula gelatinosa dura'],['CAP GEL MOLE','cápsula gelatinosa mole'],['CAP DURA LIB','cápsula dura de liberação modificada'],['CAP DURA','cápsula dura'],['CAP MOLE','cápsula mole'],['CAP','cápsula'],['DRG','drágea'],['PO LIOF SOL INJ','pó liofilizado para solução injetável'],['PÓ LIOF SOL INJ','pó liofilizado para solução injetável'],['PO SOL INJ','pó para solução injetável'],['PO SUS OR','pó para suspensão oral'],['PO SOL OR','pó para solução oral'],['PO EFEV','pó efervescente'],['SOL INJ','solução injetável'],['SOL DIL INFUS','solução para diluição e infusão'],['SOL INFUS','solução para infusão'],['SOL GOT OR','solução oral em gotas'],['SOL GOT OFT','colírio'],['SOL OFT','solução oftálmica'],['SOL OR','solução oral'],['SOL NAS','solução nasal'],['SOL INAL','solução para inalação'],['SOL TOP','solução tópica'],['SOL CAPI','solução capilar'],['SUS OR','suspensão oral'],['SUS INJ','suspensão injetável'],['SUS SPR NAS','spray nasal'],['XPE','xarope'],['ELX','elixir'],['EMU','emulsão'],['CREM DERM','creme'],['CREM VAG','creme vaginal'],['CREM','creme'],['POM DERM','pomada'],['POM','pomada'],['GEL','gel'],['ADES TRANSD','adesivo transdérmico'],['SUP','supositório'],['GRAN','granulado'],['AER','aerossol']];
+function medForm(s){let t=s.replace(/(\d)(MG|MCG|ML|G|UI|MEQ)\b/g,'$1 $2').replace(/\s*\/\s*/g,'/').replace(/\bMCG\b/g,'mcg').replace(/\bMG\b/g,'mg').replace(/\bML\b/g,'mL').replace(/\bG\b/g,'g').replace(/\bMEQ\b/g,'mEq');
+  for(const[a,b]of FORMX){const re=new RegExp('\\b'+a.replace(/ /g,'\\s+')+'\\b');if(re.test(t)){t=t.replace(re,', '+b);break}}
+  return t.replace(/\bIV\/IM\b|\bIM\/IV\b/,'IV ou IM').replace(/\s+/g,' ').replace(/\s+,/g,',').trim()}
+const MTIPO={Novo:'Referência','Genérico':'Genérico',Similar:'Similar','Biológico':'Biológico','Específico':'Específico','Fitoterápico':'Fitoterápico'};
+let medFilter='';
+function med(view=''){
+  if(/^\d+$/.test(view))return medDetail(+view);
+  bar('Medicamentos','');
+  const q=view.startsWith('q:')?view.slice(2):'';const k=norm(q.trim());
+  let res=[];
+  if(k.length>=2){const ws=k.split(/\s+/);
+    MED.d.forEach((m,i)=>{const hay=norm(m[0]+' '+m[2].map(p=>p[0]).join(' '));if(ws.every(w=>hay.includes(w)))res.push(i)});
+    const sc=i=>{const m=MED.d[i];if(m[2].some(p=>norm(p[0])===k))return -1;if(m[2].some(p=>norm(p[0]).startsWith(k)))return 0;if(norm(m[0]).startsWith(ws[0]))return 1;return 2};res.sort((a,b)=>sc(a)-sc(b)||MED.d[a][0].length-MED.d[b][0].length);}
+  $('app').innerHTML=`<label class="search" aria-label="Buscar medicamento">${ICON.search}<input id="mq" type="search" placeholder="Princípio ativo ou marca" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
+  <div class="stack">${k.length<2?'':res.length?res.slice(0,60).map(i=>{const m=MED.d[i];const b=[...new Set(m[2].filter(p=>p[1]!=='Genérico').map(p=>tc(p[0])))];return `<a class="item med" href="#med-${i}"><div><b>${sc(m[0])}</b><span>${b.slice(0,4).join(', ')||'Genéricos'}${b.length>4?` e mais ${b.length-4}`:''}</span></div><i>›</i></a>`}).join('')+(res.length>60?`<p class="note">Mostrando 60 de ${res.length}. Refine a busca.</p>`:''):'<p class="empty">Nada encontrado.</p>'}</div>
+  <div class="legend">
+  <div><span class="tag tRef">Referência</span><span>Medicamento inovador registrado na ANVISA. Serve de base para genéricos e similares.</span></div>
+  <div><span class="tag tGen">Genérico</span><span>Mesmo princípio ativo, dose e forma do referência, com bioequivalência comprovada. Leva o nome do princípio ativo.</span></div>
+  <div><span class="tag tSim">Similar</span><span>Mesmo princípio ativo, dose e forma do referência, mas com nome comercial próprio.</span></div>
+  <div><span class="tag">Hospitalar</span><span>Apresentação de uso restrito a hospitais e clínicas.</span></div></div>
+  <footer>Lista CMED/ANVISA (${MED.pub.replace('Publicada em ','publicada em ').replace(/\s\d+h\d+min\.?/,'')}). Só produtos comercializados.</footer>`;
+  const qi=$('mq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;med(v.trim()?'q:'+v:'');const n=$('mq');n.focus();n.setSelectionRange(p,p)});
+}
+const sc=s=>{s=String(s).toLowerCase();return s.replace(/[a-zà-ú]/,c=>c.toUpperCase())};
+const tc=s=>s.toLowerCase().replace(/(^|\s|\+|\()([a-zà-ú])/g,(m,a,b)=>a+b.toUpperCase());
+function medDetail(i){const m=MED.d[i];if(!m)return med();
+  bar('Medicamento','med');
+  const pres=[...new Set(m[2].flatMap(p=>p[4].map(medForm)))].sort((a,b)=>a.localeCompare(b,'pt',{numeric:true}));
+  const tarjas=[...new Set(m[2].map(p=>p[5]).filter(Boolean))];
+  const tagOf=p=>(p[1]==='Novo'?'<span class="tag tRef">Referência</span>':p[1]==='Genérico'?'<span class="tag tGen">Genérico</span>':p[1]==='Similar'?'<span class="tag tSim">Similar</span>':'')+(p[3]?'<span class="tag">Hospitalar</span>':'');
+  const ORD={Novo:0,'Biológico':1,'Específico':2,Similar:3,'Genérico':4};
+  const prodRow=p=>`<details class="prod"><summary><span class="pn">${p[1]==='Genérico'?sc(p[0]):tc(p[0])}</span><span class="ptags">${tagOf(p)}</span><span class="chev" aria-hidden="true">›</span></summary><p class="note">${tc(p[2])}</p>${p[4].map(a=>`<div class="pa">${medForm(a)}</div>`).join('')}</details>`;
+  const nG=m[2].filter(p=>p[1]==='Genérico').length;
+  const rx=m[3];
+  const rxRows=[];if(rx){if(rx[2])rxRows.push(['Observação',rx[2]]);if(rx[3])rxRows.push(['Classificação',/^[ABC]/.test(rx[3])?'Portaria 344, lista '+rx[3]:rx[3]])}
+  if(tarjas.length)rxRows.push(['Tarja',tarjas.map(t=>`<span class="tag ${/Vermelha/.test(t)?'red':/Preta/.test(t)?'blk':'free'}">${t}</span>`).join(' ')]);
+  $('app').innerHTML=`<header class="medh"><h2>${sc(m[0])}</h2><p class="note">${sc(m[1].replace(/^[A-Z0-9]+ - /,''))}</p></header>
+  <p class="sec">Prescrição</p>
+  <div class="rx">${rx?`<span class="note">Receita necessária</span><b>${rx[1]}</b>`:'<b>Sem informação de receita</b>'}${rxRows.length?`<div class="rows">${rxRows.map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>`:''}</div>
+  <p class="sec">Apresentações</p><div class="plist">${pres.map(x=>`<div>${x}</div>`).join('')}</div>
+  <p class="sec">Marcas e fabricantes</p><div class="stack">${[...m[2]].sort((a,b)=>(ORD[a[1]]??5)-(ORD[b[1]]??5)||a[0].localeCompare(b[0])).map(prodRow).join('')}</div>
+  <footer>Fonte: lista CMED/ANVISA. Conferir bula e prescrição.</footer>`;window.scrollTo(0,0)}
+
+/* Instalação no celular */
+const SITE='https://rictav27.github.io/medprumo/';
+let INSTALL_EVT=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL_EVT=e});
+addEventListener('appinstalled',()=>{INSTALL_EVT=null});
+function isInstalled(){return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+function instalar(){bar('Instalar no celular','');
+  const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),crios=/CriOS/.test(ua);
+  const steps=(t,l)=>`<section class="istep"><h2>${t}</h2><ol>${l.map(x=>`<li>${x}</li>`).join('')}</ol></section>`;
+  const A=steps('Android (Chrome)',['Abra o app no <b>Chrome</b>','Toque no menu <b>⋮</b> no canto superior direito','Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>','Confirme em <b>Instalar</b>']);
+  const S=steps('iPhone (Safari)',['Abra o app no <b>Safari</b>','Toque em <b>Compartilhar</b> (quadrado com seta). Se não aparecer, toque em <b>•••</b> antes','Toque em <b>Adicionar à Tela de Início</b>','Confirme em <b>Adicionar</b>']);
+  const C=steps('iPhone (Chrome)',['Abra o app no <b>Chrome</b>','Toque em <b>Compartilhar</b> na barra de endereço','Toque em <b>Adicionar à Tela de Início</b>','Confirme em <b>Adicionar</b>']);
+  const order=crios?[C,S,A]:[S,C,A];
+  $('app').innerHTML=`${isInstalled()?'<div class="rx"><b>O app já está instalado neste aparelho.</b></div>':''}
+  ${INSTALL_EVT?'<button type="button" class="ibtn" id="ibtn">Instalar agora</button>':''}
+  <div class="rx addr"><div><span class="note">Endereço do app</span><b>${SITE.replace(/^https:\/\//,'').replace(/\/$/,'').replace('/','/<wbr>')}</b></div><button type="button" class="cpy" id="cpy">Copiar</button></div>
+  ${order.join('')}
+  <section class="istep safe"><h2>É seguro?</h2><ul>
+   <li>Nada é baixado. O MedPrumo é um site que fica salvo na tela inicial, como um atalho, e quem instala é o próprio Chrome ou Safari.</li>
+   <li>O app não pede acesso a câmera, fotos, contatos, localização ou arquivos.</li>
+   <li>Não tem cadastro. Ninguém vai pedir seu nome, e-mail ou senha.</li>
+   <li>Não tem anúncios nem propaganda, e é gratuito.</li>
+   <li>Os cálculos são feitos no próprio celular. O que você digita não sai do aparelho, e os favoritos ficam guardados só nele.</li>
+   <li>O endereço tem o cadeado do navegador (HTTPS), e o código está aberto no GitHub para quem quiser conferir.</li>
+   <li>Para tirar, é só segurar o ícone e remover, como qualquer app.</li>
+  </ul></section>
+  <section class="istep"><h2>Uso offline e atualizações</h2><ol><li>Abra uma vez <b>com internet</b>. Depois funciona <b>sem internet</b></li><li>Atualiza sozinho ao abrir com internet</li><li>Não atualizou? Feche e abra de novo</li><li>Ainda não? Remova o app, abra o link e instale de novo</li></ol><p class="note inote">Obs.: a versão instalada aparece em <b>Sobre</b>.</p></section>
+  <footer>O app instalado ocupa cerca de 2,6 MB.</footer>`;
+  $('cpy').onclick=()=>{const ok=()=>{$('cpy').textContent='Copiado';toast('Endereço copiado')};
+    try{navigator.clipboard.writeText(SITE).then(ok,()=>toast('Não foi possível copiar'))}catch(e){toast('Não foi possível copiar')}};
+  const b=$('ibtn');if(b)b.onclick=async()=>{const e=INSTALL_EVT;if(!e)return;e.prompt();await e.userChoice.catch(()=>{});INSTALL_EVT=null;instalar()};
+}
+function favView(){bar('Favoritos','');const fv=getFav().map(id=>TOOLS.find(t=>t.id===id)).filter(Boolean);
+  $('app').innerHTML=fv.length?`<div class="stack">${fv.map(toolRow).join('')}</div>`:`<div class="fempty"><span class="hic">${ICON.star}</span><b>Nenhum favorito ainda</b><p>Toque na ★ dentro de uma ferramenta para fixá-la aqui.</p></div>`}
+function sobre(){
+  bar('Sobre','');
+  const link=(h,t)=>`<a class="slink" href="#${h}"><span>${t}</span><i aria-hidden="true">›</i></a>`;
+  $('app').innerHTML=`<div class="stack"><header class="hero"><h2>Med<em>Prumo</em></h2><p>Versão ${APP_VERSION}</p></header>
+  <p class="lead">Calculadoras, escores, medicamentos e CID-10 para consulta rápida no plantão. 100% grátis, sem anúncios e offline.</p>
+  <div class="dev"><span class="note">Desenvolvido por</span><b>Ricardo Jardim T. Privado</b><span class="note">Acadêmico de medicina</span></div>
+  <div class="slinks">${isInstalled()?'':link('instalar','Instalar no celular')}<a class="slink" href="mailto:${CONTATO}?subject=${encodeURIComponent('MedPrumo: erro ou sugestões')}&body=${encodeURIComponent('O que aconteceu:\n\n\nEm qual tela ou ferramenta:\n\n\nVersão do app: '+APP_VERSION)}"><span>Reportar erro ou sugestões por e-mail</span><i aria-hidden="true">›</i></a><a class="slink" href="https://github.com/RicTav27/medprumo/issues/new" target="_blank" rel="noopener"><span>Reportar erro ou sugestões pelo GitHub</span><i aria-hidden="true">›</i></a></div>
+  <details class="srcs"><summary>Fontes</summary><p class="ssub">Bases de dados</p><div class="plist"><div><b>Medicamentos:</b> lista CMED/ANVISA (${MED.pub.replace('Publicada em ','').replace(/\s\d+h\d+min\.?/,'')}), só comercializados</div><div><b>Receitas:</b> Portaria SVS/MS 344/1998 consolidada e IN 360/2025</div><div><b>CID-10:</b> tabela oficial DATASUS</div><div><b>Crescimento:</b> tabelas LMS oficiais da OMS</div></div><p class="ssub">Ferramentas</p>${[...TOOLS].sort((a,b)=>a.name.localeCompare(b.name,'pt')).map(t=>`<p class="src"><b>${t.name}:</b> ${t.src}</p>`).join('')}</details>
+  <div class="dev"><span class="note">Agradecimentos</span><p style="margin:0">Ao <b>MedKit</b>, de Pedro H. Affonso e Rodolfo A. Xavier, pela inspiração.</p></div>
+  <footer>${DISC}</footer></div>`;
+}
+/* Troca qualquer lista suspensa visível por botões, no padrão do app */
+function enhanceSelects(app){
+  app.querySelectorAll('select:not([hidden])').forEach(s=>{
+    const lab=s.closest('label');if(!lab)return;const title=([...lab.childNodes].filter(n=>n.nodeName!=='SELECT').map(n=>n.textContent).join('')||'').trim();
+    const opts=[...s.options].map(o=>[o.value,o.textContent]);
+    const burn=opts[0]&&opts[0][0]==='0'&&/^Nada$/.test(opts[0][1]);
+    const box=document.createElement('div');
+    if(burn){s.value='0';box.className='full rg';
+      box.innerHTML=`<span class="rgl">${title}</span><div class="seg4" role="group" aria-label="${title}">${opts.slice(1).map(o=>`<button type="button" aria-pressed="false" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>`;
+      box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const on=b.getAttribute('aria-pressed')!=='true';box.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b&&on));s.value=on?b.dataset.v:'0';s.dispatchEvent(new Event('change'))});
+    }else{s.insertAdjacentHTML('afterbegin','<option value=""></option>');s.value='';s.removeAttribute('data-cfg');box.className='pick full';
+      box.innerHTML=`<div class="pl">${title}</div><div class="po" role="radiogroup" aria-label="${title}">${opts.map(o=>`<button type="button" role="radio" aria-checked="false" data-for="${s.id}" data-v="${o[0]}"><span>${o[1]}</span></button>`).join('')}</div>`}
+    s.hidden=true;s.tabIndex=-1;lab.replaceWith(box);box.appendChild(s);
+  })}
+function tool(t){
+  const from=SCORES.includes(t.id)?'esc':'calc';
+  bar(t.name,from);
+  $('app').innerHTML=`${t.form()}<div class="result" id="out"></div>
+  <details><summary>Como é calculado</summary>${t.how()}</details>
+  <p class="src">Fonte: ${t.src}</p>
+  <footer>${DISC}</footer>`;
+  enhanceSelects($('app'));
+  $('app').classList.toggle('calcmode',!SCORES.includes(t.id));
+  let touched=false;
+  const run=(ev)=>{if(ev)touched=true;
+    if(!touched)return out('acc','','','','Preencha os dados para calcular.');
+    const bad=validate();if(bad.length)return out('bad','','','Valor fora do limite','Corrija o campo destacado:<br>'+bad.join('<br>'));
+    const miss=missing();if(miss.length)return out('acc','','','Faltam itens',`Preencha: ${miss.slice(0,6).join(', ')}${miss.length>6?` e mais ${miss.length-6}`:''}.`);
+    try{t.calc()}catch(e){out('bad','','','Não foi possível calcular','Confira os valores digitados.')}};
+  $('app').querySelectorAll('input.num').forEach(i=>{const L=LIM[i.id]||[0,100000];i.min=L[0];i.max=L[1]});
+  $('app').querySelectorAll('input,select').forEach(i=>i.addEventListener(['radio','checkbox','select-one'].includes(i.type)?'change':'input',run));
+  $('app').querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',e=>{b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));run(e)}));
+  run();window.scrollTo(0,0);
+}
+/* Itens obrigatórios ainda não escolhidos: listas, grupos de opção e botões de seleção */
+function missing(){const m=[],lab=el=>(el.closest('.pick')?.querySelector('.pl')?.textContent||el.closest('label')?.textContent||el.closest('fieldset')?.querySelector('legend')?.textContent||'item').trim();
+  $('app').querySelectorAll('#app select:not([data-cfg])').forEach(s=>{if(s.value==='')m.push(lab(s))});
+  const names=new Set();$('app').querySelectorAll('input[type=radio]').forEach(r=>names.add(r.name));
+  names.forEach(n=>{if(!document.querySelector(`input[name="${n}"]:checked`))m.push(document.querySelector(`input[name="${n}"]`).closest('fieldset').querySelector('legend').textContent)});
+  $('app').querySelectorAll('.seg').forEach(s=>{if(!s.querySelector('[aria-pressed="true"]'))m.push(s.parentElement.querySelector('label')?.textContent||'Seleção')});
+  return m}
+/* Limites de digitação (plausibilidade física, não são valores de referência clínica) */
+const LIM={ap1:[20,45],ap2:[10,250],ap3:[0,300],ap4:[0,80],ap5:[21,100],ap6:[20,700],ap7:[0,700],ap8:[6.5,8],ap9:[90,200],ap10:[1,10],ap11:[.1,20],ap12:[5,80],ap13:[0,200],ap14:[3,15],ap15:[14,120],sa1:[14,120],sa2:[0,300],sa3:[20,300],sa4:[20,45],sa5:[0,15000],sa6:[1,500],sa7:[0,200],sa8:[1,10],sa9:[90,200],sa10:[1,60],sa11:[.1,60],sa12:[3,15],sa13:[20,700],gdv:[5,150],il1:[0,30],il2:[0,30],il3:[0,30],il4:[0,30],ilb:[0,30],gwp:[25,250],gwh:[120,210],gwa:[25,250],hdb:[10,120],hdc:[50,400],hda:[40,450],hdf:[5,90],pfp:[20,700],pff:[21,100],pfs:[50,100],pfe:[0,30],pxp:[20,700],pxs:[50,100],pxf:[21,100],pxl:[0,30],pxm:[5,200],icg:[22,42],icd:[0,6],icw:[0,260],gtv:[1,10000],gtt:[.1,72],hsw:[.5,200],cdd:[.01,5000],pms:[40,300],pmd:[10,250],pih:[100,250],piw:[20,400],cuc:[1,1000],cuv:[50,10000],cpc:[.1,20],raa:[0,20000],rac2:[1,1000],hog:[20,1000],hoi:[.1,1000],gzw:[1,300],gza:[1,25],gzt:[5,20],fda:[18,120],fdw:[20,400],fdh:[100,250],fdc:[40,250],me1:[0,5],me2:[0,5],me3:[0,3],me4:[0,5],me5:[0,3],me6:[0,8],me7:[0,1],cr:[.1,20],age:[0,120],na:[100,200],cl:[50,160],hco3:[1,70],alb:[.5,7],cat:[2,20],alb2:[.5,7],na2:[100,200],gli:[20,3000],
+ ct:[30,1500],hdl:[5,250],tg:[10,10000],qt:[150,800],fc:[20,300],d1:[-50,50],avf:[-50,50],wt:[.3,400],ht:[25,250],
+ bil:[.1,80],crm:[.1,20],inr:[.5,20],nam:[100,200],albm:[.5,7],usw:[4,42],usd:[0,6],pa:[0,17],pm:[0,11],pw:[.3,200],
+ owt:[.3,250],oht:[35,230],ohc:[20,70],scw:[.3,400],sch:[25,250],qw:[.3,400],qa:[0,120],cga:[18,120],cgw:[20,400],cgc:[.1,20],
+ osn:[100,200],osg:[20,3000],osu:[1,700],osmm:[150,500],adn:[90,200],adw:[2,400],adk:[0,100],adt:[0,20],
+ gph:[6.5,8],gpc:[5,200],ghc:[1,70],gna:[100,200],gcl:[50,160],gal:[.5,7],ifm:[.001,100000],ifv:[1,2000],ifw:[.3,400],ifx:[.0001,10000],
+ vmh:[100,250],lrb:[.1,20],lra:[.1,30],lrd:[0,20],lrh:[0,168],feu:[0,3000],fep:[.1,3000],feuc:[1,1000],fepc:[.1,30],
+ tku:[0,300],tkp:[1,15],tkuo:[20,1500],tkpo:[200,450],tkna:[0,400],lpp:[0,10],lps:[1,15],llp:[1,20000],lls:[10,10000],lln:[50,1000],
+ psa:[18,120],gage:[18,120],ghr:[20,300],gsbp:[40,300],gcr:[.1,20],ai5:[.1,200],ai6:[0,100],ai7:[0,1000],lwa:[0,120],lww:[.3,400],nfr:[1,80],nsp:[50,100],npa:[30,300],nfc:[20,250],nt:[25,45],bur:[1,700],bhb:[1,25],bpa:[30,300],cm2:[0,10],cm4:[0,5],awn:[100,200],awt:[100,200],aww:[.3,400],vti:[.25,6],vtau:[4,72],vc1:[.1,200],vt1:[0,24],vc2:[.1,200],vdt:[.25,48],fba:[18,120],fbs:[1,10000],fbl:[1,10000],fbp:[1,2000]};
+const fmtL=n=>String(n).replace('.',',');
+function validate(){const bad=[];
+  $('app').querySelectorAll('input.num').forEach(i=>{const L=LIM[i.id]||[0,100000],v=i.value.trim();
+    if(v===''){i.classList.remove('bad');i.removeAttribute('aria-invalid');return}
+    const n=parseFloat(v.replace(',','.')),ok=isFinite(n)&&n>=L[0]&&n<=L[1];
+    i.classList.toggle('bad',!ok);ok?i.removeAttribute('aria-invalid'):i.setAttribute('aria-invalid','true');
+    if(!ok){const lab=(i.closest('label')?.textContent||'Campo').trim();bad.push(`<b>${lab}</b>: aceito de ${fmtL(L[0])} a ${fmtL(L[1])}`)}});
+  $('app').querySelectorAll('input[type=date]').forEach(i=>{const d=parseDay(i.value),ok=!i.value||(d&&d.getFullYear()>1900&&daysBetween(d,new Date())>-400);
+    i.classList.toggle('bad',!ok);if(!ok)bad.push(`<b>${(i.closest('label')?.textContent||'Data').trim()}</b>: data inválida`)});
+  return bad}
+let lastList='';
+function route(){
+  CRON_PAINT=null;
+  const h=location.hash.slice(1);
+  if(h==='esp'){lastList=h;return listView('Especialidades',TOOLS,true)}
+  if(h==='calc'){lastList=h;return listView('Calculadoras',TOOLS.filter(t=>!SCORES.includes(t.id)),true)}
+  if(h==='esc'){lastList=h;return listView('Escores',TOOLS.filter(t=>SCORES.includes(t.id)),true)}
+  if(h==='cron')return cron();
+  if(h==='fav')return favView();
+  if(h==='med')return med();
+  if(h.startsWith('med-'))return med(h.slice(4));
+  if(h==='cid10')return cid10();
+  if(h.startsWith('cid10-'))return cid10(h.slice(6));
+  if(h==='sobre')return sobre();
+  if(h==='instalar')return instalar();
+  const t=TOOLS.find(x=>x.id===h);
+  if(t){pushRecent(t.id);tool(t);bar(t.name,lastList);
+    const b=document.createElement('button');b.type='button';b.className='fav';
+    const paint=()=>{const on=getFav().includes(t.id);b.textContent=on?'★':'☆';b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remover dos favoritos':'Adicionar aos favoritos')};
+    b.onclick=()=>{const f=getFav();setFav(f.includes(t.id)?f.filter(x=>x!==t.id):[...f,t.id]);paint()};
+    paint();const br=document.querySelector('#bar .bar');br.insertBefore(b,br.querySelector('.thm'));return}
+  lastList='';home();
+}
+
+/* Aviso fixo no fim de todas as páginas */
+function ensureDisc(){const app=$('app');if(!app||app.textContent.includes(DISC))return;
+  const f=[...app.children].reverse().find(e=>e.tagName==='FOOTER');
+  if(f){const p=document.createElement('span');p.className='disc';p.dataset.disc='1';p.textContent=DISC;f.appendChild(p);return}
+  const n=document.createElement('footer');n.dataset.disc='1';n.textContent=DISC;app.appendChild(n)}
+new MutationObserver(ensureDisc).observe(document.getElementById('app'),{childList:true});
+/* Voltar restaura a posição de rolagem da página anterior */
+const NAV=[location.hash||'#'],POS={};
+window.addEventListener('hashchange',e=>{const old=new URL(e.oldURL).hash||'#',h=location.hash||'#';POS[old]=window.scrollY;
+  const back=NAV.length>1&&NAV[NAV.length-2]===h;if(back)NAV.pop();else NAV.push(h);
+  route();const y=back?(POS[h]||0):0;requestAnimationFrame(()=>window.scrollTo(0,y))});
+route();

@@ -7,17 +7,22 @@ Calculadoras, escores, medicamentos e CID-10 para consulta rápida no plantão.
 
 ## Instalar no celular
 
-**Android (Chrome)**
-1. Abra o link no Chrome
-2. Menu **⋮** > **Instalar app**
-3. Confirme em **Instalar**
-
 **iPhone (Safari)**
 1. Abra o link no Safari
 2. **Compartilhar** > **Adicionar à Tela de Início**
 3. Confirme em **Adicionar**
 
-**Offline:** abra uma vez com internet. Depois funciona sem conexão.
+**iPhone (Chrome)**
+1. Abra o link no Chrome
+2. **Compartilhar** (na barra de endereço) > **Adicionar à Tela de Início**
+3. Confirme em **Adicionar**
+
+**Android (Chrome)**
+1. Abra o link no Chrome
+2. Menu **⋮** > **Instalar app**
+3. Confirme em **Instalar**
+
+**Offline:** abra uma vez com internet. Depois funciona sem conexão. As atualizações chegam sozinhas quando o app é aberto com internet.
 
 ## Fontes dos dados
 
@@ -29,7 +34,7 @@ Calculadoras, escores, medicamentos e CID-10 para consulta rápida no plantão.
 
 ## Funcionalidades
 
-- **89 ferramentas** entre calculadoras e escores, organizadas por especialidade
+- **137 ferramentas** entre calculadoras e escores, organizadas em 23 especialidades
 - **Medicamentos:** busca por princípio ativo ou marca, com apresentações, fabricantes, tarja e tipo de receita
 - **CID-10:** busca por código ou termo, navegação por capítulos
 - **Cronômetro:** modo simples, RCP e dinâmica uterina
@@ -39,7 +44,15 @@ Calculadoras, escores, medicamentos e CID-10 para consulta rápida no plantão.
 
 ## Aviso
 
-Ferramenta de apoio. Não substitui o julgamento clínico. Confira doses, fórmulas e pontos de corte antes de decisões terapêuticas. Não traz posologia.
+Ferramenta de apoio. Não substitui julgamento clínico. Confira doses, fórmulas e cortes antes de decisões terapêuticas.
+
+## Erros e sugestões
+
+Abra uma [issue](https://github.com/RicTav27/medprumo/issues/new) ou escreva para ricardotaveira123@gmail.com.
+
+## Autor
+
+Ricardo Jardim T. Privado, acadêmico de medicina.
 
 ## Agradecimentos
 
