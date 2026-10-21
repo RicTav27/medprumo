@@ -25,12 +25,12 @@ docs/
 ## Atualizar o app
 
 1. Edite os arquivos em `assets/`
-2. Aumente `APP_VERSION` no topo de `assets/js/app.js` (aparece no Sobre), no formato X.Y.Z:
-   Segue o Versionamento Semântico (semver.org), adaptado a um app:
-   - **X** (1.5.0 → 2.0.0): quebra algo para quem já usa. Exemplos: endereço novo (exige reinstalar), ferramenta removida ou com id trocado (some dos favoritos), favoritos ou histórico apagados.
-   - **Y** (1.4.3 → 1.5.0): novidade que não quebra nada. Ferramenta, tela ou recurso novo. Atualização de diretriz que muda resultado também entra aqui.
-   - **Z** (1.4.2 → 1.4.3): correção de erro, texto ou visual, sem nada novo.
-   Várias mudanças juntas: vale a maior.
+2. Aumente `APP_VERSION` no topo de `assets/js/app.js` (aparece no Sobre), no formato X.Y.Z do Versionamento Semântico (semver.org):
+   **Em beta (0.Y.Z):**
+   - **Y** (0.3.0 → 0.4.0): novidade (ferramenta, tela, recurso, diretriz que muda resultado) ou algo que quebra para quem já usa.
+   - **Z** (0.3.0 → 0.3.1): correção de erro, texto ou visual.
+   - **1.0.0**: primeira versão estável, ao sair do beta. Depois dela, **X** passa a marcar o que quebra para quem já usa.
+   Várias mudanças juntas: vale a maior. **Uma versão por dia**: juntar as mudanças do dia num envio só.
 3. Registre as mudanças no topo do `CHANGELOG.md`
 4. Rode `python3 tools/version.py`
 5. Faça o commit e o push para `main`

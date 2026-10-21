@@ -9,6 +9,8 @@
   Grátis, sem anúncios e offline. Funciona no celular e no computador.
 </p>
 
+<p align="center"><b>Em beta.</b> O app ainda está em teste e pode ter erros.</p>
+
 <p align="center">
   <a href="https://rictav27.github.io/medprumo/"><b>Abrir o app</b></a> · <a href="#instalar">Instalar</a> · <a href="CHANGELOG.md">Novidades</a>
 </p>

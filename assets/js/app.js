@@ -1,4 +1,4 @@
-const APP_VERSION='0.2.0';
+const APP_VERSION='0.3.0';
 const CONTATO='ricardotaveira123@gmail.com';
 const DISC='Não substitui julgamento clínico. Confira doses, fórmulas e cortes antes de decisões terapêuticas.';
 /* MedPrumo: aplicação */
@@ -22,12 +22,15 @@ const errVal=id=>{const g=$(id);if(!g.querySelector('[aria-pressed="true"]'))ret
 const table=(head,rows)=>`<div class="tbl"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
 const radios=(name,legend,opts,checked,keep)=>`<fieldset><legend>${legend}</legend>${opts.map(o=>`<label class="opt"><input type="radio" name="${name}" id="${name}${o[0]}" value="${o[0]}" ${keep&&o[0]===checked?'checked':''}><b>${o[2]??ptsLab(o[0])}</b>${o[1]}</label>`).join('')}</fieldset>`;
 const SEX=[['F','Feminino'],['M','Masculino']];
+const withNote=(html,note)=>html.replace('</legend>',`</legend><p class="note">${note}</p>`);
 const chk0=(id,label)=>`<label class="opt"><input type="checkbox" id="${id}"><span>${label}</span></label>`;
 const chk=(id,label,on)=>`<label class="opt"><input type="checkbox" id="${id}"><b class="pt">+1</b><span>${label}</span></label>`;
 const ptsLab=v=>{if(String(v)[0]==='_')return '';v=String(v).replace(/^(\d+)[a-z]$/,'$1');const n=+v;return v===''?'':isNaN(n)?v:(n>0?'+'+String(v).replace('.',','):String(v).replace('-','−').replace('.',','))};
+/* Rótulo com instrução curta abaixo (não entra no aviso de item faltando) */
+const nt=(label,note)=>`${label}<small class="pln">${note}</small>`;
 const sel=(id,label,opts,def=0,cfg)=>cfg
  ?`<label>${label}<select id="${id}" data-cfg="1">${opts.map((o,i)=>`<option value="${o[0]}" ${i===def?'selected':''}>${o[1]||o[0]}</option>`).join('')}</select></label>`
- :`<div class="pick"><div class="pl">${label}</div><div class="po" role="radiogroup" aria-label="${String(label).replace(/<[^>]+>/g,'')}">${opts.map(o=>`<button type="button" role="radio" aria-checked="false" data-for="${id}" data-v="${o[0]}"><span>${o[1]||'Pontuação '+o[0]}</span><b>${ptsLab(o[0])}</b></button>`).join('')}</div><select id="${id}" hidden tabindex="-1"><option value="" selected></option>${opts.map(o=>`<option value="${o[0]}">${o[0]}</option>`).join('')}</select></div>`;
+ :`<div class="pick"><div class="pl">${label}</div><div class="po" role="radiogroup" aria-label="${String(label).replace(/<small class="pln">[\s\S]*?<\/small>/,'').replace(/<[^>]+>/g,'')}">${opts.map(o=>`<button type="button" role="radio" aria-checked="false" data-for="${id}" data-v="${o[0]}"><span>${o[1]||'Pontuação '+o[0]}</span><b>${ptsLab(o[0])}</b></button>`).join('')}</div><select id="${id}" hidden tabindex="-1"><option value="" selected></option>${opts.map(o=>`<option value="${o[0]}">${o[0]}</option>`).join('')}</select></div>`;
 document.addEventListener('click',e=>{const b=e.target.closest('.po button');if(!b)return;const s=$(b.dataset.for);if(!s)return;
   b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-checked',x===b));s.value=b.dataset.v;s.dispatchEvent(new Event('change'))});
 const pts=ids=>ids.filter(i=>$(i).checked).length;
@@ -177,10 +180,10 @@ const TOOLS=[
 {id:'gcs',cat:'Neurologia',name:'Escala de Coma de Glasgow',sub:'Com NT e ECG-P',
  src:'Teasdale & Jennett 1974, atualização Glasgow 2014, ECG-P 2018',
  form:()=>`<div class="stack">
-  ${radios('o','Abertura ocular',[['4','Espontânea'],['3','Ao som'],['2','À pressão'],['1','Ausente'],['NT','Não testável']],'4')}
-  ${radios('v','Resposta verbal',[['5','Orientada'],['4','Confusa'],['3','Palavras'],['2','Sons'],['1','Ausente'],['NT','Não testável']],'4')}
-  ${radios('m','Resposta motora',[['6','Obedece comandos'],['5','Localiza estímulo'],['4','Flexão normal'],['3','Flexão anormal'],['2','Extensão'],['1','Ausente'],['NT','Não testável']],'6')}
-  ${radios('p','Pupilas (opcional)',[['X','Não avaliada',''],['0','Ambas reagem'],['1','Uma não reage'],['2','Nenhuma reage']]).replace('<fieldset>','<fieldset data-opt="1">')}</div>`,
+  ${withNote(radios('o','Abertura ocular',[['4','Espontânea'],['3','Ao som'],['2','À pressão'],['1','Ausente'],['NT','Não testável']],'4'),'Observe antes de estimular. Depois, som: fale ou grite. Depois, pressão na ponta do dedo, no trapézio ou na incisura supraorbitária.')}
+  ${withNote(radios('v','Resposta verbal',[['5','Orientada'],['4','Confusa'],['3','Palavras'],['2','Sons'],['1','Ausente'],['NT','Não testável']],'4'),'Orientada: diz o nome, o local e o mês ou o ano. Confusa: conversa, mas erra. Palavras: soltas, sem frase. Sons: gemidos.')}
+  ${withNote(radios('m','Resposta motora',[['6','Obedece comandos'],['5','Localiza estímulo'],['4','Flexão normal'],['3','Flexão anormal'],['2','Extensão'],['1','Ausente'],['NT','Não testável']],'6'),'Peça um comando de 2 etapas. Sem resposta, pressione o trapézio ou a incisura supraorbitária. Localiza: a mão passa acima da clavícula. Flexão normal: rápida, afasta o braço. Anormal: lenta e estereotipada.')}
+  ${radios('p','Pupilas (opcional)',[['X','Não avaliada',''],['0','Ambas reagem'],['1','Uma não reage'],['2','Nenhuma reage']]).replace('<fieldset>','<fieldset data-opt="1">').replace('</legend>','</legend><p class="note">Reflexo fotomotor de cada olho. O escore pupilar é subtraído do Glasgow (ECG-P).</p>')}</div>`,
  calc(){
   const v=n=>document.querySelector(`input[name="${n}"]:checked`).value;
   const O=v('o'),V=v('v'),M=v('m'),P=document.querySelector('input[name="p"]:checked')?.value||'X',comp=`O${O} V${V} M${M}`;
@@ -258,19 +261,19 @@ const TOOLS=[
 {id:'nihss',cat:'Neurologia',name:'NIHSS',sub:'Gravidade do AVC',
  src:'NIH Stroke Scale (Brott et al., Stroke 1989)',
  form:()=>`<div class="stack">
-  ${sel('n1a','1a. Nível de consciência',[['0','Alerta'],['1','Desperta com estímulo leve'],['2','Desperta só com estímulo intenso'],['3','Sem resposta ou só reflexa']])}
-  ${sel('n1b','1b. Perguntas (mês, idade)',[['0','Ambas corretas'],['1','Uma correta'],['2','Nenhuma correta']])}
-  ${sel('n1c','1c. Comandos (olhos, mão)',[['0','Ambos corretos'],['1','Um correto'],['2','Nenhum correto']])}
-  ${sel('n2','2. Melhor olhar',[['0','Normal'],['1','Paresia parcial'],['2','Desvio forçado']])}
-  ${sel('n3','3. Campos visuais',[['0','Sem perda'],['1','Hemianopsia parcial'],['2','Hemianopsia completa'],['3','Hemianopsia bilateral / cegueira']],2)}
-  ${sel('n4','4. Paralisia facial',[['0','Normal'],['1','Mínima'],['2','Parcial'],['3','Completa']],2)}
-  ${['5a. Braço esquerdo','5b. Braço direito'].map((l,k)=>sel('n5'+'ab'[k],l,[['0','Sem queda em 10 s'],['1','Queda parcial'],['2','Algum esforço contra gravidade'],['3','Sem esforço contra gravidade'],['4','Sem movimento'],['UN','Amputação / anquilose']],k?3:0)).join('')}
-  ${['6a. Perna esquerda','6b. Perna direita'].map((l,k)=>sel('n6'+'ab'[k],l,[['0','Sem queda em 5 s'],['1','Queda parcial'],['2','Algum esforço contra gravidade'],['3','Sem esforço contra gravidade'],['4','Sem movimento'],['UN','Amputação / anquilose']],k?2:0)).join('')}
-  ${sel('n7','7. Ataxia de membros',[['0','Ausente'],['1','Em 1 membro'],['2','Em 2 membros'],['UN','Amputação / anquilose']])}
-  ${sel('n8','8. Sensibilidade',[['0','Normal'],['1','Perda leve a moderada'],['2','Perda grave ou total']],1)}
-  ${sel('n9','9. Linguagem',[['0','Sem afasia'],['1','Afasia leve a moderada'],['2','Afasia grave'],['3','Mutismo / afasia global']],2)}
-  ${sel('n10','10. Disartria',[['0','Normal'],['1','Leve a moderada'],['2','Grave'],['UN','Intubado / barreira física']],1)}
-  ${sel('n11','11. Extinção / desatenção',[['0','Normal'],['1','Em 1 modalidade'],['2','Profunda ou &gt; 1 modalidade']])}</div>`,
+  ${sel('n1a',nt('1a. Nível de consciência','Chame e, se preciso, estimule. Pontue a melhor resposta.'),[['0','Alerta'],['1','Desperta com estímulo leve'],['2','Desperta só com estímulo intenso'],['3','Sem resposta ou só reflexa']])}
+  ${sel('n1b',nt('1b. Perguntas (mês, idade)','Pergunte o mês atual e a idade. Só a primeira resposta conta. Afasia ou torpor: 2. Intubação, disartria grave ou barreira de língua: 1.'),[['0','Ambas corretas'],['1','Uma correta'],['2','Nenhuma correta']])}
+  ${sel('n1c',nt('1c. Comandos (olhos, mão)','Peça para abrir e fechar os olhos e para apertar e soltar a mão não parética.'),[['0','Ambos corretos'],['1','Um correto'],['2','Nenhum correto']])}
+  ${sel('n2',nt('2. Melhor olhar','Só o movimento horizontal dos olhos, voluntário ou oculocefálico.'),[['0','Normal'],['1','Paresia parcial'],['2','Desvio forçado']])}
+  ${sel('n3',nt('3. Campos visuais','Confronte os 4 quadrantes, contando dedos ou com ameaça visual.'),[['0','Sem perda'],['1','Hemianopsia parcial'],['2','Hemianopsia completa'],['3','Hemianopsia bilateral / cegueira']],2)}
+  ${sel('n4',nt('4. Paralisia facial','Peça para mostrar os dentes, levantar as sobrancelhas e fechar os olhos com força.'),[['0','Normal'],['1','Mínima'],['2','Parcial'],['3','Completa']],2)}
+  ${['5a. Braço esquerdo','5b. Braço direito'].map((l,k)=>sel('n5'+'ab'[k],nt(l,'Braço estendido, palma para baixo: 90° sentado ou 45° deitado. Conte 10 s.'),[['0','Sem queda em 10 s'],['1','Queda parcial'],['2','Algum esforço contra gravidade'],['3','Sem esforço contra gravidade'],['4','Sem movimento'],['UN','Amputação / anquilose']],k?3:0)).join('')}
+  ${['6a. Perna esquerda','6b. Perna direita'].map((l,k)=>sel('n6'+'ab'[k],nt(l,'Deitado, perna estendida a 30°. Conte 5 s.'),[['0','Sem queda em 5 s'],['1','Queda parcial'],['2','Algum esforço contra gravidade'],['3','Sem esforço contra gravidade'],['4','Sem movimento'],['UN','Amputação / anquilose']],k?2:0)).join('')}
+  ${sel('n7',nt('7. Ataxia de membros','Índex-nariz e calcanhar-joelho, dos dois lados. Só pontua se desproporcional à fraqueza.'),[['0','Ausente'],['1','Em 1 membro'],['2','Em 2 membros'],['UN','Amputação / anquilose']])}
+  ${sel('n8',nt('8. Sensibilidade','Agulha na face, no braço, no tronco e na perna. Compare os lados.'),[['0','Normal'],['1','Perda leve a moderada'],['2','Perda grave ou total']],1)}
+  ${sel('n9',nt('9. Linguagem','Peça para descrever a figura, nomear os objetos e ler as frases do cartão da escala.'),[['0','Sem afasia'],['1','Afasia leve a moderada'],['2','Afasia grave'],['3','Mutismo / afasia global']],2)}
+  ${sel('n10',nt('10. Disartria','Peça para ler ou repetir as palavras do cartão da escala.'),[['0','Normal'],['1','Leve a moderada'],['2','Grave'],['UN','Intubado / barreira física']],1)}
+  ${sel('n11',nt('11. Extinção / desatenção','Estímulo dos dois lados ao mesmo tempo, visual e tátil. Observe negligência do espaço.'),[['0','Normal'],['1','Em 1 modalidade'],['2','Profunda ou &gt; 1 modalidade']])}</div>`,
  calc(){
   const ids=['n1a','n1b','n1c','n2','n3','n4','n5a','n5b','n6a','n6b','n7','n8','n9','n10','n11'];
   const t=sumSel(ids),un=ids.filter(i=>$(i).value==='UN').length;
@@ -786,9 +789,9 @@ const TOOLS=[
 
 {id:'rass',cat:'Terapia intensiva',name:'RASS',sub:'Agitação e sedação',
  src:'Sessler et al., Am J Respir Crit Care Med 2002, MSD Manual',
- form:()=>radios('rs','Escolha o nível',[['4','Combativo: violento, perigo para a equipe','+4'],['3','Muito agitado: puxa tubos, agressivo','+3'],['2','Agitado: movimentos sem propósito, briga com ventilador','+2'],['1','Inquieto: ansioso, sem agressividade','+1'],['0','Alerta e calmo','0'],['-1','Sonolento: acorda &gt; 10 s com contato visual à voz','−1'],['-2','Sedação leve: acorda &lt; 10 s à voz','−2'],['-3','Sedação moderada: movimento à voz, sem contato visual','−3'],['-4','Sedação profunda: só responde a estímulo físico','−4'],['-5','Não despertável','−5']]),
+ form:()=>withNote(radios('rs','Escolha o nível',[['4','Combativo: violento, perigo para a equipe','+4'],['3','Muito agitado: puxa tubos, agressivo','+3'],['2','Agitado: movimentos sem propósito, briga com ventilador','+2'],['1','Inquieto: ansioso, sem agressividade','+1'],['0','Alerta e calmo','0'],['-1','Sonolento: acorda &gt; 10 s com contato visual à voz','−1'],['-2','Sedação leve: acorda &lt; 10 s à voz','−2'],['-3','Sedação moderada: movimento à voz, sem contato visual','−3'],['-4','Sedação profunda: só responde a estímulo físico','−4'],['-5','Não despertável','−5']]),'1. Observe 30 s sem falar. Alerta, inquieto ou agitado: 0 a +4. 2. Se não alerta, chame pelo nome e peça para abrir os olhos e olhar para você: −1 a −3, pelo tempo de contato visual. 3. Sem resposta à voz, sacuda o ombro ou esfregue o esterno: −4 ou −5.'),
  calc(){const v=+document.querySelector('input[name="rs"]:checked').value;out(v===0?'ok':Math.abs(v)>=3?'bad':'warn',(v>0?'+':'')+v,'RASS',v>0?'Agitação':v<0?'Sedação':'Alvo usual',v<=-4?'RASS −4 ou −5: CAM-ICU não aplicável. Reavaliar depois.':'Seguir com CAM-ICU para rastrear delirium.')},
- how:()=>`<p>Observar por 30 s. Se não houver resposta, chamar pelo nome. Se ainda não responder, estímulo físico.</p>`},
+ how:()=>`<p>Escala de +4 a −5. Avaliar antes do CAM-ICU.</p>`},
 
 {id:'camicu',cat:'Terapia intensiva',name:'CAM-ICU',sub:'Delirium na UTI',
  src:'Ely et al., JAMA 2001, worksheet UCSF',
@@ -838,7 +841,7 @@ const TOOLS=[
 {id:'ciwa',cat:'Psiquiatria',name:'CIWA-Ar',sub:'Abstinência alcoólica',
  src:'Sullivan et al., Br J Addict 1989',
  form:()=>{const o7=(a)=>[0,1,2,3,4,5,6,7].map(n=>[String(n),a[n]||'']);
-  return `<div class="stack">${sel('cw1','Náusea e vômito',o7({0:'Ausente',4:'Náusea intermitente com ânsia',7:'Náusea constante, vômitos'}))}${sel('cw2','Tremor',o7({0:'Ausente',1:'Só sentido nos dedos',4:'Moderado com braços estendidos',7:'Intenso em repouso'}))}${sel('cw3','Sudorese paroxística',o7({0:'Ausente',1:'Palmas úmidas',4:'Gotas na testa',7:'Encharcado'}))}${sel('cw4','Ansiedade',o7({0:'Tranquilo',4:'Moderadamente ansioso',7:'Pânico'}))}${sel('cw5','Agitação',o7({0:'Normal',4:'Moderadamente inquieto',7:'Anda ou se debate sem parar'}))}${sel('cw6','Distúrbio tátil',o7({0:'Ausente',1:'Prurido ou parestesia leve',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw7','Distúrbio auditivo',o7({0:'Ausente',1:'Sensibilidade leve',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw8','Distúrbio visual',o7({0:'Ausente',1:'Sensibilidade leve à luz',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw9','Cefaleia',o7({0:'Ausente',7:'Extremamente intensa'}))}${sel('cw10','Orientação',[['0','Orientado, soma em série'],['1','Não soma ou incerto da data'],['2','Erra a data em até 2 dias'],['3','Erra a data em &gt; 2 dias'],['4','Desorientado em lugar ou pessoa']])}</div>`},
+  return `<div class="stack">${sel('cw1',nt('Náusea e vômito','Pergunte: sente enjoo? Vomitou?'),o7({0:'Ausente',4:'Náusea intermitente com ânsia',7:'Náusea constante, vômitos'}))}${sel('cw2',nt('Tremor','Braços estendidos e dedos afastados. Observe.'),o7({0:'Ausente',1:'Só sentido nos dedos',4:'Moderado com braços estendidos',7:'Intenso em repouso'}))}${sel('cw3',nt('Sudorese paroxística','Observe.'),o7({0:'Ausente',1:'Palmas úmidas',4:'Gotas na testa',7:'Encharcado'}))}${sel('cw4',nt('Ansiedade','Pergunte: está nervoso? Observe.'),o7({0:'Tranquilo',4:'Moderadamente ansioso',7:'Pânico'}))}${sel('cw5',nt('Agitação','Observe.'),o7({0:'Normal',4:'Moderadamente inquieto',7:'Anda ou se debate sem parar'}))}${sel('cw6',nt('Distúrbio tátil','Pergunte: coceira, formigamento, queimação, dormência ou sensação de bichos na pele?'),o7({0:'Ausente',1:'Prurido ou parestesia leve',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw7',nt('Distúrbio auditivo','Pergunte: os sons estão mais altos ou assustam? Ouve coisas que sabe que não existem?'),o7({0:'Ausente',1:'Sensibilidade leve',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw8',nt('Distúrbio visual','Pergunte: a luz está forte ou com outra cor? Vê coisas que sabe que não existem?'),o7({0:'Ausente',1:'Sensibilidade leve à luz',4:'Alucinação moderada',7:'Alucinação contínua'}))}${sel('cw9',nt('Cefaleia','Pergunte: a cabeça está diferente, como uma faixa apertando? Não pontue tontura.'),o7({0:'Ausente',7:'Extremamente intensa'}))}${sel('cw10',nt('Orientação','Pergunte que dia é hoje, onde está e quem é você. Peça para somar em série.'),[['0','Orientado, soma em série'],['1','Não soma ou incerto da data'],['2','Erra a data em até 2 dias'],['3','Erra a data em &gt; 2 dias'],['4','Desorientado em lugar ou pessoa']])}</div>`},
  calc(){const t=sumSel(Array.from({length:10},(_,i)=>'cw'+(i+1)));const g=t<8?['Leve','ok']:t<15?['Moderada','warn']:['Grave','bad'];out(g[1],t,'/ 67','Abstinência '+g[0],t>=15?'Risco de delirium tremens.':t<10?'Geralmente sem necessidade de medicação adicional.':'')},
  how:()=>`${table(['CIWA-Ar','Gravidade'],[['&lt; 8 a 10','Leve'],['8 a 15','Moderada'],['≥ 15','Grave']])}<p>Faixas variam entre fontes.</p>`},
 
@@ -1099,13 +1102,13 @@ const TOOLS=[
 
 {id:'meem',cat:'Geriatria',name:'MEEM',sub:'Mini-Exame do Estado Mental',
  src:'Folstein et al. 1975, versão brasileira e notas de Brucki et al., Arq Neuropsiquiatr 2003',
- form:()=>`<p class="note">Marque cada acerto. 1 ponto por item, sem dicas.</p>
-  <fieldset><legend>Orientação temporal</legend>${chk('mt1','Dia da semana')}${chk('mt2','Dia do mês')}${chk('mt3','Mês')}${chk('mt4','Ano')}${chk('mt5','Hora aproximada')}</fieldset>
-  <fieldset><legend>Orientação espacial</legend>${chk('ms1','Local específico (sala, consultório)')}${chk('ms2','Instituição (hospital, clínica, casa)')}${chk('ms3','Bairro ou rua próxima')}${chk('ms4','Cidade')}${chk('ms5','Estado')}</fieldset>
-  <fieldset><legend>Registro</legend>${chk('mr1','Carro')}${chk('mr2','Vaso')}${chk('mr3','Tijolo')}</fieldset>
-  <fieldset><legend>Cálculo: 100 − 7</legend>${chk('mc1','93')}${chk('mc2','86')}${chk('mc3','79')}${chk('mc4','72')}${chk('mc5','65')}</fieldset>
-  <fieldset><legend>Evocação</legend>${chk('mv1','Carro')}${chk('mv2','Vaso')}${chk('mv3','Tijolo')}</fieldset>
-  <fieldset><legend>Linguagem</legend>${chk('ml1','Nomeia relógio')}${chk('ml2','Nomeia caneta')}${chk('ml3','Repete "nem aqui, nem ali, nem lá"')}${chk('ml4','Pega o papel com a mão direita')}${chk('ml5','Dobra ao meio')}${chk('ml6','Coloca no chão')}${chk('ml7','Lê e obedece "feche os olhos"')}${chk('ml8','Escreve uma frase com sentido')}${chk('ml9','Copia o desenho')}</fieldset>
+ form:()=>`<p class="note">Marque cada acerto. 1 ponto por item, sem dicas. Rastreio, não diagnóstico.</p>
+  <fieldset><legend>Orientação temporal</legend><p class="note">Pergunte o dia da semana, o dia do mês, o mês, o ano e a hora. Hora: aceitar até 1 h de diferença.</p>${chk('mt1','Dia da semana')}${chk('mt2','Dia do mês')}${chk('mt3','Mês')}${chk('mt4','Ano')}${chk('mt5','Hora aproximada')}</fieldset>
+  <fieldset><legend>Orientação espacial</legend><p class="note">Pergunte onde está: o local, a instituição, o bairro ou rua próxima, a cidade e o estado.</p>${chk('ms1','Local específico (sala, consultório)')}${chk('ms2','Instituição (hospital, clínica, casa)')}${chk('ms3','Bairro ou rua próxima')}${chk('ms4','Cidade')}${chk('ms5','Estado')}</fieldset>
+  <fieldset><legend>Registro</legend><p class="note">Diga carro, vaso e tijolo, uma por segundo. Logo em seguida, peça para repetir. Avise que vai perguntar de novo mais tarde. Conta só a primeira tentativa. Pode repetir até 3 vezes para aprender, sem pontuar.</p>${chk('mr1','Carro')}${chk('mr2','Vaso')}${chk('mr3','Tijolo')}</fieldset>
+  <fieldset><legend>Cálculo: 100 − 7</legend><p class="note">Peça para tirar 7 de 100 e continuar tirando 7, cinco vezes. 1 ponto por resposta certa.</p>${chk('mc1','93')}${chk('mc2','86')}${chk('mc3','79')}${chk('mc4','72')}${chk('mc5','65')}</fieldset>
+  <fieldset><legend>Evocação</legend><p class="note">Logo após o cálculo, peça as 3 palavras do registro, sem dar dicas.</p>${chk('mv1','Carro')}${chk('mv2','Vaso')}${chk('mv3','Tijolo')}</fieldset>
+  <fieldset><legend>Linguagem</legend><p class="note">Mostre um relógio e uma caneta e peça o nome. Peça para repetir a frase. Dê o comando de uma vez: pegue o papel com a mão direita, dobre ao meio e coloque no chão. Mostre "FECHE OS OLHOS" para ler e fazer. Peça para escrever uma frase. Peça para copiar o desenho.</p>${chk('ml1','Nomeia relógio')}${chk('ml2','Nomeia caneta')}${chk('ml3','Repete "nem aqui, nem ali, nem lá"')}${chk('ml4','Pega o papel com a mão direita')}${chk('ml5','Dobra ao meio')}${chk('ml6','Coloca no chão')}${chk('ml7','Lê e obedece "feche os olhos"')}${chk('ml8','Escreve uma frase com sentido')}${chk('ml9','Copia o desenho')}<p class="note">Escrita: erros de grafia não contam. Desenho: 2 pentágonos com interseção de 4 lados.</p></fieldset>
   <details class="pac"><summary>Mostrar ao paciente</summary><p class="pac1">FECHE OS OLHOS</p><svg viewBox="0 0 124 80" class="pent" role="img" aria-label="Dois pentágonos que se cruzam"><g fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><polygon points="70,40 49.3,68.5 15.7,57.6 15.7,22.4 49.3,11.5"/><polygon points="54,40 74.7,11.5 108.3,22.4 108.3,57.6 74.7,68.5"/></g></svg></details>
   <div class="stack">${sel('mesc','Escolaridade',[['_20','Analfabeto'],['_25','1 a 4 anos'],['_26.5','5 a 8 anos'],['_28','9 a 11 anos'],['_29','Mais de 11 anos']])}</div>`,
  calc(){const D=[['Orientação temporal','mt',5],['Orientação espacial','ms',5],['Registro','mr',3],['Cálculo','mc',5],['Evocação','mv',3],['Linguagem','ml',9]];
@@ -1113,7 +1116,7 @@ const TOOLS=[
   const rows=sc.map(([n,v,k])=>[n,`${v} / ${k}`]);const e=$('mesc').value;
   const c=parseFloat(e.slice(1));const low=t<c;
   out(low?'warn':'ok',t,'/ 30',low?'Abaixo da referência':'Dentro da referência',`Mediana para a escolaridade: ${fmt(c,c%1?1:0)}.`,rows)},
- how:()=>`${table(['Escolaridade','Mediana (Brucki 2003)'],[['Analfabeto','20'],['1 a 4 anos','25'],['5 a 8 anos','26,5'],['9 a 11 anos','28'],['Mais de 11 anos','29']])}<p>Registro: diga carro, vaso e tijolo e peça para repetir. Conta só a primeira tentativa.</p><p>Evocação: pedir as 3 palavras depois do cálculo.</p><p>Desenho: 2 pentágonos com interseção de 4 lados. Escrita: erros de grafia não contam.</p><p>Rastreio, não diagnóstico.</p>`},
+ how:()=>`${table(['Escolaridade','Mediana (Brucki 2003)'],[['Analfabeto','20'],['1 a 4 anos','25'],['5 a 8 anos','26,5'],['9 a 11 anos','28'],['Mais de 11 anos','29']])}`},
 
 /* ---------- LOTE 10 ---------- */
 {id:'spesi',cat:'Vascular',name:'sPESI',sub:'Gravidade do TEP',
@@ -1528,8 +1531,8 @@ const TOOLS=[
  how:()=>`${table(['GOLD','VEF₁ (% previsto)'],[['1 (leve)','≥ 80'],['2 (moderada)','50 a 79'],['3 (grave)','30 a 49'],['4 (muito grave)','&lt; 30']])}${table(['Grupo','Critério','Tratamento inicial'],[['A','0 exacerbação, mMRC 0 a 1 ou CAT &lt; 10','Um broncodilatador'],['B','0 exacerbação, mMRC ≥ 2 ou CAT ≥ 10','LABA + LAMA'],['E','≥ 1 exacerbação moderada ou grave','LABA + LAMA, + CI se eosinófilos ≥ 300/µL']])}<p>LABA: β2-agonista de longa ação. LAMA: antimuscarínico de longa ação. CI: corticoide inalatório.</p>`},
 
 {id:'tencs',cat:'Geriatria',name:'10-CS',sub:'Rastreio cognitivo de 10 pontos',
- src:'Apolinario et al., J Am Geriatr Soc 2016, protocolo da APS do RS 2024',
- form:()=>`<div class="stack">${sel('tc20','Orientação (ano, mês e dia do mês)',[['0','0 acertos'],['1','1 acerto'],['2','2 acertos'],['3','3 acertos']])}${sel('tc21','Fluência verbal: animais em 1 minuto',[['0','0 a 5'],['1','6 a 8'],['2','9 a 11'],['3','12 a 14'],['4','15 ou mais']])}${sel('tc22','Evocação das 3 palavras',[['0','Nenhuma'],['1','1 palavra'],['2','2 palavras'],['3','3 palavras']])}${sel('tc23','Escolaridade',[['2','Analfabeto'],['1','1 a 3 anos'],['0','4 anos ou mais']])}</div>`,
+ src:'Apolinario et al., Int J Geriatr Psychiatry 2016, protocolo da APS do RS 2024',
+ form:()=>`<div class="stack"><p class="note">Aplique nesta ordem. Rastreio, não diagnóstico.</p>${sel('tc20',nt('1. Orientação','Pergunte o ano, o mês e o dia do mês. Só a resposta exata conta.'),[['0','0 acertos'],['1','1 acerto'],['2','2 acertos'],['3','3 acertos']])}<div class="pick step"><div class="pl">2. Aprendizado (não pontua)<small class="pln">Diga carro, vaso e tijolo e peça para repetir. Pode repetir a lista até 3 vezes. Avise que vai perguntar depois.</small></div></div>${sel('tc21',nt('3. Fluência: animais','Peça para falar o máximo de animais em 1 minuto. Conte só os diferentes.'),[['0','0 a 5'],['1','6 a 8'],['2','9 a 11'],['3','12 a 14'],['4','15 ou mais']])}${sel('tc22',nt('4. Evocação','Sem repetir a lista, peça as 3 palavras do aprendizado.'),[['0','Nenhuma'],['1','1 palavra'],['2','2 palavras'],['3','3 palavras']])}${sel('tc23',nt('Escolaridade','Ajuste somado. O total máximo é 10.'),[['2','Analfabeto'],['1','1 a 3 anos'],['0','4 anos ou mais']])}</div>`,
  calc(){const t=Math.min(10,sumSel(['tc20','tc21','tc22','tc23']));const g=t>=8?['Normal','ok']:t>=6?['Possível comprometimento','warn']:['Provável comprometimento','bad'];out(g[1],t,'/ 10',g[0],'Rastreio, não diagnóstico.')},
  how:()=>`<p>Orientação (3) + fluência (4) + evocação (3) + ajuste por escolaridade, máximo 10.</p>${table(['Pontos','Interpretação'],[['8 a 10','Normal'],['6 a 7','Possível comprometimento'],['0 a 5','Provável comprometimento']])}`},
 
@@ -1712,7 +1715,7 @@ const SCORES=SCORE_IDS;
 const ICON={
  calc:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm1 3v4h10V5H7Zm0 7v2h2v-2H7Zm4 0v2h2v-2h-2Zm4 0v6h2v-6h-2Zm-8 4v2h2v-2H7Zm4 0v2h2v-2h-2Z"/></svg>',
  list:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M6 2H18A2 2 0 0 1 20 4V20A2 2 0 0 1 18 22H6A2 2 0 0 1 4 20V4A2 2 0 0 1 6 2ZM7.5 6h9v1.9h-9ZM7.5 9.6h9v1.9h-9ZM7.5 13.2h9v1.9h-9ZM7.5 16.8h6v1.9h-6Z"/></svg>',
- steth:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3.5 8.5H12V3.5A1.5 1.5 0 0 1 13.5 2H20.5A1.5 1.5 0 0 1 22 3.5V21H2V10A1.5 1.5 0 0 1 3.5 8.5ZM16.1 3.5L17.9 3.5L17.9 5.3L19.7 5.3L19.7 7.1L17.9 7.1L17.9 8.9L16.1 8.9L16.1 7.1L14.3 7.1L14.3 5.3L16.1 5.3ZM13.8 10.8h1.8v1.8h-1.8ZM13.8 14.3h1.8v1.8h-1.8ZM18.4 10.8h1.8v1.8h-1.8ZM18.4 14.3h1.8v1.8h-1.8ZM15.5 17.3h3v3.7h-3ZM3.9 11h1.8v1.8h-1.8ZM3.9 14.5h1.8v1.8h-1.8ZM3.9 18h1.8v1.8h-1.8ZM8.3 11h1.8v1.8h-1.8ZM8.3 14.5h1.8v1.8h-1.8ZM8.3 18h1.8v1.8h-1.8Z"/></svg>',
+ hosp:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3.5 8.5H12V3.5A1.5 1.5 0 0 1 13.5 2H20.5A1.5 1.5 0 0 1 22 3.5V21H2V10A1.5 1.5 0 0 1 3.5 8.5ZM16.1 3.5L17.9 3.5L17.9 5.3L19.7 5.3L19.7 7.1L17.9 7.1L17.9 8.9L16.1 8.9L16.1 7.1L14.3 7.1L14.3 5.3L16.1 5.3ZM13.8 10.8h1.8v1.8h-1.8ZM13.8 14.3h1.8v1.8h-1.8ZM18.4 10.8h1.8v1.8h-1.8ZM18.4 14.3h1.8v1.8h-1.8ZM15.5 17.3h3v3.7h-3ZM3.9 11h1.8v1.8h-1.8ZM3.9 14.5h1.8v1.8h-1.8ZM3.9 18h1.8v1.8h-1.8ZM8.3 11h1.8v1.8h-1.8ZM8.3 14.5h1.8v1.8h-1.8ZM8.3 18h1.8v1.8h-1.8Z"/></svg>',
  book:'<svg viewBox="0 0 24 24" fill="currentColor"><g transform="translate(-.5 0)"><path fill-rule="evenodd" d="M7 2h11a2 2 0 0 1 2 2v14H8a1 1 0 0 0 0 2h12v2H8a3 3 0 0 1-3-3V4a2 2 0 0 1 2-2Zm5 4v2.5H9.5v2H12V13h2v-2.5h2.5v-2H14V6h-2Z"/></g></svg>',
  pill:'<svg viewBox="0 0 24 24" fill="currentColor"><g transform="translate(-1 0)"><path d="M14.8 3.2a5 5 0 0 1 7 7l-4.6 4.6-7-7 4.6-4.6Z"/><path d="M8.8 9.2l7 7-4.6 4.6a5 5 0 0 1-7-7l4.6-4.6Z"/></g></svg>',
  watch:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="1.5" width="6" height="2.4" rx="1.2"/><rect x="11" y="3" width="2" height="3"/><path d="M17 7.2l1.4-1.4 1.4 1.4-1.4 1.4z"/><path fill-rule="evenodd" d="M12 5.2a8.4 8.4 0 1 1 0 16.8 8.4 8.4 0 0 1 0-16.8Zm-1.2 4.3v4.6a1.2 1.2 0 0 0 2.4 0V9.5a1.2 1.2 0 0 0-2.4 0Z"/></svg>',
@@ -1750,7 +1753,7 @@ function home(q=''){
   $('app').innerHTML=`<header class="hhead"><div class="brand"><a class="hname" href="#sobre" aria-label="MedPrumo: sobre o app"><span class="hlogo">${LOGO}</span><b>Med<em>Prumo</em></b></a>${isInstalled()?'':`<a class="inst" href="#instalar">${ICON.dl}<span>Instalar</span></a>`}</div><button type="button" class="thm2" aria-label="Trocar tema">${themeIcon()}</button></header>
   <label class="search hsearch" aria-label="Pesquisar">${ICON.search}<input id="q" type="search" placeholder="Buscar escore, cálculo ou doença" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
   ${results?`<div class="stack">${results.length?results.map(toolRow).join(''):'<p class="empty">Nada encontrado. Tente outro termo.</p>'}</div>`:
-  `<nav class="hcards">${card('esp','steth','Especialidades','Todas as ferramentas, por área')}${card('calc','calc','Calculadoras','',1)}${card('esc','list','Escores','',1)}</nav>
+  `<nav class="hcards">${card('esp','hosp','Especialidades','Todas as ferramentas, por área')}${card('calc','calc','Calculadoras','',1)}${card('esc','list','Escores','',1)}</nav>
   <nav class="htiles">${tile('med','pill','Medicamentos')}${tile('cid10','book','CID-10')}${tile('cron','watch','Cronômetro')}${tile('fav','star','Favoritos')}</nav>
   <footer class="hfoot"><a href="#sobre">${ICON.info.replace('<svg ','<svg width="16" height="16" style="vertical-align:-3px;margin-right:5px" ')}Sobre o app <span aria-hidden="true">›</span></a><span>${DISC}</span></footer>`}`;
   $('app').querySelector('.thm2').onclick=()=>toggleTheme();
@@ -2014,7 +2017,7 @@ function sobre(){
   const I={inst:ICON.dl,mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg>',gh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.5 5.5l-3 13"/></svg>'};
   const row=(href,ic,t,ext)=>`<a class="slink" href="${href}"${ext?' target="_blank" rel="noopener"':''}><span class="sli">${I[ic]}</span><span class="slt">${t}</span><i aria-hidden="true">›</i></a>`;
   const mail=`mailto:${CONTATO}?subject=${encodeURIComponent('MedPrumo: erro ou sugestões')}&body=${encodeURIComponent('O que aconteceu:\n\n\nEm qual tela ou ferramenta:\n\n\nVersão do app: '+APP_VERSION)}`;
-  $('app').innerHTML=`<div class="stack"><header class="shero"><span class="slogo">${LOGO}</span><div><h2>Med<em>Prumo</em></h2><span class="ver">Versão ${APP_VERSION}</span></div></header>
+  $('app').innerHTML=`<div class="stack"><header class="shero"><span class="slogo">${LOGO}</span><div><h2>Med<em>Prumo</em></h2><span class="ver">Versão ${APP_VERSION} · Beta</span></div></header>
   <p class="lead">Calculadoras, escores, medicamentos e <span class="nw">CID-10</span>. Grátis, sem anúncios e offline.</p>
   <div class="dev2"><div><span class="note">Desenvolvido por</span><b>Ricardo Jardim T. Privado</b><span class="note">Acadêmico de medicina</span></div></div>
   <div class="slinks">${row('#instalar','inst','Instalar no celular')}</div>
@@ -2063,7 +2066,7 @@ function tool(t){
   run();window.scrollTo(0,0);
 }
 /* Itens obrigatórios ainda não escolhidos: listas, grupos de opção e botões de seleção */
-function missing(){const m=[],lab=el=>(el.closest('.pick')?.querySelector('.pl')?.textContent||el.closest('label')?.textContent||el.closest('fieldset')?.querySelector('legend')?.textContent||'item').trim();
+function missing(){const m=[],lab=el=>((p=>{if(!p)return '';const c=p.cloneNode(true);c.querySelectorAll('.pln').forEach(x=>x.remove());return c.textContent})(el.closest('.pick')?.querySelector('.pl'))||el.closest('label')?.textContent||el.closest('fieldset')?.querySelector('legend')?.textContent||'item').trim();
   $('app').querySelectorAll('#app select:not([data-cfg])').forEach(s=>{if(s.value===''&&!s.parentElement.closest('[hidden]'))m.push(lab(s))});
   const names=new Set();$('app').querySelectorAll('input[type=radio]').forEach(r=>names.add(r.name));
   names.forEach(n=>{if(document.querySelector(`input[name="${n}"]`).closest('fieldset[data-opt]'))return;if(!document.querySelector(`input[name="${n}"]:checked`))m.push(document.querySelector(`input[name="${n}"]`).closest('fieldset').querySelector('legend').textContent)});

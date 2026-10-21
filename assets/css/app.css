@@ -431,7 +431,6 @@ body.nobar .brand:has(.inst) .hname b{font-size:clamp(1.45rem,calc(var(--h1,1vh)
  .brand .inst:hover,.btns button.primary:hover{filter:brightness(1.1)}
  .thm:hover,.thm2:hover,.cpy:hover{border-color:var(--accent)}
 }
-.form.mrc2{grid-template-columns:1fr 1fr}
 /* Telas muito baixas (iPhone SE 1ª geração no Safari) */
 .vxshort body.nobar .wrap{gap:6px}
 .vxshort body.nobar .hcards,.vxshort body.nobar .htiles{gap:5px}
@@ -486,3 +485,5 @@ body.nobar .hcard:not(.half) .hic svg{width:clamp(25px,calc(var(--h1,1vh)*4.35),
 #cm2 button[data-none]{grid-column:1/-1}
 /* Telas estreitas: títulos de grupo cabem em uma linha */
 @media (max-width:360px){legend{font-size:.82rem;letter-spacing:.05em}}
+.pick .pl .pln{display:block;margin-top:4px;font:400 .82rem/1.35 var(--body);color:var(--muted)}
+.pick.step{grid-template-columns:1fr}

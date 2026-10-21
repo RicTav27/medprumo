@@ -4,6 +4,10 @@ Versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/), ad
 
 **O app está em beta.** As versões 0.x são de teste. A 1.0.0 marcará a primeira versão estável.
 
+## 0.3.0 (2026-10-21)
+- Instruções de aplicação no MEEM, 10-CS, NIHSS, Glasgow, RASS e CIWA-Ar
+- Indicação de beta; limpeza de código
+
 ## 0.2.0 (2026-10-20)
 - Novo: 13 ferramentas (150 no total) e área Fisioterapia
 - SAPS 3 no lugar do SAPS II; tratamento inicial pelo GOLD 2026
