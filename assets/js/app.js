@@ -2017,7 +2017,7 @@ function sobre(){
   const I={inst:ICON.dl,mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg>',gh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.5 5.5l-3 13"/></svg>'};
   const row=(href,ic,t,ext)=>`<a class="slink" href="${href}"${ext?' target="_blank" rel="noopener"':''}><span class="sli">${I[ic]}</span><span class="slt">${t}</span><i aria-hidden="true">›</i></a>`;
   const mail=`mailto:${CONTATO}?subject=${encodeURIComponent('MedPrumo: erro ou sugestões')}&body=${encodeURIComponent('O que aconteceu:\n\n\nEm qual tela ou ferramenta:\n\n\nVersão do app: '+APP_VERSION)}`;
-  $('app').innerHTML=`<div class="stack"><header class="shero"><span class="slogo">${LOGO}</span><div><h2>Med<em>Prumo</em></h2><span class="ver">Versão ${APP_VERSION} · Beta</span></div></header>
+  $('app').innerHTML=`<div class="stack"><header class="shero"><span class="slogo">${LOGO}</span><div><h2>Med<em>Prumo</em></h2><span class="ver">Versão ${APP_VERSION} Beta</span></div></header>
   <p class="lead">Calculadoras, escores, medicamentos e <span class="nw">CID-10</span>. Grátis, sem anúncios e offline.</p>
   <div class="dev2"><div><span class="note">Desenvolvido por</span><b>Ricardo Jardim T. Privado</b><span class="note">Acadêmico de medicina</span></div></div>
   <div class="slinks">${row('#instalar','inst','Instalar no celular')}</div>

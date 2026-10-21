@@ -3,6 +3,9 @@
 ## Estrutura
 
 ```
+README.md               apresentação do projeto
+CHANGELOG.md            novidades por versão
+LICENSE.md              licença PolyForm Noncommercial
 index.html              página principal (só a estrutura)
 manifest.webmanifest    nome, cores e ícones para instalar
 sw.js                   cache offline (gerado por tools/version.py)
@@ -20,6 +23,7 @@ tools/
   bundle.py             gera um HTML único (dist/medprumo.html)
 docs/
   PUBLICAR.md           este arquivo
+  img/logo.svg          logo usado no README
 ```
 
 ## Atualizar o app

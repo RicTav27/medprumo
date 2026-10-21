@@ -361,7 +361,7 @@ details{min-width:0;max-width:100%}
 #app>*{min-width:0}
 .tbl{max-width:100%}
 
-/* ===== Identidade visual unificada (1.3.1) =====
+/* ===== Identidade visual unificada =====
    Um título de seção, um estado "selecionado", um tipo de caixa, um chevron. */
 /* Títulos de seção: listas, formulários, fichas, CID e Sobre */
 .group h2,.sec,.ssub,.chh small,legend{font:700 .95rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
