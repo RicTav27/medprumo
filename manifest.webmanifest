@@ -1,7 +1,7 @@
 {
  "name": "MedPrumo",
  "short_name": "MedPrumo",
- "description": "Calculadoras, escores, medicamentos e CID-10 para o plantão.",
+ "description": "Calculadoras, escores, medicamentos e CID-10. Grátis, sem anúncios e offline.",
  "lang": "pt-BR",
  "start_url": "./",
  "scope": "./",

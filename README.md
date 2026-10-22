@@ -41,7 +41,7 @@
 
 ## Funcionalidades
 
-- **150 ferramentas** entre calculadoras e escores, organizadas em 24 especialidades
+- **183 ferramentas** entre calculadoras e escores, organizadas em 24 especialidades
 - **Medicamentos:** busca por princípio ativo ou marca, com apresentações, fabricantes, tarja e tipo de receita
 - **CID-10:** busca por código ou termo, navegação por capítulos
 - **Cronômetro:** modo simples, RCP e dinâmica uterina
@@ -61,7 +61,7 @@ Abra uma [issue](https://github.com/RicTav27/medprumo/issues/new) ou escreva par
 
 ## Licença
 
-Código aberto para uso **sem fins lucrativos**, sob a [PolyForm Noncommercial 1.0.0](LICENSE.md).
+Código-fonte disponível para uso **sem fins lucrativos**, sob a [PolyForm Noncommercial 1.0.0](LICENSE.md).
 
 - **Pode:** ver, estudar, modificar e compartilhar para uso pessoal, ensino, pesquisa ou em instituições sem fins lucrativos, mantendo o aviso de autoria.
 - **Não pode:** usar para ganhar dinheiro (vender, cobrar acesso, colocar anúncios, usar em produto comercial) sem autorização do autor.
