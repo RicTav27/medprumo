@@ -73,7 +73,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .medh h2{font:700 1.5rem/1.15 var(--display);margin:0}
 .tag{display:inline-block;font:700 .72rem var(--body);text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
 .tag.red{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
-.tag.blk{background:var(--fg);color:var(--bg)}
 .tag.tGen{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
 .rx{display:grid;gap:3px;margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent)}.rx b{font-size:1.02rem}.rx span{font-size:.88rem}
 .legend{display:grid;gap:8px;margin-top:6px}.legend div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start;font-size:.86rem;color:var(--muted)}.legend .tag{justify-self:start}
@@ -248,9 +247,11 @@ fieldset:has(input[type=radio]) legend{margin-inline:12px}
 /* Página do medicamento */
 .rx .rows{margin-top:6px}
 .rx .rows b{font-size:.9rem;font-weight:600}
-.tag.free{background:var(--line);color:var(--fg)}
 .medh{display:grid;gap:4px}
-.medh .note{margin:0}
+.mcl{display:grid;margin-top:4px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
+.mcl>div{display:grid;gap:3px;padding:12px 14px}.mcl>div+div{border-top:1px solid var(--line)}
+.mcl span{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mcl p{margin:0;font-size:.95rem;line-height:1.4;color:var(--fg)}
 .prod summary{flex-wrap:nowrap}
 .pn{flex:1;min-width:0}
 .ptags{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}
@@ -442,16 +443,13 @@ body.nobar .brand:has(.inst) .hname b{font-size:clamp(1.45rem,calc(var(--h1,1vh)
 .rxc{display:flex;flex-wrap:wrap;gap:6px}
 .rxc span{font:600 .8rem var(--body);padding:4px 10px;border-radius:99px}
 .rxn{margin:0;font-size:.88rem;color:var(--muted)}
-.rxt{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:10px;font-size:.88rem;color:var(--muted)}
-.rxt div{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 
 /* Nomes químicos longos quebram em vez de alargar a página */
 #app{overflow-wrap:break-word}
-.medh h2,.medh .note,.plist div,.pa,.pn,.item b{overflow-wrap:anywhere}
+.medh h2,.plist div,.pa,.pn,.item b{overflow-wrap:anywhere}
 /* Caixa de receita neutra: sem ícone e sem cor por tipo */
 .rx2{--rk:var(--fg);border-top:1px solid var(--line)}
 .rxc span{color:var(--fg);background:var(--bg);border:1px solid var(--line)}
-.rxt .tag,.rxt .tag.red,.rxt .tag.blk,.rxt .tag.free{color:var(--fg);background:var(--bg);border:1px solid var(--line)}
 /* Campos lado a lado: caixas alinhadas embaixo mesmo com rótulos de alturas diferentes */
 .form>label{align-content:end}
 /* Favorito marcado na cor do app, igual ao ícone de Favoritos */

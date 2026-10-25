@@ -1,5 +1,5 @@
-const APP_VERSION='0.4.0';
-const CHANGES=[["0.4.0","2026-10-22",["33 novas ferramentas: PREVENT, Rockall, FOUR, ASPECTS e 4Ts","Icterícia neonatal com limites da SBP 2021 e da AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Melhorias de layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação nas escalas: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, FLACC e Norton","Nova especialidade: Fisioterapia","SAPS 3 e tratamento inicial conforme o GOLD 2026","Revisão de conteúdo com base nas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento inicial com 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
+const APP_VERSION='0.5.0';
+const CHANGES=[["0.5.0","2026-10-25",["Medicamentos atualizados com a lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS) nos medicamentos","Página de medicamento redesenhada","Tipo de receita revisado conforme a Portaria 344 e a IN 360/2025","Apresentações escritas por extenso","CID-10 com os códigos de covid-19 do Ministério da Saúde","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C‑spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, EPDS, Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia neonatal (AAP 2022), Icterícia neonatal (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e taxa metabólica basal","Icterícia neonatal com limites da SBP 2021 e da AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Melhorias de layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação nas escalas: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, carga tabágica, escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS, mecânica ventilatória, MRC, NIPS, Norton e T-ACE","Nova especialidade: Fisioterapia","SAPS 3 e tratamento inicial conforme o GOLD 2026","Revisão de conteúdo com base nas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento inicial com 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
 const CONTATO='ricardotaveira123@gmail.com';
 const DISC='Não substitui julgamento clínico. Confira doses, fórmulas e cortes antes de decisões terapêuticas.';
 /* MedPrumo: aplicação */
@@ -32,7 +32,7 @@ const chk0=(id,label)=>`<label class="opt"><input type="checkbox" id="${id}"><sp
 const chk=(id,label,on)=>`<label class="opt"><input type="checkbox" id="${id}"><b class="pt">+1</b><span>${label}</span></label>`;
 const ptsLab=v=>{if(String(v)[0]==='_')return '';v=String(v).replace(/^(\d+)[a-z]$/,'$1');const n=+v;return v===''?'':isNaN(n)?v:(n>0?'+'+String(v).replace('.',','):String(v).replace('-','−').replace('.',','))};
 /* Rótulo com instrução curta abaixo (não entra no aviso de item faltando) */
-const nt=(label,note)=>`${label}<small class="pln">${note}</small>`;
+const nt=(label,note)=>`${label}<small class="pln">${note.replace(/(≥|≤|&lt;|&gt;) /g,'$1&nbsp;')}</small>`;
 const sel=(id,label,opts,def=0,cfg)=>cfg
  ?`<label>${label}<select id="${id}" data-cfg="1">${opts.map((o,i)=>`<option value="${o[0]}" ${i===def?'selected':''}>${o[1]||o[0]}</option>`).join('')}</select></label>`
  :`<div class="pick"><div class="pl">${label}</div><div class="po" role="radiogroup" aria-label="${String(label).replace(/<small class="pln">[\s\S]*?<\/small>/,'').replace(/<[^>]+>/g,'')}">${opts.map(o=>`<button type="button" role="radio" aria-checked="false" data-for="${id}" data-v="${o[0]}"><span>${String(o[1]||'Pontuação '+o[0]).replace(/(≥|≤|&lt;|&gt;) /g,'$1&nbsp;')}</span><b>${ptsLab(o[0])}</b></button>`).join('')}</div><select id="${id}" hidden tabindex="-1"><option value="" selected></option>${opts.map(o=>`<option value="${o[0]}">${o[0]}</option>`).join('')}</select></div>`;
@@ -226,18 +226,18 @@ const TOOLS=[
   ${sel('h1','História',[['0','Pouco suspeita'],['1','Moderadamente suspeita'],['2','Muito suspeita']],1)}
   ${sel('h2','ECG',[['0','Normal'],['1','Repolarização inespecífica, BRE, HVE, marcapasso'],['2','Infra/supra de ST significativo']])}
   ${sel('h3','Idade',[['0','&lt; 45 anos'],['1','45 a 64 anos'],['2','≥ 65 anos']],1)}
-  ${sel('h4','Fatores de risco',[['0','Nenhum'],['1','1 a 2 fatores'],['2','≥ 3 fatores ou aterosclerose conhecida']],1)}
+  ${sel('h4',nt('Fatores de risco','HAS, DM, dislipidemia, tabagismo, obesidade, história familiar'),[['0','Nenhum'],['1','1 a 2 fatores'],['2','≥ 3 fatores ou aterosclerose conhecida']],1)}
   ${sel('h5','Troponina',[['0','≤ limite normal'],['1','1 a 3× o limite'],['2','&gt; 3× o limite']])}</div>`,
  calc(){
   const t=sumSel(['h1','h2','h3','h4','h5']);
   const g=t<=3?['Baixo risco','ok','MACE ≈ 0,9 a 1,7% em 6 semanas.']:t<=6?['Risco moderado','warn','MACE ≈ 12 a 16,6% em 6 semanas.']:['Alto risco','bad','MACE ≈ 50 a 65% em 6 semanas.'];
   out(g[1],t,'/ 10',g[0],g[2]);
  },
- how:()=>`${table(['HEART','Risco de MACE'],[['0 a 3','Baixo: 0,9 a 1,7%'],['4 a 6','Moderado: 12 a 16,6%'],['7 a 10','Alto: 50 a 65%']])}<p>Fatores de risco: HAS, DM, dislipidemia, tabagismo, obesidade, história familiar.</p>`},
+ how:()=>`${table(['HEART','Risco de MACE'],[['0 a 3','Baixo: 0,9 a 1,7%'],['4 a 6','Moderado: 12 a 16,6%'],['7 a 10','Alto: 50 a 65%']])}`},
 
 {id:'timi',cat:'Cardiologia',name:'TIMI (AI/IAMSSST)',sub:'Risco em 14 dias',
  src:'Antman et al., JAMA 2000',
- form:()=>`<fieldset><legend>Critérios</legend>${chk('t1','Idade ≥ 65 anos',1)}${chk('t2','≥ 3 fatores de risco para DAC',1)}${chk('t3','Estenose coronariana prévia ≥ 50%')}${chk('t4','Desvio de ST no ECG de admissão')}${chk('t5','≥ 2 episódios de angina em 24 h',1)}${chk('t6','Uso de AAS nos últimos 7 dias')}${chk('t7','Marcadores de necrose elevados')}</fieldset>`,
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('t1','Idade ≥ 65 anos',1)}${chk('t2',nt('≥ 3 fatores de risco para DAC','HAS, DM, dislipidemia, tabagismo atual, história familiar de DAC'),1)}${chk('t3','Estenose coronariana prévia ≥ 50%')}${chk('t4','Desvio de ST no ECG de admissão')}${chk('t5','≥ 2 episódios de angina em 24 h',1)}${chk('t6','Uso de AAS nos últimos 7 dias')}${chk('t7','Marcadores de necrose elevados')}</fieldset>`,
  calc(){
   const t=pts(['t1','t2','t3','t4','t5','t6','t7']);
   const r=t<=1?'4,7%':t===2?'8,3%':t===3?'13,2%':t===4?'19,9%':t===5?'26,2%':'40,9%';
@@ -699,9 +699,9 @@ const TOOLS=[
 
 {id:'bisap',cat:'Gastroenterologia',name:'BISAP',sub:'Pancreatite aguda nas primeiras 24 h',
  src:'Wu et al., Gut 2008, MSD Manual',
- form:()=>`<fieldset><legend>Critérios</legend>${chk('bs1','BUN &gt; 25 mg/dL (ureia &gt; 53)')}${chk('bs2','I: alteração mental (Glasgow &lt; 15)')}${chk('bs3','SIRS (≥ 2 critérios)',1)}${chk('bs4','A: idade &gt; 60 anos',1)}${chk('bs5','P: derrame pleural')}</fieldset>`,
+ form:()=>`<fieldset><legend>Critérios</legend>${chk('bs1','BUN &gt; 25 mg/dL (ureia &gt; 53)')}${chk('bs2','I: alteração mental (Glasgow &lt; 15)')}${chk('bs3',nt('SIRS (≥ 2 critérios)','T &lt; 36 ou &gt; 38 °C, FR &gt; 20 ou PaCO₂ &lt; 32, FC &gt; 90, leucócitos &lt; 4.000 ou &gt; 12.000 ou &gt; 10% bastões'),1)}${chk('bs4','A: idade &gt; 60 anos',1)}${chk('bs5','P: derrame pleural')}</fieldset>`,
  calc(){const t=pts(['bs1','bs2','bs3','bs4','bs5']);out(t>=3?'bad':'ok',t,'/ 5',t>=3?'Alto risco':'Baixo risco',t>=3?'Mortalidade &gt; 15%.':'Mortalidade &lt; 2%.')},
- how:()=>`<p><b>SIRS:</b> T &lt; 36 ou &gt; 38 °C, FR &gt; 20 ou PaCO₂ &lt; 32, FC &gt; 90, leucócitos &lt; 4.000 ou &gt; 12.000 ou &gt; 10% bastões.</p>${table(['BISAP','Mortalidade'],[['0 a 2','&lt; 2%'],['3 a 5','&gt; 15%']])}`},
+ how:()=>`${table(['BISAP','Mortalidade'],[['0 a 2','&lt; 2%'],['3 a 5','&gt; 15%']])}`},
 
 {id:'katz',cat:'Geriatria',name:'Índice de Katz',sub:'Atividades básicas de vida diária',
  src:'Katz et al., JAMA 1963, Missouri Geriatric Toolkit',
@@ -785,12 +785,12 @@ const TOOLS=[
  src:'Kuppermann et al., Lancet 2009, WikEM',
  form:()=>`<div class="full"><label>Idade</label><div class="seg" id="pcage"><button type="button" data-v="0" aria-pressed="false">&lt; 2 anos</button><button type="button" data-v="2" aria-pressed="false">≥ 2 anos</button></div></div>
   <fieldset><legend>Alto risco</legend>${chk('pc1','Glasgow ≤ 14')}${chk('pc2','Alteração do estado mental')}${chk('pc3','&lt; 2 a: fratura de crânio palpável, ≥ 2 a: sinais de fratura de base')}</fieldset>
-  <fieldset><legend>Risco intermediário</legend>${chk('pc4','&lt; 2 a: hematoma de couro cabeludo não frontal, ≥ 2 a: vômito')}${chk('pc5','&lt; 2 a: perda de consciência ≥ 5 s, ≥ 2 a: perda de consciência')}${chk('pc6','Mecanismo grave')}${chk('pc7','&lt; 2 a: comportamento anormal segundo os pais, ≥ 2 a: cefaleia intensa')}</fieldset>`,
+  <fieldset><legend>Risco intermediário</legend>${chk('pc4','&lt; 2 a: hematoma de couro cabeludo não frontal, ≥ 2 a: vômito')}${chk('pc5','&lt; 2 a: perda de consciência ≥ 5 s, ≥ 2 a: perda de consciência')}${chk('pc6',nt('Mecanismo grave','Pedestre ou ciclista sem capacete atingido por veículo, objeto de alto impacto na cabeça, queda &gt; 0,9&nbsp;m se &lt; 2 anos ou &gt; 1,5&nbsp;m se ≥ 2 anos'))}${chk('pc7','&lt; 2 a: comportamento anormal segundo os pais, ≥ 2 a: cefaleia intensa')}</fieldset>`,
  calc(){const h=pts(['pc1','pc2','pc3']),m=pts(['pc4','pc5','pc6','pc7']),u2=segVal('pcage')==='0';
   if(h)return out('bad','','','Alto risco',`Risco de TCE clinicamente importante ${u2?'4,4%':'4,3%'}.`);
   if(m)return out('warn','','','Risco intermediário','Risco de TCE clinicamente importante 0,9%.');
   out('ok','','','Baixo risco','Risco muito baixo de TCE clinicamente importante na coorte original.')},
- how:()=>`<p><b>Mecanismo grave:</b> pedestre ou ciclista sem capacete atingido por veículo, objeto de alto impacto na cabeça, queda &gt; 3 pés (~0,9 m) se &lt; 2 anos ou &gt; 5 pés (~1,5 m) se ≥ 2 anos.</p>${table(['Grupo','Risco de TCE importante'],[['Alto','4,3 a 4,4%'],['Intermediário','0,9%']])}`},
+ how:()=>`${table(['Grupo','Risco de TCE importante'],[['Alto','4,3 a 4,4%'],['Intermediário','0,9%']])}`},
 
 {id:'rass',cat:'Terapia intensiva',name:'RASS',sub:'Agitação e sedação',
  src:'Sessler et al., Am J Respir Crit Care Med 2002, MSD Manual',
@@ -891,14 +891,14 @@ const TOOLS=[
 {id:'sofa2',cat:'Terapia intensiva',name:'SOFA-2',sub:'Disfunção orgânica (2025)',
  src:'Ranzani et al., JAMA 2025 (SOFA-2)',
  form:()=>`<div class="stack">
-  ${sel('s21','Cérebro: Glasgow',[['0','15'],['1','13 a 14, ou delirium em tratamento'],['2','9 a 12'],['3','6 a 8'],['4','3 a 5']])}
-  ${sel('s22','Respiratório',[['0','P/F &gt; 300'],['1','P/F ≤ 300 ou S/F ≤ 300'],['2','P/F ≤ 225 ou S/F ≤ 250'],['3','P/F ≤ 150 ou S/F ≤ 200 + suporte avançado'],['4','P/F ≤ 75 ou S/F ≤ 120 + suporte avançado, ou ECMO']])}
-  ${sel('s23','Cardiovascular',[['0','PAM ≥ 70 sem vasoativo'],['1','PAM &lt; 70 sem vasoativo'],['2','Nora + adrenalina ≤ 0,2, ou outro vasoativo'],['3','Nora + adrenalina &gt; 0,2 a 0,4, ou ≤ 0,2 + outro'],['4','Nora + adrenalina &gt; 0,4, ou &gt; 0,2 a 0,4 + outro, ou suporte mecânico']])}
+  ${sel('s21',nt('Cérebro: Glasgow','Sedado: último Glasgow antes da sedação. Delirium tratado com medicação vale 1, mesmo com Glasgow 15'),[['0','15'],['1','13 a 14, ou delirium em tratamento'],['2','9 a 12'],['3','6 a 8'],['4','3 a 5']])}
+  ${sel('s22',nt('Respiratório','3 e 4 exigem suporte avançado (CNAF, CPAP, BiPAP, VNI ou VM). S/F só sem gasometria e com SpO₂ &lt; 98%'),[['0','P/F &gt; 300'],['1','P/F ≤ 300 ou S/F ≤ 300'],['2','P/F ≤ 225 ou S/F ≤ 250'],['3','P/F ≤ 150 ou S/F ≤ 200 + suporte avançado'],['4','P/F ≤ 75 ou S/F ≤ 120 + suporte avançado, ou ECMO']])}
+  ${sel('s23',nt('Cardiovascular','Nora + adrenalina em µg/kg/min (base), infusão contínua por ≥ 1 h'),[['0','PAM ≥ 70 sem vasoativo'],['1','PAM &lt; 70 sem vasoativo'],['2','Nora + adrenalina ≤ 0,2, ou outro vasoativo'],['3','Nora + adrenalina &gt; 0,2 a 0,4, ou ≤ 0,2 + outro'],['4','Nora + adrenalina &gt; 0,4, ou &gt; 0,2 a 0,4 + outro, ou suporte mecânico']])}
   ${sel('s24','Fígado: bilirrubina (mg/dL)',[['0','≤ 1,2'],['1','&gt; 1,2 a 3,0'],['2','&gt; 3,0 a 6,0'],['3','&gt; 6,0 a 12,0'],['4','&gt; 12,0']])}
-  ${sel('s25','Rim',[['0','Cr ≤ 1,2'],['1','Cr &gt; 1,2 a 2,0, ou diurese &lt; 0,5 mL/kg/h por 6 a 12 h'],['2','Cr &gt; 2,0 a 3,5, ou &lt; 0,5 mL/kg/h por ≥ 12 h'],['3','Cr &gt; 3,5, ou &lt; 0,3 mL/kg/h por ≥ 24 h, ou anúria ≥ 12 h'],['4','Em TRS ou com critério para TRS']])}
+  ${sel('s25',nt('Rim','TRS só por causa renal'),[['0','Cr ≤ 1,2'],['1','Cr &gt; 1,2 a 2,0, ou diurese &lt; 0,5 mL/kg/h por 6 a 12 h'],['2','Cr &gt; 2,0 a 3,5, ou &lt; 0,5 mL/kg/h por ≥ 12 h'],['3','Cr &gt; 3,5, ou &lt; 0,3 mL/kg/h por ≥ 24 h, ou anúria ≥ 12 h'],['4','Em TRS ou com critério para TRS']])}
   ${sel('s26','Hemostasia: plaquetas (×10³/µL)',[['0','&gt; 150'],['1','≤ 150'],['2','≤ 100'],['3','≤ 80'],['4','≤ 50']])}</div>`,
  calc(){const t=sumSel(['s21','s22','s23','s24','s25','s26']);out(t>=2?'bad':'ok',t,'/ 24','SOFA-2','Pior valor de cada sistema em 24 h.')},
- how:()=>`<p><b>Cérebro:</b> sedado, usar o último Glasgow antes da sedação. Delirium em tratamento medicamentoso vale 1 mesmo com Glasgow 15.</p><p><b>Respiratório:</b> 3 e 4 exigem suporte avançado (CNAF, CPAP, BiPAP, VNI ou VM). S/F só sem gasometria e com SpO₂ &lt; 98%.</p><p><b>Cardiovascular:</b> nora + adrenalina em µg/kg/min (base), infusão contínua por ≥ 1 h. Só dopamina: ≤ 20 = 2, &gt; 20 a 40 = 3, &gt; 40 = 4. Sem vasoativo disponível: PAM 60 a 69 = 1, 50 a 59 = 2, 40 a 49 = 3, &lt; 40 = 4.</p><p><b>Rim:</b> TRS só por causa renal.</p>`},
+ how:()=>`<p>6 sistemas de 0 a 4. Usar o pior valor de cada sistema em 24 h.</p><p><b>Cardiovascular só com dopamina:</b> ≤ 20 = 2, &gt; 20 a 40 = 3, &gt; 40 = 4.</p><p><b>Cardiovascular sem vasoativo disponível:</b> PAM 60 a 69 = 1, 50 a 59 = 2, 40 a 49 = 3, &lt; 40 = 4.</p>`},
 
 {id:'vanco',cat:'Farmacologia',name:'AUC de vancomicina',sub:'Método de dois níveis',
  src:'Sawchuk-Zaske, consenso ASHP/IDSA 2020, Contagion Live',
@@ -1870,11 +1870,11 @@ const TOOLS=[
  form:()=>`<div class="stack">
   ${sel('ad1','Atividade',[['2','Move os 4 membros ao comando'],['1','Move 2 membros ao comando'],['0','Não move os membros']])}
   ${sel('ad2','Respiração',[['2','Respira fundo e tosse'],['1','Dispneia ou respiração limitada'],['0','Apneia']])}
-  ${sel('ad3','Circulação',[['2','PA até 20% do valor pré-anestésico'],['1','PA 20 a 49% do valor pré-anestésico'],['0','PA ≥ 50% do valor pré-anestésico']])}
+  ${sel('ad3',nt('Circulação','Variação da PA em relação ao valor pré-anestésico'),[['2','PA até 20% do valor pré-anestésico'],['1','PA 20 a 49% do valor pré-anestésico'],['0','PA ≥ 50% do valor pré-anestésico']])}
   ${sel('ad4','Consciência',[['2','Totalmente acordado'],['1','Desperta ao ser chamado'],['0','Não responde']])}
   ${sel('ad5','Saturação de O₂',[['2','&gt; 92% em ar ambiente'],['1','Precisa de O₂ para manter &gt; 90%'],['0','&lt; 90% mesmo com O₂']])}</div>`,
  calc(){const t=sumSel(['ad1','ad2','ad3','ad4','ad5']);out(t>=9?'ok':'warn',t,'/ 10',t>=9?'Atinge o critério (≥ 9)':'Abaixo do critério (&lt; 9)','Critério de alta da sala de recuperação: ≥ 9.')},
- how:()=>`<p>5 itens de 0 a 2. A versão de 1995 troca a cor da pele pela SpO₂.</p><p>Circulação: variação da PA em relação ao valor pré-anestésico.</p>`},
+ how:()=>`<p>5 itens de 0 a 2. A versão de 1995 troca a cor da pele pela SpO₂.</p>`},
 
 {id:'prevent',cat:'Cardiologia',name:'PREVENT',sub:'Risco cardiovascular em 10 anos (SBC 2025)',
  src:'Khan et al., Circulation 2024 (equações PREVENT, modelo base), coeficientes conferidos no pacote preventr, Diretriz Brasileira de Dislipidemias SBC 2025',
@@ -2299,13 +2299,38 @@ function cid10(view=''){
   bar('CID-10',back);
   $('app').innerHTML=`<label class="search" aria-label="Buscar na CID-10">${ICON.search}<input id="cq" type="search" placeholder="Código ou termo" value="${sv.replace(/"/g,'&quot;')}" autocomplete="off"></label>
   <div class="stack">${body}</div>
-  <footer>CID-10 oficial do DATASUS.</footer>`;
+  <footer>CID-10 oficial do DATASUS, com os códigos de covid-19 do Ministério da Saúde.</footer>`;
   const qi=$('cq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;cid10(v.trim()?'q:'+v:'');const n=$('cq');n.focus();n.setSelectionRange(p,p)});
   $('app').querySelectorAll('.cid').forEach(b=>b.onclick=()=>cidCopy(b.dataset.c,b));
 }
 
-const FORMX=[['SOL GOT','solução oral em gotas'],['COM REV LIB PROL','comprimido revestido de liberação prolongada'],['COM LIB PROL','comprimido de liberação prolongada'],['COM REV LIB','comprimido revestido de liberação modificada'],['COM REV','comprimido revestido'],['COM ORODISP','comprimido orodispersível'],['COM SUBL','comprimido sublingual'],['COM MAST','comprimido mastigável'],['COM EFEV','comprimido efervescente'],['COM','comprimido'],['CAP GEL DURA','cápsula gelatinosa dura'],['CAP GEL MOLE','cápsula gelatinosa mole'],['CAP DURA LIB','cápsula dura de liberação modificada'],['CAP DURA','cápsula dura'],['CAP MOLE','cápsula mole'],['CAP','cápsula'],['DRG','drágea'],['PO LIOF SOL INJ','pó liofilizado para solução injetável'],['PÓ LIOF SOL INJ','pó liofilizado para solução injetável'],['PO SOL INJ','pó para solução injetável'],['PO SUS OR','pó para suspensão oral'],['PO SOL OR','pó para solução oral'],['PO EFEV','pó efervescente'],['SOL INJ','solução injetável'],['SOL DIL INFUS','solução para diluição e infusão'],['SOL INFUS','solução para infusão'],['SOL GOT OR','solução oral em gotas'],['SOL GOT OFT','colírio'],['SOL OFT','solução oftálmica'],['SOL OR','solução oral'],['SOL NAS','solução nasal'],['SOL INAL','solução para inalação'],['SOL TOP','solução tópica'],['SOL CAPI','solução capilar'],['SUS OR','suspensão oral'],['SUS INJ','suspensão injetável'],['SUS SPR NAS','spray nasal'],['XPE','xarope'],['ELX','elixir'],['EMU','emulsão'],['CREM DERM','creme'],['CREM VAG','creme vaginal'],['CREM','creme'],['POM DERM','pomada'],['POM','pomada'],['GEL','gel'],['ADES TRANSD','adesivo transdérmico'],['SUP','supositório'],['GRAN','granulado'],['AER','aerossol']];
-function medForm(s){let t=s.replace(/(\d)(MG|MCG|ML|G|UI|MEQ)\b/g,'$1 $2').replace(/\s*\/\s*/g,'/').replace(/\bMCG\b/g,'mcg').replace(/\bMG\b/g,'mg').replace(/\bML\b/g,'mL').replace(/\bG\b/g,'g').replace(/\bMEQ\b/g,'mEq');
+const FORMX=[['SOL GOT OFT','colírio'],['SOL GOT','solução em gotas'],['COM REV LIB PROL','comprimido revestido de liberação prolongada'],['COM LIB PROL','comprimido de liberação prolongada'],['COM REV LIB','comprimido revestido de liberação modificada'],['COM REV','comprimido revestido'],['COM ORODISP','comprimido orodispersível'],['COM SUBL','comprimido sublingual'],['COM MAST','comprimido mastigável'],['COM EFEV','comprimido efervescente'],['COM','comprimido'],['CAP GEL DURA','cápsula gelatinosa dura'],['CAP GEL MOLE','cápsula gelatinosa mole'],['CAP DURA LIB','cápsula dura de liberação modificada'],['CAP DURA','cápsula dura'],['CAP MOLE','cápsula mole'],['CAP','cápsula'],['DRG','drágea'],['PO LIOF SOL INJ','pó liofilizado para solução injetável'],['PÓ LIOF SOL INJ','pó liofilizado para solução injetável'],['PO SOL INJ','pó para solução injetável'],['PO SUS OR','pó para suspensão oral'],['PO SOL OR','pó para solução oral'],['PO EFEV','pó efervescente'],['SOL INJ','solução injetável'],['SOL DIL INFUS','solução para diluição e infusão'],['SOL INFUS','solução para infusão'],['SOL GOT OR','solução oral em gotas'],['SOL GOT OFT','colírio'],['SOL OFT','solução oftálmica'],['SOL OR','solução oral'],['SOL NAS','solução nasal'],['SOL INAL','solução para inalação'],['SOL TOP','solução tópica'],['SOL CAPI','solução capilar'],['SUS OR','suspensão oral'],['SUS INJ','suspensão injetável'],['SUS SPR NAS','spray nasal'],['XPE','xarope'],['ELX','elixir'],['EMU','emulsão'],['CREM DERM','creme'],['CREM VAG','creme vaginal'],['CREM','creme'],['POM DERM','pomada'],['POM','pomada'],['GEL','gel'],['ADES TRANSD','adesivo transdérmico'],['SUP','supositório'],['GRAN','granulado'],['AER','aerossol']];
+/* Apresentação da CMED por extenso: separa dose e forma e traduz a forma palavra por palavra */
+const FN={COM:['comprimido','m'],CAP:['cápsula','f'],DRG:['drágea','f'],SOL:['solução','f'],SUS:['suspensão','f'],EMU:['emulsão','f'],PO:['pó','m'],'PÓ':['pó','m'],GRAN:['granulado','m'],XPE:['xarope','m'],ELX:['elixir','m'],CREM:['creme','m'],CR:['creme','m'],POM:['pomada','f'],GEL:['gel','m'],LOC:['loção','f'],PAS:['pastilha','f'],PAST:['pastilha','f'],SUP:['supositório','m'],OVL:['óvulo','m'],ADES:['adesivo','m'],AER:['aerossol','m'],SPR:['spray','m'],SHAMP:['xampu','m'],XAMP:['xampu','m'],GOMA:['goma','f'],LIQ:['líquido','m'],ESM:['esmalte','m'],ESP:['espuma','f'],FILM:['filme','m'],IMPL:['implante','m'],LIP:['emulsão lipídica','f'],COMREV:['comprimido revestido','m'],SUSP:['suspensão','f'],COMP:['comprimido','m'],IMPLANTE:['implante','m'],DIU:['dispositivo intrauterino','m'],SAB:['sabonete','m'],COLUT:['colutório','m'],SPRAY:['spray','m']};
+const FM={REV:['revestido','revestida'],DURA:['duro','dura'],MOLE:['mole','mole'],LIOF:['liofilizado','liofilizada'],OFT:['oftálmico','oftálmica'],DERM:['dermatológico','dermatológica'],DER:['dermatológico','dermatológica'],TOP:['tópico','tópica'],GINEC:['ginecológico','ginecológica'],OTO:['otológico','otológica'],TRANSD:['transdérmico','transdérmica'],INAL:['inalatório','inalatória'],MATRICIAL:['matricial','matricial'],MAST:['mastigável','mastigável'],EFEV:['efervescente','efervescente'],ORODISP:['orodispersível','orodispersível'],SUBL:['sublingual','sublingual'],SUB:['sublingual','sublingual'],'SUB-LING':['sublingual','sublingual'],INJ:['injetável','injetável'],OR:['oral','oral'],ORAL:['oral','oral'],NAS:['nasal','nasal'],NASAL:['nasal','nasal'],VAG:['vaginal','vaginal'],BUC:['bucal','bucal'],CAPI:['capilar','capilar'],CAP2:['capilar','capilar'],RET:['retal','retal'],GOT:['em gotas','em gotas'],INFUS:['para infusão','para infusão'],DIL:['para diluição','para diluição'],HD:['para hemodiálise','para hemodiálise'],HEMO:['para hemodiálise','para hemodiálise'],DP:['para diálise peritoneal','para diálise peritoneal'],IRR:['para irrigação','para irrigação'],GEL2:['gelatinoso','gelatinosa'],OC:['ocular','ocular'],OCU:['ocular','ocular'],AQUOSA:['aquoso','aquosa'],PED:['pediátrico','pediátrica'],INF:['infantil','infantil'],AD:['adulto','adulto'],ADU:['adulto','adulto'],CONTROL:['controlado','controlada']};
+const FL={PROL:'prolongada',RETARD:'retardada',MOD:'modificada',CONT:'controlada',CONTROL:'controlada'};
+const ROUTE=/^(IV|IM|SC|IT|IA|EPI|ID|IVIT|IO|IP|IC|INTRAVESICAL)$/;
+function formPT(f){const tk=f.replace(/\bP\/\s*/g,'P/ ').split(/\s+/).filter(Boolean);let out=[],g='m',noun=0,i=0,routes=[];
+  while(i<tk.length){let w=tk[i];
+    if(w==='P/'){i++;continue}
+    if(w.includes('/')&&w.split('/').every(x=>ROUTE.test(x))){routes.push(w.split('/').join(' ou '));i++;continue}
+    if(ROUTE.test(w)){routes.push(w);i++;continue}
+    if(w==='LIB'){const n=FL[tk[i+1]];out.push('de liberação '+(n||'modificada'));i+=n?2:1;continue}
+    if(w==='GEL'&&noun&&out.length&&/cápsula|comprimido/.test(out[out.length-1])){out.push(FM.GEL2[g==='f'?1:0]);i++;continue}
+    if(w==='CAP'&&noun){out.push('capilar');i++;continue}
+    if(w.includes('/')){const ps=w.split('/');if(ps.every(x=>FN[x]||FM[x])){out.push(ps.map(x=>FN[x]?FN[x][0]:FM[x][g==='f'?1:0]).join(' ou '));i++;continue}}
+    if(FN[w]){out.push((noun?'para ':'')+FN[w][0]);g=FN[w][1];noun++;i++;continue}
+    if(FM[w]){out.push(FM[w][g==='f'?1:0]);i++;continue}
+    if(FL[w]){out.push(FL[w]);i++;continue}
+    return null}
+  if(!noun)return null;
+  let t=out.join(' ').replace('solução oftálmica em gotas','colírio').replace('solução em gotas oftálmica','colírio').replace('suspensão em gotas oftálmica','suspensão oftálmica').replace('suspensão oftálmica em gotas','suspensão oftálmica').replace('solução em gotas oral','solução oral em gotas').replace('para diluição para infusão','para diluição e infusão').replace('solução para diluição injetável','solução injetável para diluição').replace('suspensão em gotas oral','suspensão oral em gotas');
+  return t+(routes.length?' '+routes.join(' '):'')}
+function medForm(s){let t=s.replace(/(\d)(MG|MCG|ML|G|UI|MEQ)\b/g,'$1 $2').replace(/\s*\/\s*(?=[A-Z0-9])/g,'/').replace(/\bMCG\b/g,'mcg').replace(/\bMG\b/g,'mg').replace(/\bML\b/g,'mL').replace(/\bG\b/g,'g').replace(/\bMEQ\b/g,'mEq');
+  t=t.replace(/\/24H\b/g,'/24 h').replace(/\s*\+\s*/g,' + ').replace(/(\d),0+(?!\d)/g,'$1').replace(/(\d,\d*[1-9])0+(?!\d)/g,'$1').replace(/\(\s+/g,'(').replace(/\s+\)/g,')');
+  const one=t=>{const m=t.match(/^(.*?[\d)%]\s*(?:mg|mcg|g|mL|UI|mEq|%|U|MBq|MMOL|CH|DH|UFC|UFP|DL50|MU)?(?:\/[\dA-Za-z,]+)*\)?)\s+([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ\/\- ]*)$/); if(m){const f=formPT(m[2].trim());if(f)return (m[1]+', '+f).replace(/\s+/g,' ').trim()} if(/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ\/\- ]*$/.test(t.trim())){const f=formPT(t.trim());if(f)return f.charAt(0).toUpperCase()+f.slice(1)} return null};
+  const segs=t.split(/\s*\+\s*(?=\d)/);if(segs.length>1){const rs=segs.map(one);if(rs.every(Boolean))return rs.join(' + ')}
+  const r1=one(t);if(r1)return r1;
   for(const[a,b]of FORMX){const re=new RegExp('\\b'+a.replace(/ /g,'\\s+')+'\\b');if(re.test(t)){t=t.replace(re,', '+b);break}}
   return t.replace(/\bIV\/IM\b|\bIM\/IV\b/,'IV ou IM').replace(/\s+/g,' ').replace(/\s+,/g,',').trim()}
 function med(view=''){
@@ -2327,20 +2352,23 @@ function med(view=''){
   const qi=$('mq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;med(v.trim()?'q:'+v:'');const n=$('mq');n.focus();n.setSelectionRange(p,p)});
 }
 const sc=s=>{s=String(s).toLowerCase();return s.replace(/[a-zà-ú]/,c=>c.toUpperCase())};
+/* Classe terapêutica da CMED: tira o código e as referências entre parênteses (P1C), mantém siglas */
+const ACR=new Set(['BPH','HIV','ECA','JAK','EGFR','RSV','HPV','HDAC','PCSK9','CFTR','TNF','DPOC','HCV','HBV','CGRP','AINE','AINES','SNC','UV','II','III','IV','DNA','RNA','GABA','MAO','HER2','PD-1','PD-L1','ALK','BRAF','MEK','PARP','VEGF','IL','CDK','BTK','SGLT2','PDE4','PDE5','B1','B2','B6','B12','GLP-1','DPP-4','LHRH','GNRH','TSH','FSH','LH','HCG','ACTH','ADH','EPO','IGF','5-ARI']);
+const clsTxt=t=>{const o=String(t).replace(/^[A-Z0-9]+ - /,'').replace(/\s*\((?:[A-Z]\d+[A-Z0-9]*|<=?\s*\d+\s*ML)\)/gi,'').trim();
+  return sc(o).replace(/[A-Za-zÀ-ú0-9][A-Za-zÀ-ú0-9\-]*/g,w=>ACR.has(w.toUpperCase())?w.toUpperCase():w)};
 const tc=s=>s.toLowerCase().replace(/(^|\s|\+|\()([a-zà-ú])/g,(m,a,b)=>a+b.toUpperCase());
 function medDetail(i){const m=MED.d[i];if(!m)return med();
   bar('Medicamento','med');
   const pres=[...new Set(m[2].flatMap(p=>p[4].map(medForm)))].sort((a,b)=>a.localeCompare(b,'pt',{numeric:true}));
-  const tarjas=[...new Set(m[2].map(p=>p[5]).filter(Boolean))];
   const tagOf=p=>(p[1]==='Novo'?'<span class="tag tRef">Referência</span>':p[1]==='Genérico'?'<span class="tag tGen">Genérico</span>':p[1]==='Similar'?'<span class="tag tSim">Similar</span>':'')+(p[3]?'<span class="tag">Hospitalar</span>':'');
   const ORD={Novo:0,'Biológico':1,'Específico':2,Similar:3,'Genérico':4};
   const prodRow=p=>`<details class="prod"><summary><span class="pn">${p[1]==='Genérico'?sc(p[0]):tc(p[0])}</span><span class="ptags">${tagOf(p)}</span><span class="chev" aria-hidden="true">›</span></summary><p class="note">${tc(p[2])}</p>${p[4].map(a=>`<div class="pa">${medForm(a)}</div>`).join('')}</details>`;
   const rx=m[3];
   const chips=[];if(rx&&rx[3])chips.push(/^[ABC]/.test(rx[3])?'Lista '+rx[3]+' (Portaria 344)':rx[3]);if(rx&&/com retenção|^Receita com retenção/.test(rx[1]))chips.push('Retém receita');
-  const tj=tarjas.map(t=>`<span class="tag ${/Vermelha/.test(t)?'red':/Preta/.test(t)?'blk':'free'}">${t}</span>`).join(' ');
-  $('app').innerHTML=`<header class="medh"><h2>${sc(m[0])}</h2><p class="note">${sc(m[1].replace(/^[A-Z0-9]+ - /,''))}</p></header>
+  $('app').innerHTML=`<header class="medh"><h2>${sc(m[0])}</h2></header>
+  <div class="mcl"><div><span>Classe terapêutica</span><p>${clsTxt(m[1])}</p></div>${m[4]&&m[4].length?`<div><span>Classe farmacológica</span>${m[4].map(c=>`<p>${c}</p>`).join('')}</div>`:''}</div>
   <div class="rx2"><div class="rxh"><div><b>${rx?rx[1]:'Sem informação de receita'}</b></div></div>
-  ${chips.length?`<div class="rxc">${chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${rx&&rx[2]?`<p class="rxn">${rx[2]}</p>`:''}${tj?`<div class="rxt"><span>Tarja</span><div>${tj}</div></div>`:''}</div>
+  ${chips.length?`<div class="rxc">${chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${rx&&rx[2]?`<p class="rxn">${rx[2]}</p>`:''}</div>
   <p class="sec">Apresentações</p><div class="plist">${pres.map(x=>`<div>${x}</div>`).join('')}</div>
   <p class="sec">Marcas e fabricantes</p><div class="stack">${[...m[2]].sort((a,b)=>(ORD[a[1]]??5)-(ORD[b[1]]??5)||a[0].localeCompare(b[0])).map(prodRow).join('')}</div>
   <footer>Fonte: lista CMED/ANVISA</footer>`;window.scrollTo(0,0)}
@@ -2364,7 +2392,7 @@ function instalar(){bar('Instalar no celular','');
   <details class="srcs safe"><summary>É seguro?</summary><ul>${SAFE}</ul></details>
   ${order.join('')}
   <section class="istep"><h2>Uso offline e atualizações</h2><ol><li>Abra uma vez com internet. Depois funciona sem internet</li><li>Atualiza sozinho ao abrir com internet</li><li>Não atualizou? Feche e abra de novo</li><li>Ainda não? Remova o app, abra o link e instale de novo</li></ol></section>
-  <footer>O app instalado ocupa cerca de 2,8 MB.</footer>`;
+  <footer>O app instalado ocupa cerca de 3,1 MB.</footer>`;
   $('qrbt').onclick=()=>showBox('QR code',`<div class="qrbox">${QR_SVG}<span class="note">Aponte a câmera do celular para abrir o app</span></div>`,$('qrbt'));
   $('cpy').onclick=()=>{const ok=()=>{$('cpy').textContent='Copiado';toast('Link copiado')};
     try{navigator.clipboard.writeText(SITE).then(ok,()=>toast('Não foi possível copiar'))}catch(e){toast('Não foi possível copiar')}};
@@ -2397,8 +2425,8 @@ function sobre(){
   <p class="sec">Erros ou sugestões</p>
   <div class="slinks">${row(mail,'mail','Enviar por e-mail')}${row('https://github.com/RicTav27/medprumo/issues/new','gh','Abrir no GitHub',1)}</div>
   <details class="srcs safe"><summary>É seguro?</summary><ul>${SAFE}</ul></details>
-  <details class="srcs"><summary>Fontes</summary><p class="ssub">Bases de dados</p><div class="plist"><div><b>Medicamentos:</b> lista CMED/ANVISA (${MED.pub.replace('Publicada em ','').replace(/\s\d+h\d+min\.?/,'')}), só comercializados</div><div><b>Receitas:</b> Portaria SVS/MS 344/1998 consolidada e IN 360/2025</div><div><b>CID-10:</b> tabela oficial DATASUS</div><div><b>Crescimento:</b> tabelas LMS oficiais da OMS</div></div><p class="ssub">Ferramentas</p>${[...TOOLS].sort((a,b)=>a.name.localeCompare(b.name,'pt')).map(t=>`<p class="src"><b>${t.name}:</b> ${t.src}</p>`).join('')}</details>
-  <p class="thanks">Código aberto para uso sem fins lucrativos (PolyForm Noncommercial 1.0.0).</p>
+  <details class="srcs"><summary>Fontes</summary><p class="ssub">Bases de dados</p><div class="plist"><div><b>Medicamentos:</b> lista CMED/ANVISA (${MED.pub.replace('Publicada em ','').replace(/\s\d+h\d+min\.?/,'')}), classe farmacológica pela ATC/OMS</div><div><b>Receitas:</b> Portaria SVS/MS 344/1998 consolidada e IN 360/2025</div><div><b>CID-10:</b> tabela oficial DATASUS, com os códigos de covid-19 do Ministério da Saúde</div><div><b>Crescimento:</b> tabelas LMS oficiais da OMS</div></div><p class="ssub">Ferramentas</p>${[...TOOLS].sort((a,b)=>a.name.localeCompare(b.name,'pt')).map(t=>`<p class="src"><b>${t.name}:</b> ${t.src}</p>`).join('')}</details>
+  <p class="thanks">Código-fonte disponível para uso sem fins lucrativos (PolyForm Noncommercial 1.0.0).</p>
   <p class="thanks">Agradecimentos ao <b>MedKit</b>, de Pedro H. Affonso e Rodolfo A. Xavier, pela inspiração.</p>
   <footer class="sfoot">${DISC}</footer></div>`;
   $('verbt').onclick=()=>showBox('Novidades',`<div class="chbox">${CHANGES.map(([v,d,it])=>`<div class="chv"><p><b>${v} Beta</b><span>${d.split('-').reverse().join('/')}</span></p><ul>${it.map(x=>`<li>${x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}</li>`).join('')}</ul></div>`).join('')}</div>`,$('verbt'));
