@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0 Beta (2026-10-26)
+- Descrição de cada ferramenta revisada e exibida no topo da página
+- Botão de compartilhar o app com QR code e link
+- MELD com mortalidade em 3 meses por faixa e escala de 6 a 40
+- Cortes e interpretação revisados em EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade
+- Cronômetro mais estável: metrônomo sem bipes acumulados e tela acesa na dinâmica uterina
+- Medicamentos e CID-10 com ortografia atualizada e classes revisadas
+- Ajustes de formatação e texto
+
 ## 0.5.0 Beta (2026-10-25)
 - Medicamentos atualizados com a lista CMED de outubro de 2026
 - Classe farmacológica (ATC/OMS) nos medicamentos

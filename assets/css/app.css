@@ -186,7 +186,8 @@ body.nobar::before{background:var(--bg)}
 .btns button{font:700 1.05rem var(--body);padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .btns button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .laps{display:grid;gap:4px;font-family:var(--mono);font-size:.95rem}
-.laps div{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:4px}
+.laps div{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:4px}
+.laps div span:first-child{flex:none}.laps div span:last-child{text-align:right}
 @media (max-width:380px){.form{grid-template-columns:1fr}}
 
 /* Identidade visual unificada: mesmo cabeçalho, mesmos cantos, mesmos cartões em todas as telas */
@@ -248,10 +249,7 @@ fieldset:has(input[type=radio]) legend{margin-inline:12px}
 .rx .rows{margin-top:6px}
 .rx .rows b{font-size:.9rem;font-weight:600}
 .medh{display:grid;gap:4px}
-.mcl{display:grid;margin-top:4px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line)}
-.mcl>div{display:grid;gap:3px;padding:12px 14px}.mcl>div+div{border-top:1px solid var(--line)}
-.mcl span{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.mcl p{margin:0;font-size:.95rem;line-height:1.4;color:var(--fg)}
+.medh .note{margin:0}
 .prod summary{flex-wrap:nowrap}
 .pn{flex:1;min-width:0}
 .ptags{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}
@@ -299,7 +297,7 @@ body.nobar .hfoot{font-size:.78rem;line-height:1.3}
 .vshort body.nobar .hsearch input{padding-block:8px}
 body.nobar .hhead{padding-block:0}
 #app.calcmode .opt b.pt{display:none}
-.opt b{min-width:2.3em}
+.opt b{min-width:2.6em;white-space:nowrap}
 #bar{position:sticky;top:0;z-index:9}#bar .bar{position:static}
 .thm,.thm2{display:grid;place-items:center;min-width:40px;min-height:40px;padding:0}.thm svg,.thm2 svg{display:block}
 /* Cronômetro no padrão visual do app */
@@ -484,12 +482,8 @@ body.nobar .hcard:not(.half) .hic svg{width:clamp(25px,calc(var(--h1,1vh)*4.35),
 /* Sobre: aviso sem linha acima e no mesmo tamanho dos textos finais */
 footer.sfoot{border-top:0;padding-top:0;font-size:.88rem;line-height:1.45}
 /* Instalar: QR code do endereço, aparece ao tocar no botão */
-.qrb[aria-expanded="true"]{background:var(--accent);color:var(--surface)}
 .qrbox{display:grid;justify-items:center;gap:8px}
 .qrbox>svg{width:min(240px,70vw);height:auto;display:block;border-radius:12px;border:1px solid var(--line)}
-.share{display:grid;gap:10px;border-left-width:1px;border-left-color:var(--line)}
-.shb{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
-.shb .cpy{padding:11px 6px;text-align:center;white-space:nowrap}
 .qrbox{margin-top:0}
 .opt span .pln{display:block;margin-top:2px;font-size:.82rem;line-height:1.35;color:var(--muted)}
 .nonebt{display:block;width:100%;margin:0;font:600 .95rem var(--body);padding:11px 12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:var(--r-sm);cursor:pointer;text-align:center}
@@ -543,3 +537,10 @@ fieldset.pickfs>.note+.po{border-top:1px solid var(--line)}
 fieldset.pickfs .po button{justify-content:flex-start;align-items:center;text-align:left;padding:11px 12px;min-height:58px;line-height:1.45}
 /* Cores de resultado iguais nos dois temas (verde, amarelo, vermelho) */
 .result[data-state="ok"] .pill,.result[data-state="warn"] .pill,.result[data-state="bad"] .pill{color:#fff}
+
+.tsub{margin:-2px 0 2px;color:var(--muted);font-size:.98rem;line-height:1.35}
+button.slink{width:100%;background:none;border:0;border-top:1px solid var(--line);font:inherit;font-weight:700;text-align:left;cursor:pointer}
+button.slink:first-child{border-top:0}
+.lnkbox{display:flex;align-items:center;gap:8px;margin-top:12px;border:1px solid var(--line);border-radius:var(--r-sm);padding:6px 6px 6px 12px;background:var(--surface)}
+.lnk{flex:1;min-width:0;overflow-wrap:break-word;font:600 .8rem var(--mono);color:var(--fg)}
+.shnat{display:block;width:100%;margin-top:8px;padding:11px}
