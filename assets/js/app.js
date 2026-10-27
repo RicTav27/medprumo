@@ -1,5 +1,5 @@
-const APP_VERSION='0.6.0';
-const CHANGES=[["0.6.0","2026-10-26",["Descrição de cada ferramenta revisada e exibida no topo da página","Botão de compartilhar o app com QR code e link","MELD com mortalidade em 3 meses por faixa e escala de 6 a 40","Cortes e interpretação revisados em EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade","Cronômetro mais estável: metrônomo sem bipes acumulados e tela acesa na dinâmica uterina","Medicamentos e CID-10 com ortografia atualizada e classes revisadas","Ajustes de formatação e texto"]],["0.5.0","2026-10-25",["Medicamentos atualizados com a lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS) nos medicamentos","Página de medicamento redesenhada","Tipo de receita revisado conforme a Portaria 344 e a IN 360/2025","Apresentações escritas por extenso","CID-10 com os códigos de covid-19 do Ministério da Saúde","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C‑spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, EPDS, Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia neonatal (AAP 2022), Icterícia neonatal (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e taxa metabólica basal","Icterícia neonatal com limites da SBP 2021 e da AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Melhorias de layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação nas escalas: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, carga tabágica, escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS, mecânica ventilatória, MRC, NIPS, Norton e T-ACE","Nova especialidade: Fisioterapia","SAPS 3 e tratamento inicial conforme o GOLD 2026","Revisão de conteúdo com base nas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento inicial com 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
+const APP_VERSION='0.6.1';
+const CHANGES=[["0.6.1","2026-10-27",["Buscas sem mensagem quando não há resultado","Bipe de ventilação removido do cronômetro de RCP","Parâmetros da RCP organizados em linhas","Correções de ortografia e de nomes de classes de medicamentos","Revisão e limpeza do código"]],["0.6.0","2026-10-26",["Descrição de cada ferramenta revisada e exibida no topo da página","Botão de compartilhar o app com QR code e link","MELD com mortalidade em 3 meses por faixa e escala de 6 a 40","Cortes e interpretação revisados em EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade","Cronômetro mais estável: metrônomo sem bipes acumulados e tela acesa na dinâmica uterina","Medicamentos e CID-10 com ortografia atualizada e classes revisadas","Ajustes de formatação e texto"]],["0.5.0","2026-10-25",["Medicamentos atualizados com a lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS) nos medicamentos","Página de medicamento redesenhada","Tipo de receita revisado conforme a Portaria 344 e a IN 360/2025","Apresentações escritas por extenso","CID-10 com os códigos de covid-19 do Ministério da Saúde","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C‑spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, EPDS, Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia neonatal (AAP 2022), Icterícia neonatal (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e taxa metabólica basal","Icterícia neonatal com limites da SBP 2021 e da AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Melhorias de layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação nas escalas: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, carga tabágica, escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS, mecânica ventilatória, MRC, NIPS, Norton e T-ACE","Nova especialidade: Fisioterapia","SAPS 3 e tratamento inicial conforme o GOLD 2026","Revisão de conteúdo com base nas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento inicial com 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
 const CONTATO='ricardotaveira123@gmail.com';
 const DISC='Não substitui julgamento clínico. Confira doses, fórmulas e cortes antes de decisões terapêuticas.';
 /* MedPrumo: aplicação */
@@ -157,7 +157,7 @@ const TOOLS=[
  },
  how:()=>`<p>RR em segundos = 60 ÷ FC.</p><p><code>Bazett = QT ÷ √RR</code><br><code>Fridericia = QT ÷ ∛RR</code><br><code>Framingham = QT + 154 × (1 − RR)</code><br><code>Hodges = QT + 1,75 × (FC − 60)</code></p>
  ${table(['QTc (ms)','Interpretação'],[['≥ 450 H / ≥ 460 M','Prolongado'],['≥ 500','Risco de torsades'],['≤ 390','Curto']])}
- <p>Classificação aplicada ao Bazett. Bazett supercorrige em FC alta e subcorrige em FC baixa.</p>`},
+ <p>Classificação aplicada ao Bazett. Bazett corrige demais em FC alta e de menos em FC baixa.</p>`},
 
 {id:'eixo',cat:'Cardiologia',name:'Eixo cardíaco',sub:'Desvio do eixo elétrico no ECG',
  src:'Método do sistema hexaxial, convenção AHA/ACCF/HRS',
@@ -554,7 +554,7 @@ const TOOLS=[
  calc(){
   const ph=num('gph'),pc=num('gpc'),hc=num('ghc'),na=num('gna'),cl=num('gcl'),al=num('gal');
   if(!(ph>6.5&&pc>0&&hc>0))return out('acc','','','','Informe pH, pCO₂ e HCO₃⁻.');
-  const rows=[];let dx,st='warn',note='';
+  const rows=[];let dx,st='warn';
   const met=()=>{const e=1.5*hc+8;rows.push(['pCO₂ esperada (Winter)',`${fmt(e-2,1)} a ${fmt(e+2,1)}`]);return pc>e+2?' + acidose respiratória':pc<e-2?' + alcalose respiratória':' compensada'};
   const alk=()=>{const e=.7*hc+20;rows.push(['pCO₂ esperada',`${fmt(e-5,1)} a ${fmt(e+5,1)}`]);return pc>e+5?' + acidose respiratória':pc<e-5?' + alcalose respiratória':' compensada'};
   const resp=(acid)=>{const d=Math.abs(pc-40)/10,a=acid?24+d:24-2*d,c=acid?24+4*d:24-5*d;rows.push(['HCO₃⁻ esperado agudo',fmt(a,1)],['HCO₃⁻ esperado crônico',fmt(c,1)]);
@@ -954,7 +954,7 @@ const TOOLS=[
  src:'Diretriz SBC de Avaliação Cardiovascular Perioperatória 2024',
  form:()=>`<fieldset><legend>Fatores</legend>${chk('au1','História de doença cardíaca (IAM, revascularização, IC, FA, valvopatia moderada a grave)')}${chk('au2','Angina ou dispneia')}${chk('au3','Idade ≥ 75 anos')}${chk('au4','Hemoglobina &lt; 12 g/dL')}${chk('au5','Cirurgia vascular arterial')}${chk('au6','Cirurgia de emergência')}</fieldset>`,
  calc(){const t=pts(['au1','au2','au3','au4','au5','au6']);const g=t<=1?['Baixo','ok']:t<=3?['Intermediário','warn']:['Alto','bad'];out(g[1],t,'/ 6','Risco '+g[0],'Ainda não validado na população brasileira (SBC 2024).')},
- how:()=>`${table(['AUB-HAS2','Risco'],[['0 a 1','Baixo'],['2 a 3','Intermediário'],['4 a 6','Alto']])}<p>Nome em inglês: History e Hemoglobin, Angina e Age, Surgery vascular e Surgery de emergência (HAS2). AUB: American University of Beirut.</p>`},
+ how:()=>`${table(['AUB-HAS2','Risco'],[['0 a 1','Baixo'],['2 a 3','Intermediário'],['4 a 6','Alto']])}<p>Sigla em inglês: H de History e Hemoglobin, A de Angina e Age, S de Surgery vascular e de emergência (HAS2). AUB: American University of Beirut.</p>`},
 
 {id:'ilas',cat:'Infectologia',name:'Sepse (ILAS)',sub:'Triagem de sepse e abertura de protocolo',
  src:'ILAS, Implementação de protocolo gerenciado de sepse, protocolo EBSERH HC-UFTM v4, critérios SIRS (MSD)',
@@ -1460,7 +1460,7 @@ const TOOLS=[
  calc(){const v=+document.querySelector('input[name="fl"]:checked').value;out(v===0?'ok':v<=2?'warn':'bad',v,'/ 4',v===0?'Sem flebite':'Flebite grau '+v,'')},
  how:()=>`${table(['Grau','Achado'],[['0','Sem sinais'],['1','Eritema, com ou sem dor'],['2','Dor + eritema e/ou edema'],['3','+ estria e cordão palpável'],['4','+ cordão &gt; 2,5 cm e drenagem purulenta']])}`},
 
-{id:'fugulin',cat:'Enfermagem',name:'Fugulin',sub:'Grau de dependência da enfermagem',
+{id:'fugulin',cat:'Enfermagem',name:'Fugulin',sub:'Grau de dependência dos cuidados de enfermagem',
  src:'Fugulin et al., Rev Esc Enferm USP 2005 (revisão de 1994)',
  form:()=>{const A=[['Estado mental',['Orientado no tempo e espaço','Períodos de desorientação','Períodos de inconsciência','Inconsciente']],['Oxigenação',['Não depende de oxigênio','Oxigênio intermitente','Oxigênio contínuo','Ventilação mecânica']],['Sinais vitais',['Controle de rotina','A cada 6 h','A cada 4 h','A cada 2 h ou menos']],['Motilidade',['Movimenta todos os segmentos','Limitação de movimentos','Dificuldade, mudança de decúbito com ajuda','Não movimenta, mudança de decúbito pela enfermagem']],['Deambulação',['Deambula','Precisa de ajuda','Locomoção em cadeira de rodas','Restrito ao leito']],['Alimentação',['Autossuficiente','Por boca com ajuda','Por sonda','Por cateter central']],['Cuidado corporal',['Autossuficiente','Ajuda no banho e/ou higiene oral','Banho de chuveiro e higiene oral pela enfermagem','Banho no leito e higiene oral pela enfermagem']],['Eliminação',['Autossuficiente','Uso do vaso com ajuda','Comadre ou eliminação no leito','Evacuação no leito e sonda vesical']],['Terapêutica',['IM ou VO','EV intermitente','EV contínua ou por sonda','Drogas vasoativas']],['Integridade cutâneo-mucosa',['Pele íntegra','Alteração de cor e/ou perda de epiderme ou derme','Perda até subcutâneo e músculo, incisão, ostomia, dreno','Perda total, até tendão e cápsula']],['Frequência de curativo',['Sem curativo ou limpeza no banho','1 vez ao dia','2 vezes ao dia','3 ou mais vezes ao dia']],['Tempo de curativo',['Sem curativo ou limpeza no banho','5 a 15 min','15 a 30 min','Mais de 30 min']]];
   return `<div class="stack">${A.map((a,i)=>sel('fu'+i,a[0],a[1].map((d,k)=>[String(k+1),d]))).join('')}</div>`},
@@ -1576,7 +1576,6 @@ const TOOLS=[
   <fieldset><legend>Rim</legend>${chk0('apr','Lesão renal aguda (dobra os pontos da creatinina)')}</fieldset>
   <div class="stack">${sel('apc','Doença crônica grave ou imunossupressão',[['0','Não'],['2','Sim, pós-operatório eletivo'],['5','Sim, clínico ou pós-operatório de urgência']])}</div>`,
  calc(){const g=i=>num(i);const ids=Array.from({length:15},(_,i)=>'ap'+(i+1)).filter(i=>i!=='ap6'&&i!=='ap7');if(ids.some(i=>isNaN(g(i))))return out('acc','','','','Preencha todas as variáveis.');
-  const R=(x,t)=>{for(const[a,p]of t)if(x>=a)return p;return t[t.length-1][1]};
   const T=g('ap1'),M=g('ap2'),H=g('ap3'),F=g('ap4'),fi=g('ap5'),pa=g('ap6'),aa=g('ap7'),ph=g('ap8'),na=g('ap9'),k=g('ap10'),cr=g('ap11'),ht=g('ap12'),wb=g('ap13'),gc=g('ap14'),age=g('ap15');
   let ox;if(fi>=50){if(isNaN(aa))return out('acc','','','','FiO₂ ≥ 50%: informe o gradiente A-a.');ox=aa>=500?4:aa>=350?3:aa>=200?2:0}else{if(isNaN(pa))return out('acc','','','','FiO₂ &lt; 50%: informe a PaO₂.');ox=pa>70?0:pa>=61?1:pa>=55?3:4}
   const pT=T>=41?4:T>=39?3:T>=38.5?1:T>=36?0:T>=34?1:T>=32?2:T>=30?3:4;
@@ -2023,7 +2022,7 @@ const TOOLS=[
  calc(){const v=n=>+document.querySelector(`input[name="${n}"]:checked`).value,O=v('po'),V=v('pv'),M=v('pm'),t=O+V+M,g=t>=13?['Leve','ok']:t>=9?['Moderado','warn']:['Grave','bad'];
   out(g[1],t,'/ 15','TCE '+g[0].toLowerCase(),`O${O} V${V} M${M}`)},
  how:()=>`${table(['Glasgow','Gravidade no TCE'],[['13 a 15','Leve'],['9 a 12','Moderado'],['3 a 8','Grave']])}<p>Na criança intubada ou que não fala, a resposta motora é o componente mais importante.</p>`},
-{id:'ictsbp',cat:'Neonatologia',name:'Icterícia (SBP 2021)',sub:'Indicação de fototerapia e exsanguíneo (SBP)',
+{id:'ictsbp',cat:'Neonatologia',name:'Icterícia (SBP 2021)',sub:'Indicação de fototerapia e exsanguineotransfusão (SBP)',
  src:'SBP, Manual de Orientação nº 10, Hiperbilirrubinemia indireta no período neonatal, 2021 (Tabelas 9 e 10, baseadas na AAP 2004)',
  form:()=>`<div class="full"><label>Idade gestacional ao nascer</label><div class="seg" id="icgrp"><button type="button" data-v="p" aria-pressed="false">&lt; 35 s</button><button type="button" data-v="t" aria-pressed="false">35 a 37s6d</button><button type="button" data-v="a" aria-pressed="false">≥ 38 s</button></div></div>
   <div class="form">${field('icb','Bilirrubina total (mg/dL)','')}<div id="icw35" hidden>${field('ich','Idade (horas de vida)','')}</div><div id="icwp" hidden>${field('icc','IG corrigida (semanas)','')}</div></div>
@@ -2048,7 +2047,7 @@ const TOOLS=[
   <p>Com fator de risco, o limite de fototerapia cai 2 mg/dL. Entre duas horas da tabela, o app mostra as duas linhas, sem calcular valor intermediário.</p>
   <p><b>AAP 2022:</b> limites mais altos, hora a hora. Veja Icterícia (AAP 2022).</p>
   <p><b>Menos de 35 semanas</b> (Tabela 10), por IG corrigida:</p>${table(['IG corrigida','Fototerapia','Exsang.'],[['&lt; 28 s','5 a 6','11 a 14'],['28 a 29s6d','6 a 8','12 a 14'],['30 a 31s6d','8 a 10','13 a 16'],['32 a 33s6d','10 a 12','15 a 18'],['34 a 34s6d','10 a 12','17 a 19']])}`},
-{id:'ictaap',cat:'Neonatologia',name:'Icterícia (AAP 2022)',sub:'Indicação de fototerapia e exsanguíneo (AAP)',
+{id:'ictaap',cat:'Neonatologia',name:'Icterícia (AAP 2022)',sub:'Indicação de fototerapia e exsanguineotransfusão (AAP)',
  src:'Kemper et al., Pediatrics 2022 (AAP), Supplemental Tables 1 a 4, valores hora a hora',
  form:()=>`<div class="stack">${sel('iag','Idade gestacional ao nascer',[['_35','35 semanas'],['_36','36 semanas'],['_37','37 semanas'],['_38','38 semanas'],['_39','39 semanas'],['_40','40 semanas ou mais']])}</div>
   <div class="form">${field('iab','Bilirrubina total (mg/dL)','')}${field('iah','Idade (horas de vida)','')}</div>
@@ -2118,7 +2117,7 @@ function home(q=''){
   const tile=(href,ic,label)=>`<a class="htile" href="#${href}"><span class="hti">${ICON[ic]}</span><span>${label}</span></a>`;
   $('app').innerHTML=`<header class="hhead"><div class="brand"><a class="hname" href="#sobre" aria-label="MedPrumo: sobre o app"><span class="hlogo">${LOGO}</span><b>Med<em>Prumo</em></b></a>${isInstalled()?'':`<a class="inst" href="#instalar">${ICON.dl}<span>Instalar</span></a>`}</div><button type="button" class="thm2" aria-label="Trocar tema">${themeIcon()}</button></header>
   <label class="search hsearch" aria-label="Pesquisar">${ICON.search}<input id="q" type="search" placeholder="Buscar escore, cálculo ou doença" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
-  ${results?`<div class="stack">${results.length?results.map(toolRow).join(''):'<p class="empty">Nada encontrado. Tente outro termo.</p>'}</div>`:
+  ${results?`<div class="stack">${results.map(toolRow).join('')}</div>`:
   `<nav class="hcards">${card('esp','hosp','Especialidades','Todas as ferramentas, por área')}${card('calc','calc','Calculadoras','',1)}${card('esc','list','Escores','',1)}</nav>
   <nav class="htiles">${tile('med','pill','Medicamentos')}${tile('cid10','book','CID-10')}${tile('cron','watch','Cronômetro')}${tile('fav','star','Favoritos')}</nav>
   <footer class="hfoot"><a href="#sobre">${ICON.info.replace('<svg ','<svg width="16" height="16" style="vertical-align:-3px;margin-right:5px" ')}Sobre o app <span aria-hidden="true">›</span></a><span>${DISC}</span></footer>`}`;
@@ -2141,15 +2140,15 @@ function beep(f=880,d=.08,when=0,vol=.3){const a=ac();if(!a)return;const o=a.cre
 const alarm=()=>{const a=ac();if(!a)return;[0,.25,.5].forEach(x=>beep(1320,.18,a.currentTime+x,.4));try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}};
 let WL=null;
 async function wake(on){try{if(on&&!WL&&navigator.wakeLock){WL=await navigator.wakeLock.request('screen');WL.addEventListener('release',()=>WL=null)}else if(!on&&WL){await WL.release();WL=null}}catch(e){}}
-const MET={on:false,vent:false,bpm:110,next:0,nextV:0,timer:0};
+const MET={on:false,bpm:110,next:0,timer:0};
 function metSync(){
   const a=ac();clearInterval(MET.timer);
-  if(!a||!(MET.on||MET.vent))return;
-  MET.next=a.currentTime+.05;MET.nextV=a.currentTime+.05;
+  if(!a||!MET.on)return;
+  MET.next=a.currentTime+.05;
   MET.timer=setInterval(()=>{const c=AC.currentTime,t=c+.12;
-    if(MET.next<c)MET.next=c+.02;if(MET.nextV<c)MET.nextV=c+.02;
+    if(MET.next<c)MET.next=c+.02;
     while(MET.next<t){if(MET.on)beep(1000,.03,MET.next,.25);MET.next+=60/MET.bpm}
-    while(MET.nextV<t){if(MET.vent)beep(520,.35,MET.nextV,.35);MET.nextV+=6}},25);
+},25);
 }
 const CR={mode:'simples',
   s:{t0:0,acc:0,run:false,laps:[],beep:false,lastMin:0},
@@ -2202,8 +2201,7 @@ function cronRCP(){
   const r=CR.r;
   $('cv').innerHTML=`<div class="ctl">
     ${tgl('tm','Metrônomo',MET.on)}
-    <div class="seg3" id="bpm">${[100,110,120].map(b=>`<button type="button" data-b="${b}" aria-pressed="${MET.bpm===b}">${b}</button>`).join('')}</div>
-    ${tgl('tv','Bipe de ventilação',MET.vent,'Adulto com via aérea avançada: a cada 6 s')}</div>
+    <div class="seg3" id="bpm">${[100,110,120].map(b=>`<button type="button" data-b="${b}" aria-pressed="${MET.bpm===b}">${b}</button>`).join('')}</div></div>
   <div class="watch big" id="w"></div>
   <div class="cyc"><div class="cyc-top"><span id="cl">Ciclo</span><b id="cr"></b></div><div class="track"><div id="cp"></div></div></div>
   <div class="btns"><button type="button" id="b1" class="primary"></button><button type="button" id="b2">Novo ciclo</button></div>
@@ -2214,11 +2212,10 @@ function cronRCP(){
   </div>
   <details><summary>Causas reversíveis: 5H / 5T</summary>
     ${table(['5H','5T'],[['Hipovolemia','Tensão no tórax (pneumotórax)'],['Hipóxia','Tamponamento cardíaco'],['H⁺ (acidose)','Toxinas'],['Hipo/hipercalemia','Trombose pulmonar'],['Hipotermia','Trombose coronária']])}</details>
-  <details><summary>Parâmetros (AHA 2025)</summary><p>Compressão 100 a 120/min, ≥ 5 cm, retorno total do tórax. Sem via aérea avançada: 30:2. Com via aérea avançada: 1 ventilação a cada 6 s, compressão contínua. Checar ritmo e trocar compressor a cada 2 min.</p><p>Adrenalina 1 mg IV/IO a cada 3 a 5 min. Amiodarona 300 mg, depois 150 mg. Alternativa: lidocaína 1 a 1,5 mg/kg, depois 0,5 a 0,75 mg/kg.</p></details>
+  <details><summary>Parâmetros (AHA 2025)</summary><ul class="lines"><li>Compressão 100 a 120/min, ≥ 5 cm, retorno total do tórax</li><li>Sem via aérea avançada: 30:2</li><li>Com via aérea avançada: 1 ventilação a cada 6&nbsp;s, compressão contínua</li><li>Checar ritmo e trocar compressor a cada 2 min</li></ul><ul class="lines"><li>Adrenalina 1 mg IV/IO a cada 3 a 5 min</li><li>Amiodarona 300 mg, depois 150 mg. Alternativa: lidocaína 1 a 1,5 mg/kg, depois 0,5&nbsp;a&nbsp;0,75&nbsp;mg/kg</li></ul></details>
   <div class="loghead"><b>Registro</b><span><button type="button" id="cp2" class="mini">Copiar</button><button type="button" id="rz" class="mini">Zerar RCP</button></span></div>
   <div class="laps" id="log"></div>`;
   $('tm').onclick=()=>{MET.on=!MET.on;$('tm').setAttribute('aria-pressed',MET.on);metSync()};
-  $('tv').onclick=()=>{MET.vent=!MET.vent;$('tv').setAttribute('aria-pressed',MET.vent);metSync()};
   $('bpm').querySelectorAll('button').forEach(b=>b.onclick=()=>{MET.bpm=+b.dataset.b;$('bpm').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
   $('b1').onclick=()=>{ac();const first=!elapsed(r)&&!r.run;startStop(r);rlog(r.run?(first?'Início da RCP':'Retomada'):'Pausa')};
   $('b2').onclick=()=>{r.cyc=elapsed(r);r.alerted=false;rlog('Novo ciclo')};
@@ -2228,7 +2225,7 @@ function cronRCP(){
   $('cp2').onclick=()=>{const txt=r.log.map(l=>`${mmss(l.t)}  ${l.txt}`).join('\n')||'Sem registros';
     const b=$('cp2'),back=()=>setTimeout(()=>{if(b.isConnected)b.textContent='Copiar'},2000);
     navigator.clipboard?.writeText(txt).then(()=>{b.textContent='Copiado';back()},()=>{b.textContent='Não copiou';back()}).catch(()=>{});};
-  $('rz').onclick=()=>askConfirm('Tem certeza que quer terminar?','O tempo, as drogas e o registro da RCP serão apagados.','Terminar e zerar',()=>{Object.assign(r,{t0:0,acc:0,run:false,cyc:0,alerted:false,adr:[],ami:[],shock:0,log:[]});MET.on=false;MET.vent=false;metSync();awake();cron()});
+  $('rz').onclick=()=>askConfirm('Tem certeza que quer terminar?','O tempo, as drogas e o registro da RCP serão apagados.','Terminar e zerar',()=>{Object.assign(r,{t0:0,acc:0,run:false,cyc:0,alerted:false,adr:[],ami:[],shock:0,log:[]});MET.on=false;metSync();awake();cron()});
   CRON_PAINT=()=>{
     const e=elapsed(r),left=120000-(e-r.cyc);
     $('w').innerHTML=mmss(e);
@@ -2289,15 +2286,14 @@ CID10_CAP.forEach(c=>{c[2]=c[2].replace(/\s+-\s+/,': ')});
 function cid10(view=''){
   const sv=view.startsWith('q:')?view.slice(2):'';
   const chH=t=>{const[c,n]=String(t).split(': ');return `<div class="chh"><small>${c}</small><b>${n||c}</b></div>`};
-  let body='',back='',copy=false;
+  let body='',back='';
   if(sv){back='cid10';const k=norm(sv.trim()),code=sv.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');let res=[];
     if(k.length>=2){const words=k.split(/\s+/);for(const r of CID10){const c=r[0].replace('.','');if((/^[A-Z]\d/.test(code)&&c.startsWith(code))||words.every(w=>norm(r[1]).includes(w))){res.push(r);if(res.length>=100)break}}}
     if(k.length<2)body='';
-    else if(!res.length)body='<p class="empty">Nada encontrado. Tente outro termo ou o código (ex.: J18).</p>';
-    else{copy=true;let last=-1;body=res.map(r=>{const ch=cidChap(r[0]);const hd=ch!==last?chH(CID10_CAP[ch]?.[2]||''):'';last=ch;return hd+cidRow(r)}).join('')+(res.length>=100?'<p class="note">Mostrando 100. Refine a busca.</p>':'')}
+    else{let last=-1;body=res.map(r=>{const ch=cidChap(r[0]);const hd=ch!==last?chH(CID10_CAP[ch]?.[2]||''):'';last=ch;return hd+cidRow(r)}).join('')+(res.length>=100?'<p class="note">Mostrando 100. Refine a busca.</p>':'')}
   }else if(/^c\d+$/.test(view)){back='cid10';const n=+view.slice(1),[a,b,t]=CID10_CAP[n];
     body=chH(t)+CID10.filter(r=>r[0].length===3&&r[0]>=a&&r[0]<=b).map(r=>`<a class="item" href="#cid10-${r[0]}"><div><b>${r[0]}</b><span>${r[1]}</span></div><i>›</i></a>`).join('');
-  }else if(/^[A-Z]\d\d$/.test(view)){const ch=cidChap(view),rows=CID10.filter(r=>cidCat(r[0])===view);back='cid10-c'+ch;copy=true;
+  }else if(/^[A-Z]\d\d$/.test(view)){const ch=cidChap(view),rows=CID10.filter(r=>cidCat(r[0])===view);back='cid10-c'+ch;
     body=chH(CID10_CAP[ch]?.[2]||'')+rows.map(cidRow).join('');
   }else{body=CID10_CAP.map(([a,b,t],n)=>{const[c,nm]=t.split(': ');return `<a class="item" href="#cid10-c${n}"><div><b>${a} a ${b}</b><span>${nm||t}</span><small class="chn">${c}</small></div><i>›</i></a>`}).join('')}
   bar('CID-10',back);
@@ -2346,7 +2342,7 @@ function med(view=''){
     MED.d.forEach((m,i)=>{const hay=norm(m[0]+' '+m[2].map(p=>p[0]).join(' '));if(ws.every(w=>hay.includes(w)))res.push(i)});
     const sc=i=>{const m=MED.d[i];if(m[2].some(p=>norm(p[0])===k))return -1;if(m[2].some(p=>norm(p[0]).startsWith(k)))return 0;if(norm(m[0]).startsWith(ws[0]))return 1;return 2};res.sort((a,b)=>sc(a)-sc(b)||MED.d[a][0].length-MED.d[b][0].length);}
   $('app').innerHTML=`<label class="search" aria-label="Buscar medicamento">${ICON.search}<input id="mq" type="search" placeholder="Princípio ativo ou marca" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
-  <div class="stack">${k.length<2?'':res.length?res.slice(0,60).map(i=>{const m=MED.d[i];const b=[...new Set(m[2].filter(p=>p[1]!=='Genérico').map(p=>tc(p[0])))];return `<a class="item med" href="#med-${i}"><div><b>${sc(m[0])}</b><span>${b.join(', ')||'Genéricos'}</span></div><i>›</i></a>`}).join('')+(res.length>60?`<p class="note">Mostrando 60 de ${res.length}. Refine a busca.</p>`:''):'<p class="empty">Nada encontrado.</p>'}</div>
+  <div class="stack">${k.length<2?'':res.length?res.slice(0,60).map(i=>{const m=MED.d[i];const b=[...new Set(m[2].filter(p=>p[1]!=='Genérico').map(p=>tc(p[0])))];return `<a class="item med" href="#med-${i}"><div><b>${sc(m[0])}</b><span>${b.join(', ')||'Genéricos'}</span></div><i>›</i></a>`}).join('')+(res.length>60?`<p class="note">Mostrando 60 de ${res.length}. Refine a busca.</p>`:''):''}</div>
   <div class="legend">
   <div><span class="tag tRef">Referência</span><span>Medicamento inovador registrado na ANVISA. Serve de base para genéricos e similares.</span></div>
   <div><span class="tag tGen">Genérico</span><span>Mesmo princípio ativo, dose e forma do referência, com bioequivalência comprovada. Leva o nome do princípio ativo.</span></div>

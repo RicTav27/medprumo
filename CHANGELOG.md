@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1 Beta (2026-10-27)
+- Buscas sem mensagem quando não há resultado
+- Bipe de ventilação removido do cronômetro de RCP
+- Parâmetros da RCP organizados em linhas
+- Correções de ortografia e de nomes de classes de medicamentos
+- Revisão e limpeza do código
+
 ## 0.6.0 Beta (2026-10-26)
 - Descrição de cada ferramenta revisada e exibida no topo da página
 - Botão de compartilhar o app com QR code e link
