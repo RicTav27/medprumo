@@ -41,7 +41,7 @@
 
 ## Funcionalidades
 
-- **183 ferramentas** entre calculadoras e escores, organizadas em 24 especialidades
+- **187 ferramentas** entre calculadoras e escores, organizadas em 24 especialidades
 - **Medicamentos:** busca por princípio ativo ou marca, com apresentações, fabricantes, tipo de receita e classe farmacológica
 - **CID-10:** busca por código ou termo, navegação por capítulos
 - **Cronômetro:** modo simples, RCP e dinâmica uterina
@@ -53,7 +53,7 @@ Histórico de versões: [CHANGELOG.md](CHANGELOG.md)
 
 ## Aviso
 
-Não substitui julgamento clínico. Confira doses, fórmulas e cortes antes de decisões terapêuticas.
+Não substitui o julgamento clínico, confira antes de usar
 
 ## Erros e sugestões
 

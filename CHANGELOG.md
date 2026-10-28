@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 Beta (2026-10-28)
+- Novas ferramentas: Escala de Lawton e Brody, Timed Up and Go (TUG) com cronômetro, Mini Avaliação Nutricional completa e Controle da asma (GINA)
+- RCP: ritmo chocável ou não chocável, com indicação de choque, adrenalina e amiodarona conforme o ritmo e as últimas doses
+- RCP: aviso de 10 s na checagem de ritmo, metrônomo junto da frequência e registro em linha do tempo
+- Cronômetro continua com a tela desligada e mantém a tela acesa enquanto roda
+- Listas de voltas e contrações com novo visual
+- Aviso de rodapé mais curto e números sem separar da unidade na quebra de linha
+- Correções de ortografia e limpeza do código
+
 ## 0.6.1 Beta (2026-10-27)
 - Buscas sem mensagem quando não há resultado
 - Bipe de ventilação removido do cronômetro de RCP
