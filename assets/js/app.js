@@ -1,5 +1,5 @@
-const APP_VERSION='0.7.0';
-const CHANGES=[["0.7.0","2026-10-28",["Novas ferramentas: Escala de Lawton e Brody, Timed Up and Go (TUG) com cronômetro, Mini Avaliação Nutricional completa e Controle da asma (GINA)","RCP: ritmo chocável ou não chocável, com indicação de choque, adrenalina e amiodarona conforme o ritmo e as últimas doses","RCP: aviso de 10 s na checagem de ritmo, metrônomo junto da frequência e registro em linha do tempo","Cronômetro continua com a tela desligada e mantém a tela acesa enquanto roda","Listas de voltas e contrações com novo visual","Aviso de rodapé mais curto e números sem separar da unidade na quebra de linha","Correções de ortografia e limpeza do código"]],["0.6.1","2026-10-27",["Buscas sem mensagem quando não há resultado","Bipe de ventilação removido do cronômetro de RCP","Parâmetros da RCP organizados em linhas","Correções de ortografia e de nomes de classes de medicamentos","Revisão e limpeza do código"]],["0.6.0","2026-10-26",["Descrição de cada ferramenta revisada e exibida no topo da página","Botão de compartilhar o app com QR code e link","MELD com mortalidade em 3 meses por faixa e escala de 6 a 40","Cortes e interpretação revisados em EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade","Cronômetro mais estável: metrônomo sem bipes acumulados e tela acesa na dinâmica uterina","Medicamentos e CID-10 com ortografia atualizada e classes revisadas","Ajustes de formatação e texto"]],["0.5.0","2026-10-25",["Medicamentos atualizados com a lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS) nos medicamentos","Página de medicamento redesenhada","Tipo de receita revisado conforme a Portaria 344 e a IN 360/2025","Apresentações escritas por extenso","CID-10 com os códigos de covid-19 do Ministério da Saúde","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C‑spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, EPDS, Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia neonatal (AAP 2022), Icterícia neonatal (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e taxa metabólica basal","Icterícia neonatal com limites da SBP 2021 e da AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Melhorias de layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação nas escalas: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, carga tabágica, escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS, mecânica ventilatória, MRC, NIPS, Norton e T-ACE","Nova especialidade: Fisioterapia","SAPS 3 e tratamento inicial conforme o GOLD 2026","Revisão de conteúdo com base nas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento inicial com 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
+const APP_VERSION='0.7.1';
+const CHANGES=[["0.7.1","2026-10-29",["Cronômetro de RCP mantém o ritmo marcado e o metrônomo ao atualizar a página","Som e tela acesa do cronômetro voltam com um toque depois de atualizar a página","Busca na tela inicial, em Medicamentos e na CID-10 volta ao usar Voltar ou atualizar a página"]],["0.7.0","2026-10-28",["Novas ferramentas: Escala de Lawton e Brody, Timed Up and Go (TUG) com cronômetro, Mini Avaliação Nutricional completa e Controle da asma (GINA)","RCP: ritmo chocável ou não chocável, com indicação de choque, adrenalina e amiodarona conforme o ritmo e as últimas doses","RCP: aviso de 10 s na checagem de ritmo, metrônomo junto da frequência e registro em linha do tempo","Cronômetro continua com a tela desligada e mantém a tela acesa enquanto roda","Listas de voltas e contrações com novo visual","Aviso de rodapé mais curto e números sem separar da unidade na quebra de linha","Correções de ortografia e limpeza do código"]],["0.6.1","2026-10-27",["Buscas sem mensagem quando não há resultado","Bipe de ventilação removido do cronômetro de RCP","Parâmetros da RCP organizados em linhas","Correções de ortografia e de nomes de classes de medicamentos","Revisão e limpeza do código"]],["0.6.0","2026-10-26",["Descrição de cada ferramenta revisada e exibida no topo da página","Botão de compartilhar o app com QR code e link","MELD com mortalidade em 3 meses por faixa e escala de 6 a 40","Cortes e interpretação revisados em EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade","Cronômetro mais estável: metrônomo sem bipes acumulados e tela acesa na dinâmica uterina","Medicamentos e CID-10 com ortografia atualizada e classes revisadas","Ajustes de formatação e texto"]],["0.5.0","2026-10-25",["Medicamentos atualizados com a lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS) nos medicamentos","Página de medicamento redesenhada","Tipo de receita revisado conforme a Portaria 344 e a IN 360/2025","Apresentações escritas por extenso","CID-10 com os códigos de covid-19 do Ministério da Saúde","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C‑spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, EPDS, Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia neonatal (AAP 2022), Icterícia neonatal (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e taxa metabólica basal","Icterícia neonatal com limites da SBP 2021 e da AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Melhorias de layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação nas escalas: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, carga tabágica, escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS, mecânica ventilatória, MRC, NIPS, Norton e T-ACE","Nova especialidade: Fisioterapia","SAPS 3 e tratamento inicial conforme o GOLD 2026","Revisão de conteúdo com base nas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento inicial com 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
 const CONTATO='ricardotaveira123@gmail.com';
 const DISC='Não substitui o julgamento clínico, confira antes de usar',DISCH=`<span class="dl">${DISC}</span>`;
 /* MedPrumo: aplicação */
@@ -2178,7 +2178,7 @@ function home(q=''){
   <nav class="htiles">${tile('med','pill','Medicamentos')}${tile('cid10','book','CID-10')}${tile('cron','watch','Cronômetro')}${tile('fav','star','Favoritos')}</nav>
   <footer class="hfoot"><a href="#sobre">${ICON.info.replace('<svg ','<svg width="16" height="16" style="vertical-align:-3px;margin-right:5px" ')}Sobre o app <span aria-hidden="true">›</span></a>${DISCH}</footer>`}`;
   $('app').querySelector('.thm2').onclick=()=>toggleTheme();
-  const qi=$('q');qi.addEventListener('input',()=>{const p=qi.selectionStart;home(qi.value);const n=$('q');n.focus();n.setSelectionRange(p,p)});
+  const qi=$('q');qi.addEventListener('input',()=>{const p=qi.selectionStart;setQ('home',qi.value);home(qi.value);const n=$('q');n.focus();n.setSelectionRange(p,p)});
   if(!q&&window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches)qi.focus({preventScroll:true});
 }
 /* ===== CRONÔMETRO: Simples, RCP, Dinâmica uterina ===== */
@@ -2215,8 +2215,12 @@ const rlog=txt=>CR.r.log.push({t:elapsed(CR.r),txt});
 const logKind=t=>/^Choque/.test(t)?'s':/^(Adrenalina|Amiodarona)/.test(t)?'d':/^(Ritmo|Mudança de ritmo)/.test(t)?'r':'o';
 /* Estado salvo no aparelho: o cronômetro continua após bloquear a tela, fechar ou recarregar o app */
 let CR_LAST='';
-function crSave(){try{const j=JSON.stringify({v:1,mode:CR.mode,s:CR.s,r:CR.r,u:CR.u});if(j!==CR_LAST){localStorage.setItem('cron',j);CR_LAST=j}}catch(e){}}
-(function crLoad(){try{const o=JSON.parse(localStorage.getItem('cron')||'null');if(!o||o.v!==1)return;CR.mode=o.mode||'simples';Object.assign(CR.s,o.s);Object.assign(CR.r,o.r);Object.assign(CR.u,o.u);CR_LAST=JSON.stringify(o)}catch(e){}})();
+function crSave(){try{const j=JSON.stringify({v:1,mode:CR.mode,s:CR.s,r:CR.r,u:CR.u,m:{on:MET.on,bpm:MET.bpm}});if(j!==CR_LAST){localStorage.setItem('cron',j);CR_LAST=j}}catch(e){}}
+(function crLoad(){try{const o=JSON.parse(localStorage.getItem('cron')||'null');if(!o||o.v!==1)return;CR.mode=o.mode||'simples';Object.assign(CR.s,o.s);Object.assign(CR.r,o.r);Object.assign(CR.u,o.u);if(o.m){MET.on=!!o.m.on&&CR.r.run;MET.bpm=o.m.bpm||110}CR_LAST=JSON.stringify(o)}catch(e){}})();
+/* Metrônomo salvo: o navegador só libera o som após um toque na tela */
+if(MET.on)metSync();
+/* Após atualizar a página, som e tela acesa só voltam com um toque (regra dos navegadores, principalmente iPhone) */
+document.addEventListener('pointerdown',()=>{if(CR.s.run||CR.r.run||CR.u.cur){ac();awake();if(MET.on&&!MET.timer)metSync()}},{passive:true});
 addEventListener('pagehide',crSave);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')crSave()});
 setInterval(crSave,1000);document.addEventListener('click',()=>setTimeout(crSave,0));awake();
 let CRON_PAINT=null;
@@ -2380,7 +2384,7 @@ function cid10(view=''){
   $('app').innerHTML=`<label class="search" aria-label="Buscar na CID-10">${ICON.search}<input id="cq" type="search" placeholder="Código ou termo" value="${sv.replace(/"/g,'&quot;')}" autocomplete="off"></label>
   <div class="stack">${body}</div>
   <footer>CID-10 oficial do DATASUS, com os códigos de covid-19 do Ministério da Saúde.</footer>`;
-  const qi=$('cq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;cid10(v.trim()?'q:'+v:'');const n=$('cq');n.focus();n.setSelectionRange(p,p)});
+  const qi=$('cq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;setQ('cid10',v);cid10(v.trim()?'q:'+v:'');const n=$('cq');n.focus();n.setSelectionRange(p,p)});
   $('app').querySelectorAll('.cid').forEach(b=>b.onclick=()=>cidCopy(b.dataset.c,b));
 }
 
@@ -2429,7 +2433,7 @@ function med(view=''){
   <div><span class="tag tSim">Similar</span><span>Mesmo princípio ativo, dose e forma do referência, mas com nome comercial próprio.</span></div>
   <div><span class="tag">Hospitalar</span><span>Apresentação de uso restrito a hospitais e clínicas.</span></div></div>
   <footer>Lista CMED/ANVISA (${MED.pub.replace('Publicada em ','publicada em ').replace(/\s\d+h\d+min\.?/,'')})</footer>`;
-  const qi=$('mq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;med(v.trim()?'q:'+v:'');const n=$('mq');n.focus();n.setSelectionRange(p,p)});
+  const qi=$('mq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;setQ('med',v);med(v.trim()?'q:'+v:'');const n=$('mq');n.focus();n.setSelectionRange(p,p)});
 }
 const sc=s=>{s=String(s).toLowerCase();return s.replace(/[a-zà-ú]/,c=>c.toUpperCase())};
 /* Classe terapêutica: os dados já vêm revisados; texto cru da CMED (com código) é limpo aqui */
@@ -2612,11 +2616,11 @@ function route(){document.querySelector('.dlg')?.remove();
   if(h==='esp'){lastList=h;return listView('Especialidades',TOOLS,true)}
   if(h==='calc'){lastList=h;return listView('Calculadoras',TOOLS.filter(t=>!SCORES.includes(t.id)),true)}
   if(h==='esc'){lastList=h;return listView('Escores',TOOLS.filter(t=>SCORES.includes(t.id)),true)}
-  if(h==='cron'){CR.r.rit='';return cron()}
+  if(h==='cron'){if(!CR.r.run&&!elapsed(CR.r))CR.r.rit='';return cron()}
   if(h==='fav')return favView();
-  if(h==='med')return med();
+  if(h==='med')return med(lastQ('med'));
   if(h.startsWith('med-'))return med(h.slice(4));
-  if(h==='cid10')return cid10();
+  if(h==='cid10')return cid10(lastQ('cid10'));
   if(h.startsWith('cid10-'))return cid10(h.slice(6));
   if(h==='sobre')return sobre();
   if(h==='instalar')return instalar();
@@ -2626,7 +2630,7 @@ function route(){document.querySelector('.dlg')?.remove();
     const paint=()=>{const on=getFav().includes(t.id);b.textContent=on?'★':'☆';b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Remover dos favoritos':'Adicionar aos favoritos')};
     b.onclick=()=>{const f=getFav();setFav(f.includes(t.id)?f.filter(x=>x!==t.id):[...f,t.id]);paint()};
     paint();const br=document.querySelector('#bar .bar');br.insertBefore(b,br.querySelector('.thm'));return}
-  lastList='';home();
+  lastList='';home(lastQ('home').slice(2));
 }
 
 /* Aviso fixo no fim de todas as páginas */
@@ -2640,15 +2644,19 @@ const GLUE=/(\d) (mg|g|kg|mcg|µg|mL|L|dL|cm|mm|m|m²|mmHg|cmH₂O|bpm|irpm|anos
 function glue(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement?.closest('script,style,textarea,code')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let n;
   while((n=w.nextNode())){const t=n.data;if(!/[\d≥≤<>=±×÷] /.test(t))continue;const v=t.replace(GLUE,(m,d,u,op)=>op?op+' ':d+' '+u);if(v!==t)n.data=v}}
 new MutationObserver(ms=>{for(const m of ms)for(const x of m.addedNodes)if(x.nodeType===1)glue(x);else if(x.nodeType===3&&x.parentElement)glue(x.parentElement)}).observe(document.getElementById('app'),{childList:true,subtree:true});
+/* Busca digitada volta ao usar Voltar ou ao atualizar a página; ao entrar de novo pelo menu, começa vazia */
+let GOBACK=true;const QS=(()=>{try{return JSON.parse(sessionStorage.getItem('qs')||'{}')}catch(e){return {}}})();
+function setQ(k,v){QS[k]=v;try{sessionStorage.setItem('qs',JSON.stringify(QS))}catch(e){}}
+function lastQ(k){if(!GOBACK)setQ(k,'');const v=(QS[k]||'').trim()?QS[k]:'';return v?'q:'+v:''}
 /* Voltar restaura a posição de rolagem da página anterior */
 const NAV=[location.hash||'#'],POS={};
 window.addEventListener('hashchange',e=>{const old=new URL(e.oldURL).hash||'#',h=location.hash||'#';POS[old]=window.scrollY;
   const back=NAV.length>1&&NAV[NAV.length-2]===h;if(back)NAV.pop();else NAV.push(h);
-  route();const y=back?(POS[h]||0):0;requestAnimationFrame(()=>window.scrollTo(0,y))});
+  GOBACK=back;route();GOBACK=false;const y=back?(POS[h]||0):0;requestAnimationFrame(()=>window.scrollTo(0,y))});
 /* Títulos em maiúsculas não podem mudar símbolos: pH, PaO₂, Na⁺ ficam como escritos */
 const SYM=/(?<![A-Za-zÀ-ÿ])(pH|pCO₂|PaO₂|PaCO₂|FiO₂|SpO₂|SaO₂|Na⁺|Cl⁻|Ca²⁺|Mg²⁺|HbA1c|TFGe|ClCr)(?![a-zà-ÿ])/g;
 function keepCase(root){root.querySelectorAll('label,legend,.sec,.pill,.ssub').forEach(el=>{const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),ns=[];let n;
   while(n=w.nextNode())if(!n.parentElement.closest('.sym,.u')&&(SYM.lastIndex=0,SYM.test(n.textContent)))ns.push(n);
   ns.forEach(n=>{const f=document.createElement('span');f.innerHTML=n.textContent.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(SYM,'<span class="sym">$1</span>');n.replaceWith(f)})})}
 new MutationObserver(()=>keepCase($('app'))).observe($('app'),{childList:true,subtree:true});
-route();
+route();GOBACK=false;

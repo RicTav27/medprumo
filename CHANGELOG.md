@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 Beta (2026-10-29)
+- Cronômetro de RCP mantém o ritmo marcado e o metrônomo ao atualizar a página
+- Som e tela acesa do cronômetro voltam com um toque depois de atualizar a página
+- Busca na tela inicial, em Medicamentos e na CID-10 volta ao usar Voltar ou atualizar a página
+
 ## 0.7.0 Beta (2026-10-28)
 - Novas ferramentas: Escala de Lawton e Brody, Timed Up and Go (TUG) com cronômetro, Mini Avaliação Nutricional completa e Controle da asma (GINA)
 - RCP: ritmo chocável ou não chocável, com indicação de choque, adrenalina e amiodarona conforme o ritmo e as últimas doses
