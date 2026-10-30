@@ -41,7 +41,7 @@
 
 ## Funcionalidades
 
-- **187 ferramentas** entre calculadoras e escores, organizadas em 24 especialidades
+- **188 ferramentas** entre calculadoras e escores, organizadas em 24 especialidades
 - **Medicamentos:** busca por princípio ativo ou marca, com apresentações, fabricantes, tipo de receita e classe farmacológica
 - **CID-10:** busca por código ou termo, navegação por capítulos
 - **Cronômetro:** modo simples, RCP e dinâmica uterina

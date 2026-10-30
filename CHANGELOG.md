@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 Beta (2026-10-30)
+- Nova ferramenta: Índice tornozelo-braquial (ITB), com técnica de medida
+- Descrição de cada ferramenta na barra do topo, abaixo do título
+- Interpretações organizadas com uma frase por linha
+- Botão de tema claro e escuro só na tela inicial
+- Carga tabágica com nota sobre o tipo de cigarro
+- MAN completa com nome mais curto
+
 ## 0.7.1 Beta (2026-10-29)
 - Cronômetro de RCP mantém o ritmo marcado e o metrônomo ao atualizar a página
 - Som e tela acesa do cronômetro voltam com um toque depois de atualizar a página
