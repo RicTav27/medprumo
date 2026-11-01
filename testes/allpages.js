@@ -1,7 +1,7 @@
 const {JSDOM}=require('jsdom');const fs=require('fs');
 const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
 const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.requestAnimationFrame=f=>f();const errs=[];w.addEventListener('error',e=>errs.push(e.message));
-setTimeout(()=>{const d=w.document,L=w.eval('LIM'),D=w.eval('DISC');const bad=[];
+setTimeout(async()=>{const d=w.document,L=w.eval('LIM'),D=w.eval('DISC');const bad=[];
  const pages=w.eval('TOOLS.map(t=>t.id)').concat(['','calc','esc','esp','med','med-0','med-973','med-1764','cid10','cid10-c0','cid10-c21','cid10-A00','cron','sobre','fav','instalar']);
  for(const h of pages){w.location.hash='#'+h;w.eval('route()');const app=d.getElementById('app');
   const isTool=w.eval(`TOOLS.some(t=>t.id==='${h}')`);
@@ -11,6 +11,7 @@ setTimeout(()=>{const d=w.document,L=w.eval('LIM'),D=w.eval('DISC');const bad=[]
    const nm=new Set();app.querySelectorAll('input[type=radio]').forEach(r=>{if(!nm.has(r.name)){nm.add(r.name);r.checked=true}});
    app.querySelectorAll('.seg').forEach(s=>s.querySelector('button').click());
    const n=app.querySelector('input,select');n&&n.dispatchEvent(new w.Event(n.tagName=='SELECT'||n.type!='text'?'change':'input'));}
+  await new Promise(r=>setTimeout(r,0)); // aviso de rodapé entra por MutationObserver (assíncrono)
   const t=app.textContent+' '+d.getElementById('bar').textContent;
   const p=[];if(/undefined|NaN|\[object|null\b/.test(t))p.push('texto inválido: '+t.match(/.{0,30}(undefined|NaN|\[object|null\b).{0,20}/)[0]);
   if(!t.includes(D))p.push('sem aviso');

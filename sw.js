@@ -1,5 +1,5 @@
 /* MedPrumo: cache offline. A lista e a versão são geradas por tools/version.py */
-const V='medprumo-ebbda85c';
+const V='medprumo-60b068ae';
 const CORE=[
   './',
   'index.html',
@@ -18,10 +18,15 @@ const CORE=[
   'assets/js/pwa.js',
   'assets/js/viewport.js'
 ];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
+/* Instalação: arquivos baixados do servidor (cache:'reload'), sem reaproveitar cópia antiga guardada pelo navegador */
+self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+/* Página: rede primeiro; sem internet abre o app guardado. Só a página do app (início ou index.html) com resposta válida
+   atualiza a cópia offline: página de erro (404) ou outro arquivo do site aberto no navegador não a substitui */
+const APP=new URL('./',location).pathname;
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
-  if(r.mode==='navigate'){e.respondWith(fetch(r).then(res=>{const c=res.clone();caches.open(V).then(x=>x.put('index.html',c));return res}).catch(()=>caches.match('index.html')));return}
+  if(r.mode==='navigate'){const app=u.origin===location.origin&&(u.pathname===APP||u.pathname===APP+'index.html');
+    e.respondWith(fetch(r).then(res=>{if(app&&res.ok&&res.type==='basic'){const c=res.clone();caches.open(V).then(x=>x.put('index.html',c))}return res}).catch(()=>caches.match('index.html')));return}
   if(u.origin===location.origin||/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname)){
     e.respondWith(caches.match(r,{ignoreSearch:true}).then(hit=>hit||fetch(r).then(res=>{if(res.ok||res.type==='opaque'){const c=res.clone();caches.open(V).then(x=>x.put(r,c))}return res})))}
 });

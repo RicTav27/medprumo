@@ -30,8 +30,8 @@ setTimeout(()=>{const d=w.document;
  // Maddrey: 4.6*(20-12)+5 = 41.8
  run('maddrey',a=>fl({mdp:20,mdc:12,mdb:5}),['41,8','grave']);
  // Lille: expected from python
- run('lille',a=>fl({lia:50,lial:2.5,lib0:15,lib7:12,lipt:20}),[process.env.LILLE1]);
- run('lille',a=>{fl({lia:50,lial:2.5,lib0:15,lib7:12,lipt:20});ck(['lir'])},[process.env.LILLE2]);
+ run('lille',a=>fl({lia:50,lial:2.5,lib0:15,lib7:12,lipt:20}),['0,31']);
+ run('lille',a=>{fl({lia:50,lial:2.5,lib0:15,lib7:12,lipt:20});ck(['lir'])},['0,36']);
  // FOUR
  run('four',a=>pick(a,[0,1,0,0]),['15','/ 16']);
  run('aspects',a=>ck(['as1','as5','as8']),['7','≤ 7']);

@@ -1,10 +1,27 @@
 const APP_VERSION='0.9.2';
-const CHANGES=[["0.9.2","2026-11-01",["Changelog e tela Novidades reescritos com a lista completa das mudanças de cada versão"]],["0.9.1","2026-11-01",["Regra dos 9: regra de adulto ou de criança escolhida pela idade, sem seleção manual","Regra dos 9: explicação da faixa de 10 a 13 anos (área pela regra do adulto e reposição pelo ATLS para criança)","Regra dos 9: aviso para preferir Lund-Browder em menores de 10 anos","Lund-Browder: resultado com fator, diurese-alvo e manutenção para criança ≤ 30 kg, igual à regra dos 9","Corrigido erro em que a seta de voltar criava páginas repetidas no histórico e o botão voltar entrava em loop"]],["0.9.0","2026-10-31",["Novas ferramentas de infectologia: Dengue (classificação de risco do Ministério da Saúde), Critérios de Duke-ISCVID, VIRSTA, HANDOC, DENOVA, LRINEC e Pitt bacteremia score","Novas ferramentas de pediatria: PECARN do lactente febril, Critérios de Kocher e Bacterial Meningitis Score","Nova ferramenta de oncologia: CISNE","Changelog reescrito"]],["0.8.0","2026-10-30",["Nova ferramenta: Índice tornozelo-braquial (ITB), com técnica de medida","Descrição da ferramenta na barra superior, abaixo do título","Título da ferramenta com até 3 linhas","Interpretações com uma frase por linha","Botão de tema claro e escuro só na tela inicial","Carga tabágica: nota sobre tipo de cigarro e risco (NLST)","MAN completa: nome encurtado"]],["0.7.1","2026-10-29",["Corrigido erro em que o ritmo marcado e o metrônomo da RCP eram perdidos ao atualizar a página","Corrigido erro em que o som e a tela acesa do cronômetro não voltavam após atualizar a página","Corrigido erro em que a busca da tela inicial, de Medicamentos e da CID-10 era apagada ao voltar ou atualizar a página"]],["0.7.0","2026-10-28",["Novas ferramentas: Escala de Lawton e Brody, Timed Up and Go (TUG) com cronômetro, Mini Avaliação Nutricional completa e Controle da asma (GINA)","MAN existente renomeada para MAN reduzida (triagem)","RCP: botões de ritmo chocável e não chocável, sem ritmo marcado ao abrir","RCP: indicação de choque, adrenalina e amiodarona conforme o ritmo e as doses anteriores","RCP: contagem até a próxima adrenalina, com alerta aos 3 e aos 5 minutos","RCP: amiodarona 300 mg após o 3º choque e 150 mg após o 5º choque","RCP: alerta de checagem de ritmo de no máximo 10 s","RCP: metrônomo e frequência (100, 110, 120) na mesma caixa","RCP: registro em linha do tempo, com cores por tipo de evento","RCP: botão Zerar RCP em vermelho nos dois temas","RCP: removidas a caixa de conduta e as descrições abaixo dos botões de drogas","Cronômetro mantido com a tela desligada e tela acesa enquanto roda","Novo visual das listas de voltas e de contrações","Aviso de rodapé encurtado","Números e unidades sem quebra de linha entre eles","Correções de ortografia em Rotterdam e SOFA"]],["0.6.1","2026-10-27",["Removidas as mensagens de busca sem resultado","Removido o bipe de ventilação do cronômetro de RCP","Parâmetros da RCP em lista","Correções de ortografia na CID-10 (micro-organismos)","Textos revisados: QT corrigido, icterícia neonatal, Fugulin e AUB-HAS2","Corrigido erro em que a classe de medicamentos Terapia coronariana aparecia com o nome repetido","Nomes de classes de medicamentos corrigidos: pré-natais, antiestrogênicos, antiateromatosos, papilomavírus, antiglaucomatosos, antipsoriáticos e doença de Alzheimer","Limpeza do código"]],["0.6.0","2026-10-26",["Descrições das ferramentas revisadas e exibidas no topo da página","Botão de compartilhar o app com QR code e link, em Sobre e Instalar","MELD: mortalidade em 3 meses por faixa e escala de 6 a 40","Cortes e interpretação revisados: EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz, osmolaridade e gasometria","Dinâmica uterina: tela acesa e médias dos últimos 30 min","Corrigido erro em que o metrônomo tocava vários bipes seguidos ao voltar ao app","Medicamentos e CID-10 com ortografia do Acordo Ortográfico","Classes de medicamentos revisadas","Tipo de receita da lenalidomida conforme a RDC 735/2022","Sinal de menos (−) nos resultados negativos"]],["0.5.0","2026-10-25",["Medicamentos atualizados com a lista CMED de 09/10/2026, com novos produtos, como a tirzepatida","Classe farmacológica (ATC/OMS) nos medicamentos","Página de medicamento redesenhada","Tipo de receita revisado conforme a Portaria 344, RDC 999/2025, RDC 1.017/2026 e IN 360/2025","Apresentações escritas por extenso, com repetidas unidas","CID-10 com os códigos de covid-19 do Ministério da Saúde","CID-10 sem códigos duplicados","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C-spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, Edimburgo (EPDS), Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia (AAP 2022), Icterícia (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e Taxa metabólica basal","Nova especialidade: Oncologia","Especialidade Pré-operatório incorporada a Cirurgia (Apfel, ASA, AUB-HAS2, mFI-5, Lee, STOP-Bang e VSG-CRI)","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Cores de resultado padronizadas entre os temas","Tela de Novidades e QR code em caixa","Layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação: MEEM, 10-CS, NIHSS, Glasgow, RASS e CIWA-Ar","Indicação de versão beta, com versões renumeradas como 0.x"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, Carga tabágica, Escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS (Tobin), Mecânica ventilatória, MRC, NIPS, Escala de Norton e T-ACE","SAPS 3 no lugar do SAPS II","Nova especialidade: Fisioterapia","Tratamento inicial conforme o GOLD 2026","MEEM item por item","MRC e CAM-ICU com botões","Revisão de conteúdo com base nas fontes originais","Nova identidade visual e novos ícones","Ajustes para iPhone e computador","Contador de acessos anônimo","Licença PolyForm Noncommercial"]],["0.1.0","2026-10-19",["Lançamento com 137 calculadoras e escores","Ícone, páginas Instalar e Sobre","Funcionamento offline","Consulta de medicamentos (CMED/ANVISA)","Consulta da CID-10","Cronômetro"]]];
+const CHANGES=[["0.9.2","2026-11-01",["Changelog e tela Novidades reescritos com a lista completa das mudanças de cada versão"]],["0.9.1","2026-11-01",["Regra dos 9: escolha automática entre adulto e criança pela idade, com explicação da faixa de 10 a 13 anos e aviso para preferir Lund-Browder abaixo de 10 anos","Lund-Browder: fator, diurese-alvo e manutenção para criança ≤ 30 kg","Corrigido erro em que a seta de voltar criava páginas repetidas no histórico e o botão voltar entrava em loop"]],["0.9.0","2026-10-31",["Novas ferramentas de infectologia: Dengue (classificação de risco do Ministério da Saúde), Duke-ISCVID, VIRSTA, HANDOC, DENOVA, LRINEC e Pitt bacteremia score","Novas ferramentas de pediatria: PECARN do lactente febril, Critérios de Kocher e Bacterial Meningitis Score","Nova ferramenta de oncologia: CISNE"]],["0.8.0","2026-10-30",["Nova ferramenta: Índice tornozelo-braquial (ITB), com técnica de medida","Descrição da ferramenta abaixo do título na barra superior","Interpretações com uma frase por linha","Botão de tema claro e escuro só na tela inicial","Carga tabágica: nota sobre tipo de cigarro e risco (NLST)"]],["0.7.1","2026-10-29",["Corrigido erro em que o ritmo marcado e o metrônomo da RCP eram perdidos ao atualizar a página","Corrigido erro em que o som e a tela acesa do cronômetro não voltavam após atualizar a página","Corrigido erro em que a busca da tela inicial, de Medicamentos e da CID-10 era apagada ao voltar ou atualizar a página"]],["0.7.0","2026-10-28",["Novas ferramentas: Escala de Lawton e Brody, Timed Up and Go (TUG) com cronômetro, Mini Avaliação Nutricional completa e Controle da asma (GINA)","MAN existente renomeada para MAN reduzida (triagem)","RCP: botões de ritmo chocável e não chocável, com indicação de choque, adrenalina e amiodarona conforme o ritmo e as doses anteriores","RCP: contagem até a próxima adrenalina, com alerta aos 3 e 5 minutos","RCP: amiodarona 300 mg após o 3º choque e 150 mg após o 5º","RCP: alerta de checagem de ritmo de no máximo 10 s","RCP: metrônomo e frequência (100, 110, 120) na mesma caixa, registro em linha do tempo por tipo de evento e botão Zerar RCP em vermelho","Cronômetro com tela acesa enquanto roda"]],["0.6.1","2026-10-27",["Removido o bipe de ventilação do cronômetro de RCP","Textos revisados: QT corrigido, icterícia neonatal, Fugulin e AUB-HAS2","Corrigido erro em que a classe de medicamentos Terapia coronariana aparecia com o nome repetido","Nomes de classes de medicamentos corrigidos"]],["0.6.0","2026-10-26",["Descrições das ferramentas revisadas e exibidas no topo da página","Compartilhamento do app por QR code e link, em Sobre e Instalar","MELD: mortalidade em 3 meses por faixa e escala de 6 a 40","Cortes e interpretação revisados: EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz, osmolaridade e gasometria","Dinâmica uterina: tela acesa e médias dos últimos 30 min","Medicamentos e CID-10 com ortografia do Acordo Ortográfico","Classes de medicamentos revisadas","Tipo de receita da lenalidomida conforme a RDC 735/2022","Sinal de menos (−) nos resultados negativos","Corrigido erro em que o metrônomo tocava vários bipes seguidos ao voltar ao app"]],["0.5.0","2026-10-25",["Medicamentos: lista CMED de 09/10/2026 (com novos produtos, como a tirzepatida), classe farmacológica (ATC/OMS), página redesenhada e apresentações por extenso","Tipo de receita revisado conforme a Portaria 344, RDC 999/2025, RDC 1.017/2026 e IN 360/2025","CID-10 com os códigos de covid-19 do Ministério da Saúde e sem códigos duplicados","Explicações dentro dos itens: HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas: 4PEPS, 4Ts, AIMS65, Aldrete e Kroulik, ASPECTS, Canadian C-spine, Candida score, Classificação do RN, CPIS, CRUSADE, ECOG, Edimburgo (EPDS), Finnegan, FOUR, GDS-15, Genebra revisado, Glasgow pediátrico, HAM-A, HAM-D, Icterícia (AAP 2022), Icterícia (SBP 2021), Índice ROX, Karnofsky, Lille, Maddrey, Ottawa joelho, Ottawa tornozelo e pé, PREVENT, Rockall, Rodwell, Sgarbossa, SIC e Taxa metabólica basal","Nova especialidade: Oncologia","Pré-operatório incorporado a Cirurgia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Layout para tablet e modo paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação: MEEM, 10-CS, NIHSS, Glasgow, RASS e CIWA-Ar","Indicação de versão beta, com versões renumeradas como 0.x"]],["0.2.0","2026-10-20",["13 novas ferramentas: AUDIT, Carga tabágica, Escore de mottling, FLACC, HSI, Humpty Dumpty, IMS, IRRS (Tobin), Mecânica ventilatória, MRC, NIPS, Escala de Norton e T-ACE","Nova especialidade: Fisioterapia","SAPS 3 no lugar do SAPS II","Tratamento inicial conforme o GOLD 2026","MEEM item por item, MRC e CAM-ICU com botões","Nova identidade visual e novos ícones","Contador de acessos anônimo","Licença PolyForm Noncommercial"]],["0.1.0","2026-10-19",["Lançamento com 137 calculadoras e escores, consulta de medicamentos (CMED/ANVISA) e da CID-10, cronômetro e funcionamento offline","Páginas Instalar e Sobre"]]];
 const CONTATO='ricardotaveira123@gmail.com';
 const DISC='Não substitui o julgamento clínico, confira antes de usar',DISCH=`<span class="dl">${DISC}</span>`;
 /* MedPrumo: aplicação */
 const $=id=>document.getElementById(id);
-const num=id=>parseFloat(String($(id)?.value).replace(',','.'));
+/* Texto posto dentro do HTML (busca digitada, dado salvo no aparelho): sai como texto, nunca como código */
+const escH=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+/* Número digitado. Vírgula é decimal; ponto também (teclado do Android).
+   Ponto antes de grupos de 3 dígitos (1.000, 15.000) é separador de milhar, como se escreve no Brasil,
+   quando o valor de milhar cabe no limite do campo. Em campos ×10³ o ponto é sempre decimal (150.000 plaquetas = 150).
+   Texto que não é número (12,3,4 ou 70kg) dá NaN e aparece como valor fora do limite. */
+function pnum(v,L=[-Infinity,Infinity],kilo=false){
+  let s=String(v??'').replace(/\s/g,'');if(/^[+−–]/.test(s))s=(s[0]==='+'?'':'-')+s.slice(1);
+  const sg=s[0]==='-'?-1:1;if(sg<0)s=s.slice(1);
+  const N=t=>/^(\d+\.?\d*|\.\d+)$/.test(t)?sg*Number(t):NaN,c=s.includes(','),d=s.includes('.');
+  if(c&&d)return s.lastIndexOf(',')>s.lastIndexOf('.')?(/^\d{1,3}(\.\d{3})+,\d*$/.test(s)?N(s.replace(/\./g,'').replace(',','.')):NaN):(/^\d{1,3}(,\d{3})+\.\d*$/.test(s)?N(s.replace(/,/g,'')):NaN);
+  if(c)return /^\d*,\d*$/.test(s)?N(s.replace(',','.')):NaN;
+  if(/^[1-9]\d{0,2}(\.\d{3})+$/.test(s)){const th=N(s.replace(/\./g,''));if(/\..*\./.test(s))return th;
+    const dec=N(s),ok=x=>x>=L[0]&&x<=L[1];return !kilo&&(ok(th)||!ok(dec))?th:dec}
+  return N(s)}
+const limOf=id=>LIM[id]||[0,100000];
+const numOf=i=>pnum(i.value,limOf(i.id),/×\s?10/.test(i.closest('label')?.textContent||''));
+const num=id=>{const i=$(id);return i?numOf(i):NaN};
 const fmt=(n,d=1)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/^-/,'−');
 const S={ok:'var(--r-ok)',warn:'var(--r-warn)',bad:'var(--r-bad)',acc:'var(--accent)',neu:'var(--muted)'};
 function out(state,big,unit,pill,note,rows){
@@ -2258,7 +2275,8 @@ function listView(title,tools,grouped){
   $('app').innerHTML=`<div class="stack">${grouped?CATS.map(c=>{const it=tools.filter(t=>t.cat===c);return it.length?`<div class="group"><h2>${c}</h2>${it.map(toolRow).join('')}</div>`:''}).join(''):tools.map(toolRow).join('')}</div>
   <footer>${DISCH}</footer>`;
 }
-const getFav=()=>{try{return JSON.parse(localStorage.getItem('fav')||'[]')}catch(e){return[]}};
+/* Favoritos salvos: só lista de textos (dado corrompido não trava a página) */
+const getFav=()=>{try{const f=JSON.parse(localStorage.getItem('fav')||'[]');return Array.isArray(f)?[...new Set(f.filter(x=>typeof x==='string'))]:[]}catch(e){return[]}};
 const setFav=f=>{try{localStorage.setItem('fav',JSON.stringify(f))}catch(e){}};
 /* Busca: palavras curtas casam pelo início da palavra (go acha GOLD). Ordem: nome, sinônimos, resto. */
 function searchTools(k){const ws=k.split(/\s+/).filter(Boolean),esc=w=>w.replace(/[^a-z0-9]/g,'');
@@ -2274,11 +2292,11 @@ function home(q=''){
   const card=(href,ic,label,sub,half)=>`<a class="hcard${half?' half':''}" href="#${href}"><span class="hic">${ICON[ic]}</span><span class="ht"><b>${label}</b>${sub?`<small>${sub}</small>`:''}</span><span class="chev">›</span></a>`;
   const tile=(href,ic,label)=>`<a class="htile" href="#${href}"><span class="hti">${ICON[ic]}</span><span>${label}</span></a>`;
   $('app').innerHTML=`<header class="hhead"><div class="brand"><a class="hname" href="#sobre" aria-label="MedPrumo: sobre o app"><span class="hlogo">${LOGO}</span><b>Med<em>Prumo</em></b></a>${isInstalled()?'':`<a class="inst" href="#instalar">${ICON.dl}<span>Instalar</span></a>`}</div><button type="button" class="thm2" aria-label="Trocar tema">${themeIcon()}</button></header>
-  <label class="search hsearch" aria-label="Pesquisar">${ICON.search}<input id="q" type="search" placeholder="Buscar escore, cálculo ou doença" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
+  <label class="search hsearch" aria-label="Pesquisar">${ICON.search}<input id="q" type="search" placeholder="Buscar escore, cálculo ou doença" value="${escH(q)}" autocomplete="off"></label>
   ${results?`<div class="stack">${results.map(toolRow).join('')}</div>`:
   `<nav class="hcards">${card('esp','hosp','Especialidades','Todas as ferramentas, por área')}${card('calc','calc','Calculadoras','',1)}${card('esc','list','Escores','',1)}</nav>
   <nav class="htiles">${tile('med','pill','Medicamentos')}${tile('cid10','book','CID-10')}${tile('cron','watch','Cronômetro')}${tile('fav','star','Favoritos')}</nav>
-  <footer class="hfoot"><a href="#sobre">${ICON.info.replace('<svg ','<svg width="16" height="16" style="vertical-align:-3px;margin-right:5px" ')}Sobre o app <span aria-hidden="true">›</span></a>${DISCH}</footer>`}`;
+  <footer class="hfoot"><a href="#sobre">${ICON.info.replace('<svg ','<svg width="16" height="16" ')}Sobre o app <span aria-hidden="true">›</span></a>${DISCH}</footer>`}`;
   $('app').querySelector('.thm2').onclick=()=>toggleTheme();
   const qi=$('q');qi.addEventListener('input',()=>{const p=qi.selectionStart;setQ('home',qi.value);home(qi.value);const n=$('q');n.focus();n.setSelectionRange(p,p)});
   if(!q&&window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches)qi.focus({preventScroll:true});
@@ -2286,7 +2304,7 @@ function home(q=''){
 /* ===== CRONÔMETRO: Simples, RCP, Dinâmica uterina ===== */
 const now=()=>Date.now();
 const pad=n=>String(n).padStart(2,'0');
-const ms2=ms=>{const s=Math.floor(ms/1000);return `${pad(Math.floor(s/60))}:${pad(s%60)}<small>,${pad(Math.floor(ms%1000/10))}</small>`};
+const ms2=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000);return `${pad(Math.floor(s/60))}:${pad(s%60)}<small>,${pad(Math.floor(ms%1000/10))}</small>`};
 const mmss=ms=>{const s=Math.max(0,Math.floor(ms/1000));return `${pad(Math.floor(s/60))}:${pad(s%60)}`};
 const elapsed=o=>o.acc+(o.run?now()-o.t0:0);
 function startStop(o){if(o.run){o.acc=elapsed(o);o.run=false}else{o.t0=now();o.run=true}awake()}
@@ -2318,7 +2336,21 @@ const logKind=t=>/^Choque/.test(t)?'s':/^(Adrenalina|Amiodarona)/.test(t)?'d':/^
 /* Estado salvo no aparelho: o cronômetro continua após bloquear a tela, fechar ou recarregar o app */
 let CR_LAST='';
 function crSave(){try{const j=JSON.stringify({v:1,mode:CR.mode,s:CR.s,r:CR.r,u:CR.u,m:{on:MET.on,bpm:MET.bpm}});if(j!==CR_LAST){localStorage.setItem('cron',j);CR_LAST=j}}catch(e){}}
-(function crLoad(){try{const o=JSON.parse(localStorage.getItem('cron')||'null');if(!o||o.v!==1)return;CR.mode=o.mode||'simples';Object.assign(CR.s,o.s);Object.assign(CR.r,o.r);Object.assign(CR.u,o.u);if(o.m){MET.on=!!o.m.on&&CR.r.run;MET.bpm=o.m.bpm||110}CR_LAST=JSON.stringify(o)}catch(e){}})();
+/* Ao abrir, cada campo salvo só é usado se tiver o tipo esperado: dado corrompido ou de outra versão não trava o cronômetro */
+const isT=x=>typeof x==='number'&&isFinite(x)&&x>=0;
+function crFix(d,o,arr){if(!o||typeof o!=='object'||Array.isArray(o))return;
+  for(const k of Object.keys(d)){const v=o[k],t=d[k];
+    if(Array.isArray(t)){if(Array.isArray(v))d[k]=v.filter(arr[k]||isT)}
+    else if(t===null){if(v===null||isT(v))d[k]=v}
+    else if(typeof t==='number'?isT(v):typeof v===typeof t)d[k]=v}}
+(function crLoad(){try{const o=JSON.parse(localStorage.getItem('cron')||'null');if(!o||o.v!==1)return;
+  CR.mode=['simples','rcp','du'].includes(o.mode)?o.mode:'simples';
+  crFix(CR.s,o.s,{});
+  crFix(CR.r,o.r,{log:x=>!!x&&isT(x.t)&&typeof x.txt==='string'});
+  crFix(CR.u,o.u,{list:x=>!!x&&isT(x.s)&&isT(x.e)&&x.e>=x.s});
+  for(const k of ['rit','lastRit'])if(!['','c','n'].includes(CR.r[k]))CR.r[k]='';
+  if(o.m&&typeof o.m==='object'){MET.on=o.m.on===true&&CR.r.run;MET.bpm=[100,110,120].includes(o.m.bpm)?o.m.bpm:110}
+  CR_LAST=JSON.stringify(o)}catch(e){}})();
 /* Metrônomo salvo: o navegador só libera o som após um toque na tela */
 if(MET.on)metSync();
 /* Após atualizar a página, som e tela acesa só voltam com um toque (regra dos navegadores, principalmente iPhone) */
@@ -2353,6 +2385,7 @@ function cron(){
     <div id="cv" class="stack"></div>`;
   $('app').querySelectorAll('.modes button').forEach(b=>b.onclick=()=>{CR.mode=b.dataset.m;cron()});
   ({simples:cronSimples,rcp:cronRCP,du:cronDU})[CR.mode]();
+  CRON_PAINT&&CRON_PAINT(); // botões e tempo já preenchidos ao abrir (sem esperar o próximo ciclo de 50 ms)
 }
 
 function cronSimples(){
@@ -2427,7 +2460,7 @@ function cronRCP(){
     $('cS').textContent=r.shock;$('tS').textContent=nowS?'fazer agora':r.shock?'há '+mmss(e-r.lastShock):'ainda não';
     $('dS').dataset.state=nowS?'due':'';
     $('dS').dataset.off=N;$('dM').dataset.off=N;
-    const h=r.log.map(l=>`<div data-k="${logKind(l.txt)}"><span>${mmss(l.t)}</span><i></i><span>${l.txt}</span></div>`).reverse().join('');if($('log').dataset.h!==h){$('log').dataset.h=h;$('log').innerHTML=h||'<p class="note">Os eventos aparecem aqui com o tempo de RCP.</p>';}
+    const h=r.log.map(l=>`<div data-k="${logKind(l.txt)}"><span>${mmss(l.t)}</span><i></i><span>${escH(l.txt)}</span></div>`).reverse().join('');if($('log').dataset.h!==h){$('log').dataset.h=h;$('log').innerHTML=h||'<p class="note">Os eventos aparecem aqui com o tempo de RCP.</p>';}
   };
 }
 
@@ -2477,13 +2510,13 @@ function cid10(view=''){
     if(k.length>=2){const words=k.split(/\s+/);for(const r of CID10){const c=r[0].replace('.','');if((/^[A-Z]\d/.test(code)&&c.startsWith(code))||words.every(w=>norm(r[1]).includes(w))){res.push(r);if(res.length>=100)break}}}
     if(k.length<2)body='';
     else{let last=-1;body=res.map(r=>{const ch=cidChap(r[0]);const hd=ch!==last?chH(CID10_CAP[ch]?.[2]||''):'';last=ch;return hd+cidRow(r)}).join('')+(res.length>=100?'<p class="note">Mostrando 100. Refine a busca.</p>':'')}
-  }else if(/^c\d+$/.test(view)){back='cid10';const n=+view.slice(1),[a,b,t]=CID10_CAP[n];
+  }else if(/^c\d+$/.test(view)&&CID10_CAP[+view.slice(1)]){back='cid10';const n=+view.slice(1),[a,b,t]=CID10_CAP[n];
     body=chH(t)+CID10.filter(r=>r[0].length===3&&r[0]>=a&&r[0]<=b).map(r=>`<a class="item" href="#cid10-${r[0]}"><div><b>${r[0]}</b><span>${r[1]}</span></div><i>›</i></a>`).join('');
-  }else if(/^[A-Z]\d\d$/.test(view)){const ch=cidChap(view),rows=CID10.filter(r=>cidCat(r[0])===view);back='cid10-c'+ch;
+  }else if(/^[A-Z]\d\d$/.test(view)&&CID10.some(r=>r[0]===view)){const ch=cidChap(view),rows=CID10.filter(r=>cidCat(r[0])===view);back='cid10-c'+ch;
     body=chH(CID10_CAP[ch]?.[2]||'')+rows.map(cidRow).join('');
   }else{body=CID10_CAP.map(([a,b,t],n)=>{const[c,nm]=t.split(': ');return `<a class="item" href="#cid10-c${n}"><div><b>${a} a ${b}</b><span>${nm||t}</span><small class="chn">${c}</small></div><i>›</i></a>`}).join('')}
   bar('CID-10',back);
-  $('app').innerHTML=`<label class="search" aria-label="Buscar na CID-10">${ICON.search}<input id="cq" type="search" placeholder="Código ou termo" value="${sv.replace(/"/g,'&quot;')}" autocomplete="off"></label>
+  $('app').innerHTML=`<label class="search" aria-label="Buscar na CID-10">${ICON.search}<input id="cq" type="search" placeholder="Código ou termo" value="${escH(sv)}" autocomplete="off"></label>
   <div class="stack">${body}</div>
   <footer>CID-10 oficial do DATASUS, com os códigos de covid-19 do Ministério da Saúde.</footer>`;
   const qi=$('cq');qi.addEventListener('input',()=>{const p=qi.selectionStart,v=qi.value;setQ('cid10',v);cid10(v.trim()?'q:'+v:'');const n=$('cq');n.focus();n.setSelectionRange(p,p)});
@@ -2527,7 +2560,7 @@ function med(view=''){
   if(k.length>=2){const ws=k.split(/\s+/);
     MED.d.forEach((m,i)=>{const hay=norm(m[0]+' '+m[2].map(p=>p[0]).join(' '));if(ws.every(w=>hay.includes(w)))res.push(i)});
     const sc=i=>{const m=MED.d[i];if(m[2].some(p=>norm(p[0])===k))return -1;if(m[2].some(p=>norm(p[0]).startsWith(k)))return 0;if(norm(m[0]).startsWith(ws[0]))return 1;return 2};res.sort((a,b)=>sc(a)-sc(b)||MED.d[a][0].length-MED.d[b][0].length);}
-  $('app').innerHTML=`<label class="search" aria-label="Buscar medicamento">${ICON.search}<input id="mq" type="search" placeholder="Princípio ativo ou marca" value="${q.replace(/"/g,'&quot;')}" autocomplete="off"></label>
+  $('app').innerHTML=`<label class="search" aria-label="Buscar medicamento">${ICON.search}<input id="mq" type="search" placeholder="Princípio ativo ou marca" value="${escH(q)}" autocomplete="off"></label>
   <div class="stack">${k.length<2?'':res.length?res.slice(0,60).map(i=>{const m=MED.d[i];const b=[...new Set(m[2].filter(p=>p[1]!=='Genérico').map(p=>tc(p[0])))];return `<a class="item" href="#med-${i}"><div><b>${sc(m[0])}</b><span>${b.join(', ')||'Genéricos'}</span></div><i>›</i></a>`}).join('')+(res.length>60?`<p class="note">Mostrando 60 de ${res.length}. Refine a busca.</p>`:''):''}</div>
   <div class="legend">
   <div><span class="tag tRef">Referência</span><span>Medicamento inovador registrado na ANVISA. Serve de base para genéricos e similares.</span></div>
@@ -2698,11 +2731,11 @@ const LIM={lr1:[0,1000],lr2:[0,200000],lr3:[1,25],lr4:[90,200],lr5:[0.1,20],lr6:
  vmh:[100,250],lrb:[.1,20],lra:[.1,30],lrd:[0,20],lrh:[0,168],feu:[0,3000],fep:[.1,3000],feuc:[1,1000],fepc:[.1,30],
  tku:[0,300],tkp:[1,15],tkuo:[20,1500],tkpo:[200,450],tkna:[0,400],lpp:[0,10],lps:[1,15],llp:[1,20000],lls:[10,10000],lln:[50,1000],
  psa:[18,120],gage:[18,120],ghr:[20,300],gsbp:[40,300],gcr:[.1,20],ai5:[.1,200],ai6:[0,100],ai7:[0,1000],lwa:[0,120],lww:[.3,400],nfr:[1,80],nsp:[50,100],npa:[30,300],nfc:[20,250],nt:[25,45],bur:[1,700],bhb:[1,25],bpa:[30,300],awn:[100,200],awt:[100,200],aww:[.3,400],vti:[.25,6],vtau:[4,72],vc1:[.1,200],vt1:[0,24],vc2:[.1,200],vdt:[.25,48],fba:[18,120],fbs:[1,10000],fbl:[1,10000],fbp:[1,2000]};
-const fmtL=n=>String(n).replace('.',',');
+const fmtL=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:4}).replace(/^-/,'−');
 function validate(){const bad=[];
-  $('app').querySelectorAll('input.num').forEach(i=>{const L=LIM[i.id]||[0,100000],v=i.value.trim();
+  $('app').querySelectorAll('input.num').forEach(i=>{const L=limOf(i.id),v=i.value.trim();
     if(v===''){i.classList.remove('bad');i.removeAttribute('aria-invalid');return}
-    const n=parseFloat(v.replace(',','.')),ok=isFinite(n)&&n>=L[0]&&n<=L[1];
+    const n=numOf(i),ok=isFinite(n)&&n>=L[0]&&n<=L[1];
     i.classList.toggle('bad',!ok);ok?i.removeAttribute('aria-invalid'):i.setAttribute('aria-invalid','true');
     if(!ok){const lab=(i.closest('label')?.textContent||'Campo').trim();bad.push(`<b>${lab}</b>: aceito de ${fmtL(L[0])} a ${fmtL(L[1])}`)}});
   $('app').querySelectorAll('input[type=date]').forEach(i=>{const d=parseDay(i.value),ok=!i.value||(d&&d.getFullYear()>1900&&daysBetween(d,new Date())>-400);
@@ -2710,11 +2743,12 @@ function validate(){const bad=[];
   return bad}
 let lastList='';
 /* Contador de acessos anônimo (GoatCounter): sem cookies, sem nada do que é digitado.
-   Só conta no site publicado. Respeita "não rastrear" do navegador. Medicamento e CID contam só a seção. */
-const GC_CODE='rictav27';
+   Só conta no site publicado. Respeita "não rastrear" do navegador. Medicamento e CID contam só a seção.
+   Endereço desconhecido conta como tela inicial (é o que abre), sem enviar o texto do endereço. */
+const GC_CODE='rictav27',PAGES=['esp','calc','esc','cron','fav','med','cid10','sobre','instalar'];
 function hit(h){try{
   if(location.hostname!=='rictav27.github.io'||navigator.doNotTrack==='1'||navigator.globalPrivacyControl)return;
-  const p='/'+(h.startsWith('med-')?'med':h.startsWith('cid10-')?'cid10':h);
+  const p='/'+(h.startsWith('med-')?'med':h.startsWith('cid10-')?'cid10':PAGES.includes(h)||TOOLS.some(t=>t.id===h)?h:'');
   new Image().src=`https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(p)}&rnd=${Math.random().toString(36).slice(2)}`;
 }catch(e){}}
 function route(){document.querySelector('.dlg')?.remove();
@@ -2752,9 +2786,9 @@ function glue(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,
   while((n=w.nextNode())){const t=n.data;if(!/[\d≥≤<>=±×÷] /.test(t))continue;const v=t.replace(GLUE,(m,d,u,op)=>op?op+' ':d+' '+u);if(v!==t)n.data=v}}
 new MutationObserver(ms=>{for(const m of ms)for(const x of m.addedNodes)if(x.nodeType===1)glue(x);else if(x.nodeType===3&&x.parentElement)glue(x.parentElement)}).observe(document.getElementById('app'),{childList:true,subtree:true});
 /* Busca digitada volta ao usar Voltar ou ao atualizar a página; ao entrar de novo pelo menu, começa vazia */
-let GOBACK=true;const QS=(()=>{try{return JSON.parse(sessionStorage.getItem('qs')||'{}')}catch(e){return {}}})();
+let GOBACK=true;const QS=(()=>{try{const o=JSON.parse(sessionStorage.getItem('qs')||'{}');return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch(e){return {}}})();
 function setQ(k,v){QS[k]=v;try{sessionStorage.setItem('qs',JSON.stringify(QS))}catch(e){}}
-function lastQ(k){if(!GOBACK)setQ(k,'');const v=(QS[k]||'').trim()?QS[k]:'';return v?'q:'+v:''}
+function lastQ(k){if(!GOBACK)setQ(k,'');const v=typeof QS[k]==='string'&&QS[k].trim()?QS[k]:'';return v?'q:'+v:''}
 /* Voltar restaura a posição de rolagem da página anterior */
 const NAV=[location.hash||'#'],POS={};let REPL=false;
 /* Seta de voltar: volta no histórico quando a página anterior é o destino; senão troca a página atual (sem criar ida e volta em loop) */

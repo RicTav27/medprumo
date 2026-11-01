@@ -18,6 +18,8 @@ def js(m):
         return ''  # service worker não funciona fora do site
     return '<script>\n' + (ROOT / m.group(1)).read_text(encoding='utf-8') + '</script>'
 
+# A CSP do site bloqueia script e estilo embutidos: o arquivo único (artefato de teste) fica sem ela
+html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', '', html)
 html = re.sub(r'<link rel="stylesheet" href="(assets/[^"]+)">', css, html)
 html = re.sub(r'<script src="(assets/[^"]+)"></script>', js, html)
 out.parent.mkdir(parents=True, exist_ok=True)
