@@ -1,0 +1,13 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});
+require('fs').mkdirSync('rev',{recursive:true});const src=fs.readFileSync(require('path').join(__dirname,'../assets/js/app.js'),'utf8');
+setTimeout(()=>{const d=w.document;const T=w.eval('TOOLS');let out=[];
+ T.forEach((t,i)=>{w.location.hash='#'+t.id;w.eval('route()');const a=d.getElementById('app');a.querySelectorAll('details').forEach(x=>x.open=true);
+  const txt=[];const walk=n=>{for(const c of n.childNodes){if(c.nodeType===3){const s=c.textContent.trim();if(s)txt.push(s)}else if(c.nodeType===1){if(['SCRIPT','STYLE','svg'].includes(c.tagName))continue;if(c.tagName==='TR'){txt.push([...c.children].map(x=>x.textContent.trim()).join(' | '));continue}walk(c)}}};
+  walk(a);
+  const k=src.indexOf("{id:'"+t.id+"'");const k2=src.indexOf("\n{id:'",k+5);const code=src.slice(k,k2>0?k2:k+6000);
+  const calc=(code.match(/ calc\(\)\{[\s\S]*?\n how:/)||[''])[0];
+  out.push(`##### ${t.id} | ${t.name} | ${t.cat}\nFONTE: ${t.src}\n--- TELA ---\n${txt.filter(x=>!/^Não substitui/.test(x)).join('\n')}\n--- CALC ---\n${calc.replace(/\n how:$/,'')}\n`)});
+ const B=10;for(let i=0;i<out.length;i+=B)fs.writeFileSync(`rev/lote${String(i/B+1).padStart(2,'0')}.txt`,out.slice(i,i+B).join('\n'));
+ console.log(out.length,'ferramentas');process.exit(0)},300);

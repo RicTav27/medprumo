@@ -1,0 +1,12 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+setTimeout(()=>{const d=w.document;
+ w.location.hash='#med';w.eval('route()');w.eval("med('q:dipirona')");
+ const it=[...d.querySelectorAll('.item[href^="#med-"]')];console.log('results',it.length);it.slice(0,8).forEach(a=>console.log(' ',a.textContent.replace(/\s+/g,' ').slice(0,110)));
+ w.eval("med('q:dorflex')");console.log('dorflex ->',d.querySelector('.item[href^="#med-"]')?.textContent.replace(/\s+/g,' ').slice(0,100));
+ w.eval("med('q:losartana')");const href=d.querySelector('.item[href^="#med-"]').getAttribute('href');w.location.hash=href;w.eval('route()');
+ console.log('detail',d.querySelector('.medh').textContent.replace(/\s+/g,' ').slice(0,120));
+ console.log('pres',[...d.querySelectorAll('.plist div')].map(x=>x.textContent).slice(0,6));
+ console.log('prods',d.querySelectorAll('.prod').length,[...d.querySelectorAll('.prod summary')].slice(0,4).map(x=>x.textContent));
+ console.log('errors',errs);process.exit(0)},500);

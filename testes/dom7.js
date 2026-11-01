@@ -1,0 +1,11 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+setTimeout(()=>{const d=w.document,go=hs=>{w.location.hash=hs;w.eval('route()');return d.getElementById('app')};
+ console.log('chapters',go('#cid10').querySelectorAll('.item').length);
+ console.log('chap9 cats',go('#cid10-c8').querySelectorAll('.item').length, (d.querySelector('.chh')||{}).textContent);
+ console.log('I21 subs',go('#cid10-I21').querySelectorAll('.cid').length,d.querySelector('.cid').textContent);
+ w.eval("cid10('q:pneumonia')");console.log('search',d.querySelectorAll('.cid').length,[...d.querySelectorAll('.sec')].map(s=>s.textContent).slice(0,3));
+ w.eval("cid10('q:j18')");console.log('code',d.querySelectorAll('.cid').length);
+ go('#');console.log('home cid11?',d.getElementById('app').textContent.includes('CID-11'));
+ console.log('errors',errs);process.exit(0)},300);

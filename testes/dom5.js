@@ -1,0 +1,14 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+setTimeout(()=>{const d=w.document;
+ const t=(id,vals,extra)=>{w.location.hash='#'+id;w.eval('route()');for(const[k,v]of Object.entries(vals)){const e=d.getElementById(k);e.value=v}extra&&extra();const e=d.querySelector('#app input,#app select');e.dispatchEvent(new w.Event('input'));d.querySelectorAll('#app select').forEach(s=>s.dispatchEvent(new w.Event('change')));return d.getElementById('out').textContent.replace(/\s+/g,' ')};
+ console.log('LDL',t('ldl',{ct:200,hdl:50,tg:150}));
+ console.log('MELD',t('meld',{bil:3.2,crm:1.4,inr:1.8,nam:131,albm:2.6},()=>d.querySelector('#sexm button[data-v="F"]').click()));
+ console.log('GRACE',t('grace',{gage:72,ghr:95,gsbp:110,gcr:1.3,gkil:'20'},()=>d.querySelector('#grt button').click()));
+ console.log('LUND',t('lund',{lwa:3,lww:15,lh:'1',lta:'0.5'},()=>d.querySelector('#lty button').click()));
+ w.location.hash='#cid10';w.eval('route()');w.eval("cid10('infarto agudo')");console.log('CID',d.querySelectorAll('.cid').length,d.querySelector('.cid')?.textContent.slice(0,80));
+ w.eval("cid10('J18')");console.log('CID J18',d.querySelectorAll('.cid').length);
+ w.location.hash='';w.eval('route()');console.log('home has recentes?',d.body.innerHTML.includes('recentemente'),'Especialidades?',d.getElementById('app').textContent.includes('Especialidades'));
+ w.location.hash='#sobre';w.eval('route()');console.log('historico?',d.body.innerHTML.includes('Histórico'));
+ console.log('errors',errs);process.exit(0)},300);

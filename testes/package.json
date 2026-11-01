@@ -1,0 +1,14 @@
+{
+  "name": "medprumo-testes",
+  "private": true,
+  "description": "Testes do MedPrumo (não fazem parte do app)",
+  "dependencies": {
+    "acorn": "8.19.0",
+    "acorn-walk": "8.3.5",
+    "eslint": "8.57.0",
+    "globals": "13.24.0",
+    "jsdom": "24.1.3",
+    "postcss": "8.5.31",
+    "postcss-selector-parser": "7.1.7"
+  }
+}

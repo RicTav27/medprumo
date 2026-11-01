@@ -1,0 +1,8 @@
+node_modules/
+package-lock.json
+medcalc.html
+all.js
+_t.js
+*.png
+saida/
+rev/

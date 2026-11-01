@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,permissions:['clipboard-read','clipboard-write']});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.clock.install();await p.goto('file://'+process.argv[2]+'#cron');await p.clock.runFor(300);
+const T=async s=>(await p.innerText(s)).replace(/\s+/g,' ');const go=ms=>p.clock.runFor(ms);
+await p.clock.pauseAt(Date.now()+1000);await go(1000);
+await p.click('#b1');await go(30000);await p.click('#b2');await go(15000);await p.click('#b2');await go(100);
+console.log('voltas:',await T('#laps'));await p.screenshot({path:process.argv[3]+'/cr_simples.png'});
+await p.click('.modes [data-m="rcp"]');await go(100);await p.click('#b1');await go(2000);await p.click('#dA');await p.click('#dS');await go(130000);
+console.log('ciclo:',await T('.cyc'));await p.click('#cp2');await go(100);console.log('copiar:',await T('#cp2'));await go(2100);console.log('depois:',await T('#cp2'));
+await p.screenshot({path:process.argv[3]+'/cr_rcp.png',fullPage:true});
+await p.click('.modes [data-m="du"]');await go(100);
+await p.evaluate(()=>{const t=Date.now(),m=60000;CR.u.list=[];for(let i=0;i<26;i++)CR.u.list.push({s:t-(35-i*1.35)*m,e:t-(35-i*1.35)*m+50000});});await go(200);
+console.log('DU 35 min a cada 1,35 min:',await T('#du'));await p.screenshot({path:process.argv[3]+'/cr_du.png',fullPage:true});
+await p.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await go(100);
+console.log('erros',errs);await b.close()})();

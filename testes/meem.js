@@ -1,0 +1,15 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+setTimeout(()=>{const d=w.document;w.location.hash='#meem';w.eval('route()');const app=d.getElementById('app');
+ const cb=[...app.querySelectorAll('input[type=checkbox]')];const o=()=>d.getElementById('out').textContent.replace(/\s+/g,' ').trim();
+ const set=(ids)=>{cb.forEach(c=>{c.checked=ids.includes(c.id);c.dispatchEvent(new w.Event('change',{bubbles:true}))})};
+ const esc=i=>{const r=app.querySelectorAll('input[name=mesc]')[i];r.checked=true;r.dispatchEvent(new w.Event('change',{bubbles:true}))};
+ console.log('itens',cb.length);
+ console.log('vazio:',o());
+ set(cb.map(c=>c.id));console.log('todos, sem escolaridade:',o());
+ esc(4);console.log('todos, >11:',o());
+ set(cb.map(c=>c.id).slice(0,28));console.log('28, >11:',o());
+ esc(0);console.log('28, analfabeto:',o());
+ set(['mt1','ms1','mr1','mc1','mv1','ml1']);console.log('1 por domínio, analfabeto:',o());
+ console.log('erros',errs);process.exit(0)},300);

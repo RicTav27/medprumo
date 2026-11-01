@@ -1,0 +1,16 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.requestAnimationFrame=f=>f();const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+let fail=0;
+setTimeout(()=>{const d=w.document;const txt=()=>d.getElementById('out').textContent.replace(/\s+/g,' ');
+ const run=(gi,o,rf,ex)=>{w.location.hash='#ictaap';w.eval('route()');d.querySelectorAll('.po button')[gi].click();Object.entries(o).forEach(([k,v])=>{const i=d.getElementById(k);i.value=v;i.dispatchEvent(new w.Event('input'))});(rf||[]).forEach(i=>{const c=d.getElementById(i);c.checked=true;c.dispatchEvent(new w.Event('change'))});const t=txt();const ok=ex.every(e=>t.includes(e));if(!ok)fail++;console.log((ok?'OK  ':'FAIL'),t.slice(0,200))};
+ run(5,{iab:16,iah:48},[],['Limite de fototerapia17 mg/dL','Limite de exsanguineotransfusão24 mg/dL','1 mg/dL abaixo','Abaixo']);
+ run(5,{iab:17,iah:48},[],['No limite de fototerapia ou acima']);
+ run(2,{iab:10,iah:24},['iar1'],['Limite de fototerapia10 mg/dL','exsanguineotransfusão17,2','No limite de fototerapia']);
+ run(5,{iab:18,iah:96},['iar4'],['Limite de fototerapia18,2','exsanguineotransfusão23,5']);
+ run(0,{iab:23,iah:72},[],['Limite de fototerapia16,8','exsanguineotransfusão22,9','No limite de exsanguineotransfusão ou acima']);
+ run(0,{iab:21,iah:72},[],['Até 2 mg/dL abaixo']);
+ run(4,{iab:10,iah:200},[],['21,8']);
+ run(3,{iab:5,iah:0},[],['1ª hora']);
+ run(1,{iab:10,iah:380},[],['Depois de 14 dias']);
+ console.log('errors',errs,'fail',fail);process.exit(0)},300);

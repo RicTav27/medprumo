@@ -1,0 +1,14 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.requestAnimationFrame=f=>f();const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+setTimeout(()=>{const d=w.document;
+ const run=(id,fn)=>{w.location.hash='#'+id;w.eval('route()');fn(d.getElementById('app'));console.log(id.padEnd(9),d.getElementById('out').textContent.replace(/\s+/g,' ').slice(0,150))};
+ const pick=(a,idx)=>a.querySelectorAll('.po').forEach((po,i)=>po.querySelectorAll('button')[Array.isArray(idx)?idx[i]:idx].click());
+ const ck=(ids)=>ids.forEach(i=>{const c=d.getElementById(i);c.checked=true;c.dispatchEvent(new w.Event('change'))});
+ const fl=(o)=>Object.entries(o).forEach(([k,v])=>{const i=d.getElementById(k);i.value=v;i.dispatchEvent(new w.Event('input'))});
+ run('pbf',a=>pick(a,[0,0,1,0,0]));run('pbf',a=>pick(a,[0,0,0,0,2]));
+ run('ila',a=>fl({il1:1,il2:1.5,il3:1,il4:1}));run('ila',a=>fl({il1:6,il2:7,il3:6,il4:6,ilb:9}));
+ run('gpg',a=>fl({gwp:70,gwh:160,gwa:76}));
+ run('hadlock',a=>fl({hdb:90,hdc:320,hda:330,hdf:70}));
+ run('amsel',a=>ck(['am1','am2','am3']));run('rotterdam',a=>ck(['ro1','ro2','ro4']));run('ferriman',a=>pick(a,1));
+ console.log('errors',errs);process.exit(0)},300);

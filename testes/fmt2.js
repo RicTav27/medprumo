@@ -1,0 +1,16 @@
+const {JSDOM}=require('jsdom');const fs=require('fs');
+const dom=new JSDOM('<!doctype html><body>'+fs.readFileSync('medcalc.html','utf8')+'</body>',{runScripts:'dangerously',url:'https://x.test/'});
+const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});const errs=[];w.addEventListener('error',e=>errs.push(e.message));
+setTimeout(()=>{const d=w.document;const o=()=>d.getElementById('out').textContent.replace(/\s+/g,' ').trim();const go=id=>{w.location.hash='#'+id;w.eval('route()')};
+ const segc=(id,v)=>d.querySelector(`#${id} [data-v="${v}"]`).click();
+ go('mrc');console.log('mrc vazio:',o());['1','2','3','4','5','6'].forEach(k=>['d','e'].forEach(l=>segc('mr'+k+l,5)));console.log('mrc todos 5:',o());segc('mr1d',0);console.log('mrc um 0:',o());
+ go('mrc');segc('mr1d',3);console.log('mrc parcial:',o().slice(0,120));
+ go('camicu');const cm1=v=>d.querySelector(`#cm1 [data-v="${v}"]`).click();const pick=(i)=>d.querySelectorAll('#app .po button')[i].click();
+ cm1(1);pick(4);console.log('cam f1 rass0 sem letras:',o());
+ const L=[...d.querySelectorAll('#cm2 button')];L[0].click();L[1].click();console.log('2 erros:',o());L[2].click();console.log('3 erros:',o());
+ const P=[...d.querySelectorAll('#cm4 button')];P[5].click();console.log('pens nenhum:',o());P[0].click();P[4].click();console.log('pens 2 erros:',o());
+ L[10].click();console.log('letras nenhum (limpa):',o(),'pressed',L.filter(b=>b.getAttribute('aria-pressed')==='true').length);
+ go('camicu');cm1(1);pick(2);d.querySelectorAll('#cm2 button')[0].click();d.querySelectorAll('#cm2 button')[1].click();d.querySelectorAll('#cm2 button')[2].click();console.log('rass+2 3 erros:',o());
+ go('gcs');const r=(n,v)=>{const i=d.querySelector(`input[name="${n}"][value="${v}"]`);i.checked=true;i.dispatchEvent(new w.Event('change',{bubbles:true}))};
+ console.log('gcs pupila marcada?',!!d.querySelector('input[name="p"]:checked'));r('o','4');r('v','5');r('m','6');console.log('gcs sem pupila:',o());r('p','2');console.log('gcs pupila 2:',o());r('p','X');console.log('gcs não avaliada:',o());
+ console.log('erros',errs);process.exit(0)},300);
