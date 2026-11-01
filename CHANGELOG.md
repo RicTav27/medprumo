@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.1 Beta (2026-11-01)
+- Regra dos 9 definida pela idade, sem seleção manual de adulto ou criança
+- Lund-Browder com resultado padronizado
+- Seta de voltar sem loop no histórico
+
 ## 0.9.0 Beta (2026-10-31)
 - Novas ferramentas de infectologia: dengue (classificação de risco do MS), Duke-ISCVID, VIRSTA, HANDOC, DENOVA, LRINEC e Pitt
 - Novas ferramentas de pediatria: PECARN do lactente febril, Kocher e Bacterial Meningitis Score

@@ -1,5 +1,5 @@
-const APP_VERSION='0.9.0';
-const CHANGES=[["0.9.0","2026-10-31",["Novas ferramentas de infectologia: dengue (classificação de risco do MS), Duke-ISCVID, VIRSTA, HANDOC, DENOVA, LRINEC e Pitt","Novas ferramentas de pediatria: PECARN do lactente febril, Kocher e Bacterial Meningitis Score","Nova ferramenta de oncologia: CISNE","Changelog revisado"]],["0.8.0","2026-10-30",["Nova ferramenta: índice tornozelo-braquial (ITB)","Descrição da ferramenta na barra superior","Interpretações em formato de lista","Seletor de tema restrito à tela inicial","Carga tabágica: nota sobre tipo de cigarro"]],["0.7.1","2026-10-29",["Cronômetro de RCP preserva ritmo e metrônomo ao recarregar","Áudio e tela ativa restaurados ao primeiro toque","Buscas preservadas ao voltar ou recarregar"]],["0.7.0","2026-10-28",["Novas ferramentas: Lawton e Brody, TUG, MAN completa e controle da asma (GINA)","RCP: condutas por ritmo e por doses anteriores","RCP: alerta de checagem de 10 s e registro em linha do tempo","Cronômetro mantido com tela bloqueada","Novo visual das listas de voltas e contrações","Correções de texto e de código"]],["0.6.1","2026-10-27",["Remoção do bipe de ventilação na RCP","Parâmetros da RCP em lista","Correções ortográficas e de classes de medicamentos","Limpeza de código"]],["0.6.0","2026-10-26",["Descrições das ferramentas revisadas","Compartilhamento por QR code e link","MELD: mortalidade em 3 meses e escala de 6 a 40","Revisão de cortes: EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade","Maior estabilidade do cronômetro","Revisão ortográfica de medicamentos e CID-10"]],["0.5.0","2026-10-25",["Medicamentos: lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS)","Nova página de medicamento","Tipo de receita conforme Portaria 344 e IN 360/2025","CID-10: códigos de covid-19 do Ministério da Saúde","Instruções nos itens de HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas, incluindo 4Ts, ASPECTS, Canadian C-spine, CRUSADE, EPDS, Rockall, Sgarbossa e PREVENT","Icterícia neonatal: SBP 2021 e AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Layout para tablet e paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas, incluindo AUDIT, carga tabágica, FLACC, MRC e Norton","Nova especialidade: Fisioterapia","SAPS 3 e GOLD 2026","Revisão de conteúdo pelas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento: 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
+const APP_VERSION='0.9.1';
+const CHANGES=[["0.9.1","2026-11-01",["Regra dos 9 definida pela idade, sem seleção manual de adulto ou criança","Lund-Browder com resultado padronizado","Seta de voltar sem loop no histórico"]],["0.9.0","2026-10-31",["Novas ferramentas de infectologia: dengue (classificação de risco do MS), Duke-ISCVID, VIRSTA, HANDOC, DENOVA, LRINEC e Pitt","Novas ferramentas de pediatria: PECARN do lactente febril, Kocher e Bacterial Meningitis Score","Nova ferramenta de oncologia: CISNE","Changelog revisado"]],["0.8.0","2026-10-30",["Nova ferramenta: índice tornozelo-braquial (ITB)","Descrição da ferramenta na barra superior","Interpretações em formato de lista","Seletor de tema restrito à tela inicial","Carga tabágica: nota sobre tipo de cigarro"]],["0.7.1","2026-10-29",["Cronômetro de RCP preserva ritmo e metrônomo ao recarregar","Áudio e tela ativa restaurados ao primeiro toque","Buscas preservadas ao voltar ou recarregar"]],["0.7.0","2026-10-28",["Novas ferramentas: Lawton e Brody, TUG, MAN completa e controle da asma (GINA)","RCP: condutas por ritmo e por doses anteriores","RCP: alerta de checagem de 10 s e registro em linha do tempo","Cronômetro mantido com tela bloqueada","Novo visual das listas de voltas e contrações","Correções de texto e de código"]],["0.6.1","2026-10-27",["Remoção do bipe de ventilação na RCP","Parâmetros da RCP em lista","Correções ortográficas e de classes de medicamentos","Limpeza de código"]],["0.6.0","2026-10-26",["Descrições das ferramentas revisadas","Compartilhamento por QR code e link","MELD: mortalidade em 3 meses e escala de 6 a 40","Revisão de cortes: EPDS, PHQ-9, PECARN, Centor/McIsaac, Alvarado, Katz e osmolaridade","Maior estabilidade do cronômetro","Revisão ortográfica de medicamentos e CID-10"]],["0.5.0","2026-10-25",["Medicamentos: lista CMED de outubro de 2026","Classe farmacológica (ATC/OMS)","Nova página de medicamento","Tipo de receita conforme Portaria 344 e IN 360/2025","CID-10: códigos de covid-19 do Ministério da Saúde","Instruções nos itens de HEART, BISAP, PECARN, TIMI, SOFA-2 e Aldrete"]],["0.4.0","2026-10-22",["33 novas ferramentas, incluindo 4Ts, ASPECTS, Canadian C-spine, CRUSADE, EPDS, Rockall, Sgarbossa e PREVENT","Icterícia neonatal: SBP 2021 e AAP 2022","Nova especialidade: Oncologia","MELD-Na integrado ao MELD","Opção \"Nenhum se aplica\" nos escores por critérios","Layout para tablet e paisagem"]],["0.3.0","2026-10-21",["Instruções de aplicação: MEEM, NIHSS e Glasgow"]],["0.2.0","2026-10-20",["13 novas ferramentas, incluindo AUDIT, carga tabágica, FLACC, MRC e Norton","Nova especialidade: Fisioterapia","SAPS 3 e GOLD 2026","Revisão de conteúdo pelas fontes originais","Nova identidade visual"]],["0.1.0","2026-10-19",["Lançamento: 137 calculadoras e escores","Consulta de medicamentos (CMED/ANVISA) e CID-10","Cronômetro"]]];
 const CONTATO='ricardotaveira123@gmail.com';
 const DISC='Não substitui o julgamento clínico, confira antes de usar',DISCH=`<span class="dl">${DISC}</span>`;
 /* MedPrumo: aplicação */
@@ -444,25 +444,25 @@ const TOOLS=[
  how:()=>`<p><code>Mosteller = √(altura cm × peso kg ÷ 3600)</code></p><p><code>DuBois = 0,007184 × peso^0,425 × altura^0,725</code></p><p>Mosteller é a mais usada.</p>`},
 
 {id:'queim',cat:'Trauma',name:'Queimaduras',sub:'Área queimada e reposição volêmica',
- src:'Regra dos 9 (Wallace), ATLS 11ª ed., ABA 2023, para mais precisão use Lund-Browder',
+ src:'Regra dos 9 (Wallace), GPnotebook (regra pediátrica), ATLS 11ª ed., ABA 2023',
  form:()=>{const segs=[['qh','Cabeça e pescoço'],['qma','Membro superior D'],['qmb','Membro superior E'],['qta','Tronco anterior'],['qtp','Tronco posterior'],['qia','Membro inferior D'],['qib','Membro inferior E'],['qp','Períneo']];
   const fr=[['0','Nada'],['0.25','¼'],['0.5','½'],['0.75','¾'],['1','Todo']];
   return `<div class="form">${field('qw','Peso (kg)','70')}${field('qa','Idade (anos)','35')}<div class="full"><label>Tipo</label><div class="seg" id="qtype"><button type="button" data-v="T" aria-pressed="false">Térmica</button><button type="button" data-v="E" aria-pressed="false">Elétrica</button></div></div>
-  <div class="full"><label>Regra dos 9</label><div class="seg" id="qrule"><button type="button" data-v="A" aria-pressed="false">Adulto</button><button type="button" data-v="C" aria-pressed="false">Criança</button></div></div></div>
+</div>
   <div class="form">${segs.map((s,i)=>`<label>${s[1]}<select id="${s[0]}">${fr.map(f=>`<option value="${f[0]}" >${f[1]}</option>`).join('')}</select></label>`).join('')}</div>`},
  calc(){
-  const w=num('qw'),age=num('qa'),type=segVal('qtype');
-  const child=segVal('qrule')==='C';
+  const w=num('qw'),age=num('qa'),type=segVal('qtype');if(isNaN(age))return out('acc','','','','Informe a idade.');
+  const child=age<10;
   const P=child?{qh:18,qma:9,qmb:9,qta:18,qtp:18,qia:14,qib:14,qp:0}:{qh:9,qma:9,qmb:9,qta:18,qtp:18,qia:18,qib:18,qp:1};
   const tb=Object.keys(P).reduce((s,k)=>s+P[k]*parseFloat($(k).value),0);
   if(!(tb>0))return out('acc','0','%','','Marque as áreas com queimadura de 2º e 3º grau.');
-  const rows=[['Regra usada',child?'Infantil (cabeça 18, MI 14)':'Adulto']];
+  const rows=[['Regra usada',child?'Infantil (&lt; 10 anos: cabeça 18, MI 14)':'Adulto (≥ 10 anos)']];
   const fat=type==='E'?4:(age>=14?2:3);
   const thr=age>=14?20:10;
   if(w>0){const tot=fat*w*tb;rows.push([`Fator (${type==='E'?'elétrica':age>=14?'≥ 14 anos':'≤ 13 anos'})`,fat+' mL/kg/%SCQ'],['Taxa inicial RL',fmt(tot/16,0)+' mL/h'],['Diurese alvo',age>=14?fmt(.5*w,0)+' mL/h (0,5 mL/kg/h)':fmt(w,0)+' mL/h (1 mL/kg/h)']);if(w<=30)rows.push(['Criança ≤ 30 kg','+ manutenção com glicose'])}
-  out(tb>=thr?'bad':'warn',fmt(tb,1),'% SCQ',tb>=thr?'Acima do limiar':'Abaixo do limiar',`Limiar de reposição do ATLS: ${thr}% SCQ (${age>=14?'adulto':'criança'}).`,rows);
+  out(tb>=thr?'bad':'warn',fmt(tb,1),'% SCQ',tb>=thr?'Acima do limiar':'Abaixo do limiar',`Limiar de reposição do ATLS: ${thr}% SCQ (${age>=14?'adulto':'criança'}).${child?' Em crianças, a Lund-Browder ajusta melhor pela idade.':''}`,rows);
  },
- how:()=>`<p>Somar só 2º e 3º grau. 1º grau não entra. Palma do paciente com dedos ≈ 1%.</p>${table(['Segmento','Adulto','Criança'],[['Cabeça/pescoço','9','18'],['Cada MS','9','9'],['Tronco anterior','18','18'],['Tronco posterior','18','18'],['Cada MI','18','14'],['Períneo','1','-']])}
+ how:()=>`<p>Somar só 2º e 3º grau. 1º grau não entra. Palma do paciente com dedos ≈ 1%.</p><p>A regra é escolhida pela idade: infantil abaixo de 10 anos, quando as proporções ainda diferem do adulto.</p><p>Entre 10 e 13 anos, a área usa a regra do adulto, mas a reposição segue o ATLS para criança (3 mL/kg/%SCQ e limiar de 10%).</p>${table(['Segmento','Adulto','Criança'],[['Cabeça/pescoço','9','18'],['Cada MS','9','9'],['Tronco anterior','18','18'],['Tronco posterior','18','18'],['Cada MI','18','14'],['Períneo','1','-']])}
  <p><b>ATLS 11ª ed.:</b> ≥ 14 anos 2 mL × kg × %SCQ, ≤ 13 anos 3 mL, elétrica 4 mL. Taxa inicial = volume ÷ 16 (mL/h).</p><p><b>ABA 2023:</b> usa 2 mL/kg/%SCQ em adultos ≥ 20%.</p>`},
 
 {id:'snap',cat:'Psiquiatria',name:'SNAP-IV',sub:'Triagem de sintomas de TDAH',
@@ -1099,7 +1099,7 @@ const TOOLS=[
   if(!(tb>0))return out('acc','0','% SCQ','','Marque as regiões queimadas.');
   const rows=[['Faixa da tabela',['&lt; 1 ano','1 a 4 anos','5 a 9 anos','10 a 14 anos','15 anos','Adulto'][col]]];
   const thr=a>=14?20:10;
-  if(!isNaN(w)&&ty){const fat=ty==='E'?4:(a>=14?2:3),tot=fat*w*tb;rows.push(['Fator',fat+' mL/kg/%SCQ'],['Taxa inicial RL',fmt(tot/16,0)+' mL/h'],['Diurese alvo',a>=14?fmt(.5*w,0)+' mL/h':fmt(w,0)+' mL/h']);if(w<=30)rows.push(['≤ 30 kg','+ manutenção com glicose'])}
+  if(!isNaN(w)&&ty){const fat=ty==='E'?4:(a>=14?2:3),tot=fat*w*tb;rows.push([`Fator (${ty==='E'?'elétrica':a>=14?'≥ 14 anos':'≤ 13 anos'})`,fat+' mL/kg/%SCQ'],['Taxa inicial RL',fmt(tot/16,0)+' mL/h'],['Diurese alvo',a>=14?fmt(.5*w,0)+' mL/h (0,5 mL/kg/h)':fmt(w,0)+' mL/h (1 mL/kg/h)']);if(w<=30)rows.push(['Criança ≤ 30 kg','+ manutenção com glicose'])}
   out(tb>=thr?'bad':'warn',fmt(tb,1),'% SCQ',tb>=thr?'Acima do limiar':'Abaixo do limiar',`Limiar de reposição do ATLS: ${thr}% SCQ (${a>=14?'adulto':'criança'}).`,rows)},
  how:()=>`${table(['Região variável','&lt; 1','1 a 4','5 a 9','10 a 14','15','Adulto'],[['Cabeça','19','17','13','11','9','7'],['Cada coxa','5,5','6,5','8','8,5','9','9,5'],['Cada perna','5','5','5,5','6','6,5','7']])}<p>Fixas: pescoço 2, tronco anterior 13, posterior 13, cada nádega 2,5, genitália 1, cada braço 4, antebraço 3, mão 2,5, pé 3,5.</p><p><b>ATLS 11ª ed.:</b> ≥ 14 anos 2 mL, ≤ 13 anos 3 mL, elétrica 4 mL × kg × %SCQ. Taxa inicial = volume ÷ 16 (mL/h).</p>`},
 
@@ -2756,9 +2756,13 @@ let GOBACK=true;const QS=(()=>{try{return JSON.parse(sessionStorage.getItem('qs'
 function setQ(k,v){QS[k]=v;try{sessionStorage.setItem('qs',JSON.stringify(QS))}catch(e){}}
 function lastQ(k){if(!GOBACK)setQ(k,'');const v=(QS[k]||'').trim()?QS[k]:'';return v?'q:'+v:''}
 /* Voltar restaura a posição de rolagem da página anterior */
-const NAV=[location.hash||'#'],POS={};
+const NAV=[location.hash||'#'],POS={};let REPL=false;
+/* Seta de voltar: volta no histórico quando a página anterior é o destino; senão troca a página atual (sem criar ida e volta em loop) */
+document.addEventListener('click',e=>{const a=e.target.closest('#bar a[aria-label="Voltar"]');if(!a)return;e.preventDefault();
+  const t=a.getAttribute('href')||'#';if(NAV.length>1&&NAV[NAV.length-2]===t)return history.back();
+  if((location.hash||'#')===t)return;REPL=true;location.replace(t)});
 window.addEventListener('hashchange',e=>{const old=new URL(e.oldURL).hash||'#',h=location.hash||'#';POS[old]=window.scrollY;
-  const back=NAV.length>1&&NAV[NAV.length-2]===h;if(back)NAV.pop();else NAV.push(h);
+  let back=NAV.length>1&&NAV[NAV.length-2]===h;if(REPL){REPL=false;NAV[NAV.length-1]=h;back=true}else if(back)NAV.pop();else NAV.push(h);
   GOBACK=back;route();GOBACK=false;const y=back?(POS[h]||0):0;requestAnimationFrame(()=>window.scrollTo(0,y))});
 /* Títulos em maiúsculas não podem mudar símbolos: pH, PaO₂, Na⁺ ficam como escritos */
 const SYM=/(?<![A-Za-zÀ-ÿ])(pH|pCO₂|PaO₂|PaCO₂|FiO₂|SpO₂|SaO₂|Na⁺|Cl⁻|Ca²⁺|Mg²⁺|HbA1c|TFGe|ClCr)(?![a-zà-ÿ])/g;
