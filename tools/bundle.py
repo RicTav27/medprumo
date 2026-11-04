@@ -4,14 +4,21 @@
 Uso: python3 tools/bundle.py [saida.html]
 Padrão: dist/medprumo.html
 """
-import re, sys, pathlib
+import base64, re, sys, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 out = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'dist' / 'medprumo.html'
 html = (ROOT / 'index.html').read_text(encoding='utf-8')
 
+def font(m):
+    # fontes embutidas em base64 (o arquivo único não tem a pasta assets/fonts)
+    data = base64.b64encode((ROOT / 'assets' / 'fonts' / m.group(1)).read_bytes()).decode()
+    return 'url("data:font/woff2;base64,' + data + '")'
+
 def css(m):
-    return '<style>\n' + (ROOT / m.group(1)).read_text(encoding='utf-8') + '</style>'
+    txt = (ROOT / m.group(1)).read_text(encoding='utf-8')
+    txt = re.sub(r'url\("\.\./fonts/([^"]+)"\)', font, txt)
+    return '<style>\n' + txt + '</style>'
 
 def js(m):
     if m.group(1).endswith('pwa.js'):

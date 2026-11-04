@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0 Beta (2026-11-03)
+- Calculadoras e escores: os dados preenchidos voltam ao atualizar a página e são apagados ao fechar o app
+- Fontes hospedadas no próprio app: o Google deixa de receber o IP do aparelho
+- Duke-ISCVID: lista completa de microrganismos típicos e limiares de Coxiella e Bartonella
+- VIRSTA: prótese valvar no item de dispositivo intracardíaco, definição de bacteremia persistente, ecocardiograma transesofágico como método preferido e recálculo se houver complicação
+- Corrigido erro em que o Duke-ISCVID listava estreptococos do grupo viridans como típicos; o critério é todos os estreptococos, exceto S. pneumoniae e S. pyogenes
+
 ## 0.9.2 Beta (2026-11-01)
 - Changelog e tela Novidades reescritos com a lista completa das mudanças de cada versão
 

@@ -1,3 +1,11 @@
+/* Fontes hospedadas no app (subconjunto latin, @fontsource 5.3.0, licença SIL OFL 1.1 em assets/fonts/*.txt): nenhuma requisição a outro site */
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/atkinson-hyperlegible-latin-400.woff2") format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/atkinson-hyperlegible-latin-700.woff2") format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url("../fonts/barlow-condensed-latin-600.woff2") format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/barlow-condensed-latin-700.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url("../fonts/jetbrains-mono-latin-500.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/jetbrains-mono-latin-700.woff2") format("woff2")}
+
 /* Layout: ficha de plantão. Tela inicial = busca + lista por sistema. Ferramenta = formulário, resultado destacado, "como é calculado". */
 :root{
   --bg:#f3f6f7; --surface:#ffffff; --fg:#14232b; --muted:#5a6d77; --line:#d6e0e4;

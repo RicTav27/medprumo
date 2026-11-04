@@ -1,5 +1,5 @@
 /* MedPrumo: cache offline. A lista e a versão são geradas por tools/version.py */
-const V='medprumo-60b068ae';
+const V='medprumo-9792f1c1';
 const CORE=[
   './',
   'index.html',
@@ -8,6 +8,15 @@ const CORE=[
   'assets/data/cid10.js',
   'assets/data/growth.js',
   'assets/data/medicamentos.js',
+  'assets/fonts/atkinson-hyperlegible-OFL.txt',
+  'assets/fonts/atkinson-hyperlegible-latin-400.woff2',
+  'assets/fonts/atkinson-hyperlegible-latin-700.woff2',
+  'assets/fonts/barlow-condensed-OFL.txt',
+  'assets/fonts/barlow-condensed-latin-600.woff2',
+  'assets/fonts/barlow-condensed-latin-700.woff2',
+  'assets/fonts/jetbrains-mono-OFL.txt',
+  'assets/fonts/jetbrains-mono-latin-500.woff2',
+  'assets/fonts/jetbrains-mono-latin-700.woff2',
   'assets/icons/apple-touch-icon.png',
   'assets/icons/favicon-32.png',
   'assets/icons/icon-192.png',
@@ -27,6 +36,6 @@ const APP=new URL('./',location).pathname;
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
   if(r.mode==='navigate'){const app=u.origin===location.origin&&(u.pathname===APP||u.pathname===APP+'index.html');
     e.respondWith(fetch(r).then(res=>{if(app&&res.ok&&res.type==='basic'){const c=res.clone();caches.open(V).then(x=>x.put('index.html',c))}return res}).catch(()=>caches.match('index.html')));return}
-  if(u.origin===location.origin||/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname)){
+  if(u.origin===location.origin){
     e.respondWith(caches.match(r,{ignoreSearch:true}).then(hit=>hit||fetch(r).then(res=>{if(res.ok||res.type==='opaque'){const c=res.clone();caches.open(V).then(x=>x.put(r,c))}return res})))}
 });
