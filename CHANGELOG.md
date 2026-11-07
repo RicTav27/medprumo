@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.11.0 Beta (2026-11-07)
+- Nova ferramenta de pediatria: Suplementação de ferro (SBP 2026), com profilaxia no lactente a termo (10 a 12,5 mg/dia em 2 ciclos de 3 meses), no prematuro e no baixo peso (por kg) e tratamento da anemia ferropriva (3 a 6 mg/kg/dia)
+
 ## 0.10.0 Beta (2026-11-03)
 - Calculadoras e escores: os dados preenchidos voltam ao atualizar a página e são apagados ao fechar o app
 - Fontes hospedadas no próprio app: o Google deixa de receber o IP do aparelho
