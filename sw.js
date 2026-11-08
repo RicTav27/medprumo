@@ -1,5 +1,5 @@
 /* MedPrumo: cache offline. A lista e a versão são geradas por tools/version.py */
-const V='medprumo-c69b985f';
+const V='medprumo-24a9d327';
 const CORE=[
   './',
   'index.html',
@@ -14,9 +14,6 @@ const CORE=[
   'assets/fonts/barlow-condensed-OFL.txt',
   'assets/fonts/barlow-condensed-latin-600.woff2',
   'assets/fonts/barlow-condensed-latin-700.woff2',
-  'assets/fonts/jetbrains-mono-OFL.txt',
-  'assets/fonts/jetbrains-mono-latin-500.woff2',
-  'assets/fonts/jetbrains-mono-latin-700.woff2',
   'assets/icons/apple-touch-icon.png',
   'assets/icons/favicon-32.png',
   'assets/icons/icon-192.png',

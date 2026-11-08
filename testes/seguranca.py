@@ -184,13 +184,13 @@ try:
             viol['cron uso'] = pg.evaluate('window.__csp')
         check('nenhuma violação de CSP em todas as páginas', not viol, str(viol)[:300])
 
-        # 7b. Fontes servidas pelo próprio app: nenhuma requisição a outro domínio (exceto o contador e a sonda exemplo.com do teste 3) e as 6 fontes carregam
+        # 7b. Fontes servidas pelo próprio app: nenhuma requisição a outro domínio (exceto o contador e a sonda exemplo.com do teste 3) e as 4 fontes carregam
         ext = sorted({u.split('/')[2] for u in reqs if u.startswith('http') and not u.startswith(BASE[:-1]) and 'goatcounter' not in u and 'exemplo.com' not in u})
         check('nenhuma requisição a outro domínio (além do contador)', not ext, str(ext))
         abrir(BASE, 600)
-        n = pg.evaluate("""async()=>{const f=[['400 16px "Atkinson Hyperlegible"'],['700 16px "Atkinson Hyperlegible"'],['600 16px "Barlow Condensed"'],['700 16px "Barlow Condensed"'],['500 16px "JetBrains Mono"'],['700 16px "JetBrains Mono"']];
+        n = pg.evaluate("""async()=>{const f=[['400 16px "Atkinson Hyperlegible"'],['700 16px "Atkinson Hyperlegible"'],['600 16px "Barlow Condensed"'],['700 16px "Barlow Condensed"']];
           for(const [x] of f)await document.fonts.load(x,'Aa');return f.filter(([x])=>document.fonts.check(x)).length+':'+[...document.fonts].filter(x=>x.status==='loaded').length}""")
-        check('6 fontes locais carregam', n.split(':')[1] == '6', n)
+        check('4 fontes locais carregam', n.split(':')[1] == '4', n)
 
         # 8. Service worker
         sw = open(os.path.join(ROOT, 'sw.js'), encoding='utf-8').read()

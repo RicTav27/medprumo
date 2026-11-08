@@ -2651,7 +2651,7 @@ function instalar(){bar('Instalar no celular','');
   <details class="srcs safe"><summary>É seguro?</summary><ul>${SAFE}</ul></details>
   ${order.join('')}
   <section class="istep"><h2>Uso offline e atualizações</h2><ol><li>Abra uma vez com internet. Depois funciona sem internet</li><li>Atualiza sozinho ao abrir com internet</li><li>Não atualizou? Feche e abra de novo</li><li>Ainda não? Remova o app, abra o link e instale de novo</li></ol></section>
-  <footer>O app instalado ocupa cerca de 3,3 MB.</footer>`;
+  <footer>O app instalado ocupa cerca de 3,2 MB.</footer>`;
   $('shbt').onclick=()=>shareBox($('shbt'));
   const b=$('ibtn');if(b)b.onclick=async()=>{const e=INSTALL_EVT;if(!e)return;e.prompt();await e.userChoice.catch(()=>{});INSTALL_EVT=null;instalar()};
 }
