@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.1 Beta (2026-11-08)
+- Formulários mostram só o que se aplica: Suplementação de ferro (campos da situação escolhida, desnutrição grave só no tratamento), PECARN (critérios da idade escolhida) e Canadian C-spine (baixo risco e rotação só quando cabem)
+- Busca: aceita termos com ou sem hífen, e o botão X de limpar aparece sempre que há texto digitado, mesmo sem o campo selecionado
+
 ## 0.11.0 Beta (2026-11-07)
 - Nova ferramenta de pediatria: Suplementação de ferro (SBP 2026), com profilaxia no lactente a termo (10 a 12,5 mg/dia em 2 ciclos de 3 meses), no prematuro e no baixo peso (por kg) e tratamento da anemia ferropriva (3 a 6 mg/kg/dia)
 
