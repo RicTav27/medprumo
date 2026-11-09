@@ -41,7 +41,7 @@
 
 ## Funcionalidades
 
-- **201 ferramentas** (escores, calculadoras, condutas, regras de decisão e classificações), organizadas em 24 especialidades, com busca e filtros
+- **205 ferramentas** (escores, calculadoras, condutas, regras de decisão e classificações), organizadas em 24 especialidades, com busca e filtros
 - **Medicamentos:** busca por princípio ativo ou marca, com apresentações, fabricantes, tipo de receita e classe farmacológica
 - **CID-10:** busca por código ou termo, navegação por capítulos
 - **Cronômetros:** modo simples, RCP e dinâmica uterina
