@@ -1145,8 +1145,9 @@ const TOOLS=[
 
 {id:'gotas',cat:'Farmacologia',name:'Gotas',sub:'Dose em gotas pelo rótulo do produto',
  src:'Cálculo aritmético com os dados do rótulo (gotas por mL declaradas pelo fabricante). Não sugere dose',
- form:()=>`<div class="stack">${sel('gou','Unidade da dose',[['_mg','mg'],['_ui','UI']])}${sel('gob','O rótulo informa',[['_c','Concentração por mL e gotas por mL'],['_g','Quantidade por gota']])}<div id="gow1" hidden><div class="form">${field('goc','Concentração (mg/mL)','')}${field('gon','Gotas por mL do rótulo (gotas/mL)','')}</div></div><div id="gow2" hidden><div class="form">${field('gog','Quantidade por gota (mg/gota)','')}</div></div></div><div class="form">${field('god','Dose (mg)','')}</div>`,
+ form:()=>`<div class="stack">${sel('gou','Unidade da dose',[['_mg','mg'],['_ui','UI']])}${sel('gop','Tipo do líquido, opcional',[['_a','Aquosa'],['_o','Oleosa'],['_l','Alcoólica'],['_s','Suspensão']]).replace('<select ','<select data-opt="1" ')}<p class="note" id="gopn" hidden></p>${sel('gob','O rótulo informa',[['_c','Concentração por mL e gotas por mL'],['_g','Quantidade por gota']])}<div id="gow1" hidden><div class="form">${field('goc','Concentração (mg/mL)','')}${field('gon','Gotas por mL do rótulo (gotas/mL)','')}</div></div><div id="gow2" hidden><div class="form">${field('gog','Quantidade por gota (mg/gota)','')}</div></div></div><div class="form">${field('god','Dose (mg)','')}</div>`,
  sync(){const b=$('gob').value,U=$('gou').value==='_ui'?'UI':'mg';$('gow1').hidden=b!=='_c';$('gow2').hidden=b!=='_g';
+  const GP={_a:'Usar as gotas por mL do rótulo. Não assumir 20 gotas por mL.',_o:'Líquido viscoso: a gota costuma ser maior. Usar as gotas por mL do rótulo.',_l:'Usar as gotas por mL do rótulo. Outro frasco ou gotejador muda o tamanho da gota.',_s:'Agitar bem antes de cada uso. Usar as gotas por mL do rótulo.'},gp=GP[$('gop').value];$('gopn').hidden=!gp;$('gopn').textContent=gp||'';
   [['goc','('+U+'/mL)'],['gog','('+U+'/gota)'],['god','('+U+')']].forEach(([id,t])=>{const e=document.querySelector('#'+id)?.closest('label')?.querySelector('.u');if(e)e.textContent=t})},
  calc(){const U=$('gou').value==='_ui'?'UI':'mg',b=$('gob').value,x=num('god');if(!b||!$('gou').value)return out('acc','','','','Escolha a unidade e o que o rótulo informa.');
   let pg,vg;if(b==='_c'){const c=num('goc'),n=num('gon');if(!(c>0&&n>0))return out('acc','','','','Informe a concentração e as gotas por mL do rótulo.');pg=c/n;vg=1/n}
@@ -3013,7 +3014,7 @@ function tool(t){
 }
 /* Itens obrigatórios ainda não escolhidos: listas, grupos de opção e botões de seleção */
 function missing(){const m=[],lab=el=>((p=>{if(!p)return '';const c=p.cloneNode(true);c.querySelectorAll('.pln').forEach(x=>x.remove());return c.textContent})(el.closest('.pick')?.querySelector('.pl'))||el.closest('label')?.textContent||el.closest('fieldset')?.querySelector('legend')?.textContent||'item').trim();
-  $('app').querySelectorAll('#app select:not([data-cfg])').forEach(s=>{if(s.value===''&&!s.parentElement.closest('[hidden]'))m.push(lab(s))});
+  $('app').querySelectorAll('#app select:not([data-cfg]):not([data-opt])').forEach(s=>{if(s.value===''&&!s.parentElement.closest('[hidden]'))m.push(lab(s))});
   const names=new Set();$('app').querySelectorAll('input[type=radio]').forEach(r=>names.add(r.name));
   names.forEach(n=>{if(document.querySelector(`input[name="${n}"]`).closest('fieldset[data-opt]'))return;if(!document.querySelector(`input[name="${n}"]:checked`))m.push(document.querySelector(`input[name="${n}"]`).closest('fieldset').querySelector('legend').textContent)});
   $('app').querySelectorAll('.seg').forEach(s=>{if(!s.querySelector('[aria-pressed="true"]'))m.push(s.parentElement.querySelector('label')?.textContent||'Seleção')});
