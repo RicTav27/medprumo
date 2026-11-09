@@ -620,3 +620,10 @@ body.nobar .hcards.one .hic svg{width:clamp(27px,calc(var(--h1,1vh)*4.7),40px);h
 body.nobar .hcards.one .ht b{font-size:clamp(1.2rem,calc(var(--h1,1vh)*3.1),1.55rem)}
 body.nobar .hcards.one .ht small{font-size:clamp(.85rem,calc(var(--h1,1vh)*2),1.02rem);text-wrap:balance}
 body.nobar .hcards.one .chev{font-size:clamp(1.6rem,calc(var(--h1,1vh)*3.6),2.3rem)}
+/* Aviso de versão nova (pwa.js) */
+.upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:60;max-width:420px;margin-inline:auto;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 14px;border-radius:var(--r-md);background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.25);font-weight:700}
+.upd span{flex:1}
+.upd button{font:700 1rem var(--body);min-height:44px;min-width:44px;padding:0 14px;border:0;border-radius:var(--r-md);cursor:pointer;background:var(--accent);color:var(--surface)}
+.upd button[data-a="n"]{background:none;color:var(--muted);font-size:1.4rem;padding:0}
+/* Movimento reduzido: sem transição em nenhum elemento */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}

@@ -216,7 +216,7 @@ try:
                 h1 = pg.inner_text('.bar h1') if alvo else 'ok'
             except Exception as ex:
                 t, h1 = 'erro', str(ex)[:80]
-            check(f'sem internet abre o app em {url[len(BASE):] or "/"}', t == 'MedPrumo' and alvo in h1, f'{t} | {h1}')
+            check(f'sem internet abre o app em {url[len(BASE):] or "/"}', t.endswith('MedPrumo') and alvo in h1, f'{t} | {h1}')
         print('erros de página', errs[:10])
         b.close()
 finally:

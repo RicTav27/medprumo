@@ -5,3 +5,7 @@ set(true);addEventListener('resize',()=>set(false));addEventListener('orientatio
 /* Tema: o salvo pelo usuário (só claro ou escuro). Sem escolha salva, computador abre no claro; celular segue o sistema */
 (function(){const d=document.documentElement;let t=null;try{t=localStorage.getItem('theme')}catch(e){}
 if(t==='light'||t==='dark')d.dataset.theme=t;else if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches)d.dataset.theme='light'})();
+/* Cor da barra do sistema acompanha o tema escolhido no app (sem escolha, segue o sistema pelas duas meta do HTML) */
+window.themeMeta=function(){const t=document.documentElement.dataset.theme;if(t!=='light'&&t!=='dark')return;
+document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{m.removeAttribute('media');m.setAttribute('content',t==='dark'?'#090f12':'#f3f6f7')})};
+window.themeMeta();

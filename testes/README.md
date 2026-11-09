@@ -10,11 +10,11 @@ Playwright e Chromium precisam estar instalados no sistema.
 
 ## Checagem rápida (recomendado)
 ```
-python3 testes/checar.py              # ~30 s: lógica, páginas, lint e código morto
-python3 testes/checar.py --completo   # ~5 min: + temas, celular, cores, segurança, offline
+python3 testes/checar.py              # ~20 s: lógica, páginas, lint, código morto e hash do cache
+python3 testes/checar.py --completo   # ~2,5 min: + temas, celular, cores, segurança, offline, atualização do app
 python3 testes/checar.py --tudo       # + aparelhos e macaco (~25 min)
 ```
-Gera o bundle sozinho, roda os testes e junta tudo em `testes/relatorio.html` (filtro por Erro, Aviso e Limpeza, busca por texto, arquivo:linha copiável, log de cada teste). Também imprime o resumo no terminal e grava `relatorio.json`. Sai com código 1 se houver Erro.
+Roda `tools/version.py` (versão e hash do cache em `sw.js`), gera o bundle, roda os testes em paralelo (`--seguido` roda um por vez) e junta tudo em `testes/relatorio.html` (filtro por Erro, Aviso e Limpeza, busca por texto, arquivo:linha copiável, log de cada teste). Também imprime o resumo no terminal e grava `relatorio.json`. Sai com código 1 se houver Erro.
 - **Erro:** bloqueia envio (teste falhou, lint com erro, lista citando ferramenta inexistente).
 - **Aviso:** conferir (sinônimo da CID-10 que não acha código, cor fora dos tokens, alvo de toque pequeno).
 - **Limpeza:** código morto (função ou ícone sem uso, seletor CSS sem uso, declaração CSS sobrescrita na mesma regra).
@@ -34,6 +34,9 @@ Gera o bundle sozinho, roda os testes e junta tudo em `testes/relatorio.html` (f
 | `node meem.js` | Mini-Mental |
 | `node medchk.js [nomes]` | base de medicamentos |
 | `node dom3.js` a `node dom17.js` | casos específicos de ferramentas |
+| `node dom19.js` | Dosagem (Dose por peso, Gotas, Diluição, Ampolas de eletrólitos) contra valores calculados à mão |
+| `node dom20.js` | índices de busca montados em fatias dão o mesmo resultado |
+| `python3 pwa2.py` | título da aba, cor da barra do sistema, aviso de versão nova, abertura com rede lenta, relógio dos cronômetros parado fora de uso |
 | `node cron.js "$PWD/medcalc.html"` (e cron2 a cron16) | cronômetros; cron4 pede uma pasta de saída como 2º argumento |
 | `node temas.js "$PWD/medcalc.html" shoot.py` | layout igual entre temas claro e escuro |
 | `node disp.js "$PWD/medcalc.html" shoot.py` | 6 celulares simulados |

@@ -3,13 +3,17 @@
 
 Uso (de qualquer pasta):
   python3 testes/checar.py              rápido (~30 s): lógica, páginas, lint, código morto
-  python3 testes/checar.py --completo   + temas, celular, cores, segurança, offline (~5 min)
+  python3 testes/checar.py --completo   + temas, celular, cores, segurança, offline (~3 min)
+  python3 testes/checar.py --seguido    um teste por vez (mais lento; para máquina fraca ou resultado instável)
+
+Os testes rodam em paralelo (dois por núcleo, até 4; a maior parte do tempo é espera). Cada um usa sua própria porta e só lê os arquivos do app.
   python3 testes/checar.py --tudo       + aparelhos e macaco (~25 min)
 
 Saída: resumo no terminal + testes/relatorio.html (abrir no navegador) + testes/relatorio.json.
 Código de saída 1 se houver Erro (bloqueia envio).
 """
 import html, json, os, re, subprocess, sys, time
+from concurrent.futures import ThreadPoolExecutor
 
 T = os.path.dirname(os.path.abspath(__file__))
 R = os.path.dirname(T)
@@ -64,13 +68,33 @@ def listas_cheias(nome, out):
 print(f'MedPrumo, checagem {MODO}')
 if not os.path.isdir(os.path.join(T, 'node_modules')):
     run('npm', 'npm i --silent', 600)
+# Versão, tela Novidades e hash do cache (sw.js): gerados antes do bundle para o commit nunca sair com cache antigo
+run('version', f'python3 {R}/tools/version.py')
 run('bundle', f'python3 {R}/tools/bundle.py {HTMLF}')
 
+
+def cache_ok():
+    """O hash em sw.js tem que ser o dos arquivos atuais (mesma conta do tools/version.py)."""
+    import hashlib
+    arqs = ['index.html', 'manifest.webmanifest'] + sorted(
+        os.path.relpath(os.path.join(d, f), R).replace(os.sep, '/') for d, _, fs in os.walk(os.path.join(R, 'assets')) for f in fs)
+    h = hashlib.sha1()
+    for f in arqs:
+        h.update(open(os.path.join(R, f), 'rb').read())
+    sw = open(os.path.join(R, 'sw.js'), encoding='utf-8').read()
+    m = re.search(r"const V='medprumo-([0-9a-f]+)'", sw)
+    if not m or m.group(1) != h.hexdigest()[:8]:
+        add('Erro', 'cache', f"sw.js com hash {m.group(1) if m else '?'}, esperado {h.hexdigest()[:8]}", 'sw.js', 2,
+            'Rodar python3 tools/version.py antes do commit.')
+    for f in arqs:
+        if f"'{f}'" not in sw:
+            add('Erro', 'cache', f'Arquivo fora da lista offline do sw.js: {f}', 'sw.js', 0, 'Rodar python3 tools/version.py.')
+
+
+cache_ok()
+
 # ---------------------------------------------------------------- lógica
-for n in ['audit', 'allpages', 'fuzz', 'numero', 'nenhum']:
-    listas_cheias(n, run(n, f'node {n}.js'))
-out = run('ref', 'node ref.js')  # informativo: compara esperado x app
-logs[-1]['nota'] = 'Informativo: conferir se o valor do app bate com o esperado.'
+LOGICA = ['audit', 'allpages', 'fuzz', 'numero', 'nenhum', 'dom19', 'dom20']
 
 # ---------------------------------------------------------------- lint com linha no arquivo original
 FONTES = ['assets/data/growth.js', 'assets/data/cid10.js', 'assets/data/medicamentos.js', 'assets/js/viewport.js', 'assets/js/app.js']
@@ -86,8 +110,31 @@ for f in FONTES:
     partes.append(txt)
 allp = os.path.join(T, 'all.js')
 open(allp, 'w', encoding='utf-8').write(''.join(partes))
-out = run('lint', 'npx eslint --no-eslintrc -c .eslintrc.json -f json all.js')
+
+# ---------------------------------------------------------------- roda tudo (em paralelo) e depois lê as saídas
+FILA = [(n, f'node {n}.js', 900) for n in LOGICA] + [
+    ('ref', 'node ref.js', 900),  # informativo: compara esperado x app
+    ('lint', 'npx eslint --no-eslintrc -c .eslintrc.json -f json all.js', 900),
+    ('limpeza', 'node limpeza.js', 900)]
+if MODO in ('completo', 'tudo'):
+    FILA += [('temas', f'node temas.js "{HTMLF}" shoot.py', 900), ('seguranca', 'python3 seguranca.py', 900),
+             ('mobile', 'python3 mobile.py', 900), ('cron17', f'node cron17.js "{HTMLF}"', 900),
+             ('cores', 'python3 colors.py', 900), ('pwatest', 'python3 pwatest.py', 900), ('pwa2', 'python3 pwa2.py', 900)]
+if MODO == 'tudo':
+    FILA += [('aparelhos', 'python3 aparelhos.py', 1800), ('macaco', 'python3 macaco.py', 1800)]
+N = 1 if '--seguido' in sys.argv else max(1, min(4, 2 * (os.cpu_count() or 1)))
+t_ini = time.time()
+with ThreadPoolExecutor(N) as ex:
+    fut = {n: ex.submit(run, n, c, t) for n, c, t in FILA}
+OUT = {n: f.result() for n, f in fut.items()}
+print(f'  total        {time.time() - t_ini:5.0f} s ({N} por vez)', flush=True)
+ordem = ['version', 'bundle'] + [n for n, _, _ in FILA]
+logs.sort(key=lambda l: ordem.index(l['nome']) if l['nome'] in ordem else -1)
 os.remove(allp)
+for n in LOGICA:
+    listas_cheias(n, OUT[n])
+next(l for l in logs if l['nome'] == 'ref')['nota'] = 'Informativo: conferir se o valor do app bate com o esperado.'
+out = OUT['lint']
 try:
     res = json.loads(out[out.index('['):])
     srcl = ''.join(partes).splitlines()
@@ -104,7 +151,7 @@ except Exception as e:  # noqa
     add('Erro', 'lint', f'Não consegui ler a saída do ESLint: {e}')
 
 # ---------------------------------------------------------------- código morto e listas
-out = run('limpeza', 'node limpeza.js')
+out = OUT['limpeza']
 try:
     for x in json.loads(out.strip().splitlines()[-1]):
         add(x['grupo'], 'limpeza', x['msg'], x['arquivo'], x['linha'], x['dica'])
@@ -113,9 +160,9 @@ except Exception as e:  # noqa
 
 # ---------------------------------------------------------------- interface (completo)
 if MODO in ('completo', 'tudo'):
-    out = run('temas', f'node temas.js "{HTMLF}" shoot.py')
+    out = OUT['temas']
     listas_cheias('temas', out)
-    out = run('mobile', 'python3 mobile.py')
+    out = OUT['mobile']
     for ln in out.splitlines():
         if re.search(r'vazamento lateral: (?!nenhum)', ln) or re.search(r'fonte < 16px.*: (?!nenhum)', ln):
             add('Erro', 'mobile', ln.strip())
@@ -126,20 +173,20 @@ if MODO in ('completo', 'tudo'):
             add('Aviso', 'mobile', ln.strip(), dica='Rodar python3 testes/mobile.py para ver a lista.')
         if re.search(r'altura \d+ (?!OK)|largura (?!OK)', ln):
             add('Erro', 'mobile', ln.strip())
-    out = run('cron17', f'node cron17.js "{HTMLF}"')
+    out = OUT['cron17']
     for ln in out.splitlines():
         if ln.startswith('ERRO '):
             add('Erro', 'cron17', ln[5:].strip()[:400])
-    out = run('cores', 'python3 colors.py')
+    out = OUT['cores']
     for ln in out.splitlines():
         if 'NAO-TOKEN' in ln and not all(re.search(CORES_OK, x) for x in re.findall(r"'([^']*)'", ln)):
             add('Aviso', 'cores', 'Cor fora dos tokens: ' + ln.strip()[:300], dica='Trocar por var(--...) se não for intencional.')
-    for n in ['seguranca', 'pwatest']:
-        listas_cheias(n, run(n, f'python3 {n}.py', 900))
+    for n in ['seguranca', 'pwatest', 'pwa2']:
+        listas_cheias(n, OUT[n])
 
 if MODO == 'tudo':
-    listas_cheias('aparelhos', run('aparelhos', 'python3 aparelhos.py', 1800))
-    listas_cheias('macaco', run('macaco', 'python3 macaco.py', 1800))
+    listas_cheias('aparelhos', OUT['aparelhos'])
+    listas_cheias('macaco', OUT['macaco'])
 
 # ---------------------------------------------------------------- relatório
 ORD = {'Erro': 0, 'Aviso': 1, 'Limpeza': 2}

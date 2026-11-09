@@ -1,0 +1,32 @@
+# Roda a checagem rápida do MedPrumo a cada envio (lógica, páginas, lint, código sem uso, hash do cache)
+name: Checagem
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependências
+        run: cd testes && npm i --silent
+      - name: Checagem
+        run: python3 testes/checar.py
+      - name: Cache do app em dia
+        run: git diff --exit-code sw.js assets/js/app.js
+      - name: Relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio
+          path: testes/relatorio.html
