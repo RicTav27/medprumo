@@ -1,5 +1,5 @@
 /* MedPrumo: cache offline. A lista e a versão são geradas por tools/version.py */
-const V='medprumo-bbd7ac92';
+const V='medprumo-5f722ea2';
 const CORE=[
   './',
   'index.html',
