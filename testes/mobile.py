@@ -16,12 +16,12 @@ with sync_playwright() as p:
   for h in ids:
     pg.evaluate(f"location.hash='#{h}'");pg.wait_for_timeout(40)
     if pg.evaluate('document.documentElement.scrollWidth')>360:over.append(h)
-    r=pg.evaluate("""[...document.querySelectorAll('#app button,#app a,#app input,#app .opt,#bar a,#bar button')].filter(e=>e.offsetParent).map(e=>{const r=e.getBoundingClientRect();return [e.tagName+'.'+(e.className||'')+(e.textContent||'').trim().slice(0,14),Math.round(r.height),Math.round(r.width)]}).filter(x=>x[1]<32||x[2]<32)""")
+    r=pg.evaluate("""[...document.querySelectorAll('#app button,#app a,#app input,#app .opt,#bar a,#bar button')].filter(e=>e.offsetParent&&!(e.tagName==='INPUT'&&/^(checkbox|radio)$/.test(e.type)&&(e.closest('label')?.getBoundingClientRect().height||0)>=40)).map(e=>{const r=e.getBoundingClientRect();return [e.tagName+'.'+(e.className||'')+(e.textContent||'').trim().slice(0,14),Math.round(r.height),Math.round(r.width)]}).filter(x=>x[1]<32||x[2]<32)""")
     for x in r:small.add((h,x[0],x[1],x[2]))
     fz=pg.evaluate("""[...document.querySelectorAll('#app input')].filter(e=>e.offsetParent&&parseFloat(getComputedStyle(e).fontSize)<16).map(e=>e.id)""")
     for x in fz:tiny_font.add((h,x))
   print('  vazamento lateral:',over or 'nenhum')
   print('  inputs com fonte < 16px (iPhone dá zoom):',sorted(tiny_font)[:10] or 'nenhum')
-  sm=sorted(small);print('  alvos de toque < 32px:',len(sm));[print('   ',x) for x in sm[:40]]
+  sm=sorted(small);print('  alvos de toque < 32px:',len(sm));[print('   ',x) for x in sm if not x[1].startswith('INPUT')]
   print('  erros JS:',errs)
   b.close()

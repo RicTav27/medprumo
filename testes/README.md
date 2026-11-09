@@ -8,6 +8,19 @@ Scripts de teste usados no desenvolvimento. Não fazem parte do app nem entram n
 ```
 Playwright e Chromium precisam estar instalados no sistema.
 
+## Checagem rápida (recomendado)
+```
+python3 testes/checar.py              # ~30 s: lógica, páginas, lint e código morto
+python3 testes/checar.py --completo   # ~5 min: + temas, celular, cores, segurança, offline
+python3 testes/checar.py --tudo       # + aparelhos e macaco (~25 min)
+```
+Gera o bundle sozinho, roda os testes e junta tudo em `testes/relatorio.html` (filtro por Erro, Aviso e Limpeza, busca por texto, arquivo:linha copiável, log de cada teste). Também imprime o resumo no terminal e grava `relatorio.json`. Sai com código 1 se houver Erro.
+- **Erro:** bloqueia envio (teste falhou, lint com erro, lista citando ferramenta inexistente).
+- **Aviso:** conferir (sinônimo da CID-10 que não acha código, cor fora dos tokens, alvo de toque pequeno).
+- **Limpeza:** código morto (função ou ícone sem uso, seletor CSS sem uso, declaração CSS sobrescrita na mesma regra).
+- Itens intencionais ficam em `LINT_OK` e `CORES_OK` no `checar.py`. `node limpeza.js` roda só a parte de código morto (saída JSON).
+- Não pega ícone cujo nome também é usado como texto em outro lugar (ex.: rota).
+
 ## Rodar (de dentro de testes/)
 | Comando | O que testa |
 |---|---|
@@ -32,6 +45,8 @@ Playwright e Chromium precisam estar instalados no sistema.
 | `python3 fmtaudit.py "$PWD/medcalc.html" shoot.py` | auditoria de formatação |
 | `node dump.js` | exporta textos das ferramentas para `rev/` (revisão) |
 | `./lint.sh` | ESLint (1 aviso intencional de atribuição em condição) |
+| `node limpeza.js` | código morto e listas inconsistentes (JSON) |
+| `python3 checar.py` | todos acima juntos, com relatório |
 
 ## Cuidado
 - `cssclean.js` grava o CSS limpo no arquivo passado como argumento. Nunca passar `medcalc.html` nem `app.css`.

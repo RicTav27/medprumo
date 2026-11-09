@@ -28,6 +28,9 @@ def js(m):
 # A CSP do site bloqueia script e estilo embutidos: o arquivo único (artefato de teste) fica sem ela
 html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', '', html)
 html = re.sub(r'<link rel="stylesheet" href="(assets/[^"]+)">', css, html)
+# Dados grandes: no site carregam depois da primeira tela (loadData no app.js); no arquivo único vão embutidos antes do app.js
+DATA = ''.join(f'<script src="assets/data/{n}.js"></script>\n' for n in ('growth', 'cid10', 'medicamentos'))
+html = html.replace('<script src="assets/js/app.js"></script>', DATA + '<script src="assets/js/app.js"></script>', 1)
 html = re.sub(r'<script src="(assets/[^"]+)"></script>', js, html)
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(html, encoding='utf-8')

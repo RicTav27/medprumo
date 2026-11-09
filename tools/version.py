@@ -11,9 +11,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # Changelog dentro do app (Sobre > toque na versão): copiado do CHANGELOG.md
 log = []
 for line in (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8').splitlines():
-    m = re.match(r'^## (\S+)(?: Beta)? \((\d{4}-\d{2}-\d{2})\)', line)
+    # Título: "## X.Y.Z Beta (DD/MM/AAAA)". Guardado no app como AAAA-MM-DD (a tela Novidades mostra DD/MM/AAAA).
+    m = re.match(r'^## (\S+)(?: Beta)? \((\d{2})/(\d{2})/(\d{4})\)', line)
     if m:
-        log.append([m.group(1), m.group(2), []])
+        log.append([m.group(1), f'{m.group(4)}-{m.group(3)}-{m.group(2)}', []])
+    elif re.match(r'^## \S+.*\(\d{4}-\d{2}-\d{2}\)', line):
+        raise SystemExit(f'CHANGELOG.md: data em formato antigo, usar DD/MM/AAAA: {line}')
     elif line.startswith('- ') and log:
         log[-1][2].append(line[2:].strip())
 app = ROOT / 'assets/js/app.js'
