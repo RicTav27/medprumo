@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.0 Beta (11/11/2026)
+- Nova seção Dosagem na tela inicial, com Dose por peso, Gotas, Diluição, Ampolas de eletrólitos, Gotejamento e Infusão contínua
+- Novas ferramentas: Dose por peso (com divisão da dose diária), Gotas, Diluição e Ampolas de eletrólitos
+- O app abre na hora pela cópia salva no aparelho, mesmo com internet lenta, e avisa quando há versão nova
+- Corrigido erro em que a barra do sistema ficava na cor errada quando o tema do app era diferente do tema do aparelho
+- Corrigido erro em que as Curvas OMS mostravam 23 meses na idade de quem completava 2 anos no dia da medida (o escore-z não era afetado)
+
 ## 0.12.0 Beta (09/11/2026)
 - Nova ferramenta de cardiologia: Critérios de Steurer (TV ou taquicardia pré-excitada no QRS largo)
 - Ferramentas: nova tela com busca e filtros por tipo (escore, calculadora, conduta, regra de decisão e classificação) e por especialidade, com mais de um filtro ao mesmo tempo; as telas Escores e Calculadoras foram unificadas
