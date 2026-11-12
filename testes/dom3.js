@@ -7,7 +7,7 @@ setTimeout(()=>{const d=w.document;let issues=[];
   const filled=[...app.querySelectorAll('input.num')].filter(i=>i.value!=='').map(i=>i.id);
   const chk=[...app.querySelectorAll('input[type=checkbox]:checked,input[type=radio]:checked')].map(i=>i.id).filter(x=>x!=='pX');
   const sel=[...app.querySelectorAll('select:not([data-cfg])')].filter(s=>s.value!==''&&!s.id.match(/^q(h|ma|mb|ta|tp|ia|ib|p)$/)).map(s=>s.id);
-  const segs=[...app.querySelectorAll('.seg [aria-pressed="true"]')].map(b=>b.parentElement.id).filter(x=>x!=='ifmode');
+  const segs=[...app.querySelectorAll('.seg [aria-pressed="true"]')].map(b=>b.parentElement.id);
   const o=d.getElementById('out').textContent;
   if(filled.length||chk.length||sel.length||segs.length||!o.includes('Preencha os dados'))issues.push([id,filled,chk,sel,segs,o.slice(0,40)]);
   // interact: fill all selects/radios/segs/numbers with first valid and check result renders
