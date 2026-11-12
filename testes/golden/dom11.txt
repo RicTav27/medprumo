@@ -1,0 +1,13 @@
+spesi     2pontosAlto riscoMaior mortalidade em 30 dias.
+westley   5/ 17Moderado
+ich       4/ 6Mortalidade em 30 dias: 97%Dado da coorte original.
+hunt      IIIGrau IIIDoença sistêmica grave ou vasoespasmo importante: somar 1 grau.
+rankin    2/ 6IndependentemRS 0 a 2 costuma ser usado como desfecho favorável.
+killip    IIIKillip IIIMortalidade hospitalar na série original: 38%.
+stopbang  4/ 8Risco intermediárioAlto risco se ≥ 2 dos 4 primeiros itens + sexo masculino, IMC > 35 ou pescoço > 40 cm.
+cage      2/ 4Positivo≥ 2: rastreio positivo.
+auditc    4/ 12Consumo de riscoCorte: ≥ 3 para mulheres.
+mascc     24/ 26Baixo riscoBaixo risco de complicações graves.
+idcor     12,0semanasIdade corrigida≈ 2,8 meses.Semanas descontadas8,0
+cfs       6/ 9FrágilAvaliar como estava 2 semanas antes da doença aguda.
+errors []

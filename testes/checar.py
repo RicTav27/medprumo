@@ -118,10 +118,10 @@ FILA = [(n, f'node {n}.js', 900) for n in LOGICA] + [
     ('limpeza', 'node limpeza.js', 900)]
 if MODO in ('completo', 'tudo'):
     FILA += [('temas', f'node temas.js "{HTMLF}" shoot.py', 900), ('seguranca', 'python3 seguranca.py', 900),
-             ('mobile', 'python3 mobile.py', 900), ('cron17', f'node cron17.js "{HTMLF}"', 900),
+             ('telas', 'python3 telas.py', 900), ('antigos', 'python3 antigos.py', 900), ('cron17', f'node cron17.js "{HTMLF}"', 900),
              ('cores', 'python3 colors.py', 900), ('pwatest', 'python3 pwatest.py', 900), ('pwa2', 'python3 pwa2.py', 900)]
 if MODO == 'tudo':
-    FILA += [('aparelhos', 'python3 aparelhos.py', 1800), ('macaco', 'python3 macaco.py', 1800)]
+    FILA += [('aparelhos', 'python3 telas.py --todos', 1800), ('macaco', 'python3 macaco.py', 1800)]
 N = 1 if '--seguido' in sys.argv else max(1, min(4, 2 * (os.cpu_count() or 1)))
 t_ini = time.time()
 with ThreadPoolExecutor(N) as ex:
@@ -162,17 +162,13 @@ except Exception as e:  # noqa
 if MODO in ('completo', 'tudo'):
     out = OUT['temas']
     listas_cheias('temas', out)
-    out = OUT['mobile']
-    for ln in out.splitlines():
-        if re.search(r'vazamento lateral: (?!nenhum)', ln) or re.search(r'fonte < 16px.*: (?!nenhum)', ln):
-            add('Erro', 'mobile', ln.strip())
-        if 'erros JS' in ln and '[]' not in ln:
-            add('Erro', 'mobile', ln.strip())
-        m = re.search(r'alvos de toque < 32px: (\d+)', ln)
-        if m and m.group(1) != '0':
-            add('Aviso', 'mobile', ln.strip(), dica='Rodar python3 testes/mobile.py para ver a lista.')
-        if re.search(r'altura \d+ (?!OK)|largura (?!OK)', ln):
-            add('Erro', 'mobile', ln.strip())
+    for ln in OUT['telas'].splitlines():
+        if ln.startswith('AVISO '):
+            add('Aviso', 'telas', ln[6:].strip()[:400], dica='Rodar python3 testes/telas.py para ver a lista.')
+    listas_cheias('telas', OUT['telas'])
+    for ln in OUT['antigos'].splitlines():
+        if ln.startswith('MUDOU '):
+            add('Aviso', 'antigos', 'Saída de teste antigo mudou: ' + ln[6:], dica='Conferir com python3 testes/antigos.py; se a mudança for esperada, python3 testes/antigos.py --aceitar.')
     out = OUT['cron17']
     for ln in out.splitlines():
         if ln.startswith('ERRO '):
@@ -186,6 +182,9 @@ if MODO in ('completo', 'tudo'):
 
 if MODO == 'tudo':
     listas_cheias('aparelhos', OUT['aparelhos'])
+    for ln in OUT['aparelhos'].splitlines():
+        if ln.startswith('AVISO '):
+            add('Aviso', 'aparelhos', ln[6:].strip()[:400])
     listas_cheias('macaco', OUT['macaco'])
 
 # ---------------------------------------------------------------- relatório

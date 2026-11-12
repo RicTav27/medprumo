@@ -1,0 +1,22 @@
+OK   sgarbossa  3/ 10Sgarbossa positivoEscore ≥ 3: alta especificidade para IAM.
+OK   sgarbossa  2/ 10Sgarbossa negativoEscore < 3: não exclui IAM, a sensibilidade é baixa.
+OK   sgarbossa  10/ 10Sgarbossa positivoEscore ≥ 3: alta especificidade para IAM.
+OK   quatrots   8/ 8Probabilidade alta
+OK   quatrots   4/ 8Probabilidade intermediária
+OK   quatrots   1/ 8Probabilidade baixaEscore baixo tem alto valor preditivo negativo.
+OK   genebra    12pontosProbabilidade altaPrevalência de TEP na validação: 74%.
+OK   genebra    4pontosProbabilidade intermediáriaPrevalência de TEP na validação: 28%.
+OK   genebra    2pontosProbabilidade baixaPrevalência de TEP na validação: 8%.
+OK   ecog       2ECOG 2Ambulatorial, incapaz de trabalhar.
+OK   karnofsky  60%KPS 60Não trabalha, vive em casa com ajuda variável.
+OK   karnofsky  100%KPS 100Atividade normal, sem cuidado especial.
+OK   gds15      10/ 15Sugere depressãoCorte 5/6: ≥ 6 sugere depressão.
+OK   gds15      5/ 15Abaixo do corteCorte 5/6: ≥ 6 sugere depressão.
+OK   epds       21/ 30Rastreio positivoEscore ≥ 11: corte brasileiro para casos moderados e graves. Item 10 positivo: ideia de autoagressão relatada.
+OK   epds       9/ 30Rastreio negativoEscore abaixo de 10.
+OK   rox        7,60Menor risco de intubaçãoÀs 2 h: ≥ 4,88 menor risco, < 2,85 maior risco de falha.
+OK   rox        2,75Maior risco de falha do alto fluxoÀs 12 h: ≥ 4,88 menor risco, < 3,85 maior risco de falha.
+OK   rox        4,38Zona intermediáriaÀs 2 h: ≥ 4,88 menor risco, < 2,85 maior risco de falha.
+OK   gcsped     14/ 15TCE leveO4 V4 M6.
+OK   gcsped     6/ 15TCE graveO1 V2 M3.
+errors [] fail 0

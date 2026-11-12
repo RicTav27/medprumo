@@ -1,0 +1,16 @@
+lesão        Lesão por pressão | LRA (KDIGO) | Fração de excreção | Escala de Braden | Escala de Norton | A66.0
+lesao renal  LRA (KDIGO) | Fração de excreção
+IRA          LRA (KDIGO) | Dipirona | Ioversol | Aciclovir | N17 | N17.0
+kdigo        LRA (KDIGO) | TFG (CKD-EPI 2021) | Albuminúria (RAC)
+infarto      HEART | TIMI (AI/IAMSSST) | GRACE | Killip | TIMI (IAMCSST) | Sgarbossa
+sepse        Sepse (ILAS) | qSOFA | SOFA | SOFA-2 | Phoenix | SIC
+queimadura   Queimaduras | Queimaduras (Lund-Browder) | L55 | L55.0 | L55.1
+avc          NIHSS | CHA₂DS₂-VA | Índice de Barthel | ABCD² | ICH Score | Rankin modificada
+gravidez     IG e DPP | T-ACE | O00 | O00.0 | O00.1
+criança      Critérios de Kocher | Bacterial Meningitis Score | Doses e TOT na PCR pediátrica | Curvas OMS | SNAP-IV | PECARN (TCE)
+pneumonia    CURB-65 | PSI / PORT | CPIS | Lisados bacterianos (staphylococcus aureus, streptococcus pyogenes, streptococcus mitis, streptococcus pneumoniae, klebsiella pneumoniae, branhamella catarrhalis, haemophilus influenzae) | Polissacarídeo conjugado de streptococcus pneumoniae tipo 1 + polissacarídeo conjugado de streptococcus pneumoniae tipo 14 + polissacarídeo conjugado de streptococcus pneumoniae tipo 18c + polissacarídeo conjugado de streptococcus pneumoniae tipo 19f + polissacarídeo conjugado de streptococcus pneumoniae tipo 23f + polissacarídeo conjugado de streptococcus pneumoniae tipo 4 + polissacarídeo conjugado de streptococcus pneumoniae tipo 5 + polissacarídeo conjugado de streptococcus pneumoniae tipo 6b + polissacarídeo conjugado de streptococcus pneumoniae tipo 7f + polissacarídeo conjugado de streptococcus pneumoniae tipo 9v | Polissacarídeo capsular de streptococcus pneumoniae sorotipo 1 + polissacarídeo capsular de streptococcus pneumoniae sorotipo 14 + polissacarídeo capsular de streptococcus pneumoniae sorotipo 18c + polissacarídeo capsular de streptococcus pneumoniae sorotipo 19a + polissacarídeo capsular de streptococcus pneumoniae sorotipo 19f + polissacarídeo capsular de streptococcus pneumoniae sorotipo 23f + polissacarídeo capsular de streptococcus pneumoniae sorotipo 3 + polissacarídeo capsular de streptococcus pneumoniae sorotipo 4 + polissacarídeo capsular de streptococcus pneumoniae sorotipo 5 + polissacarídeo capsular de streptococcus pneumoniae sorotipo 6a + polissacarídeo capsular de streptococcus pneumoniae sorotipo 7f + polissacarídeo capsular de streptococcus pneumoniae sorotipo 9v
+clonazepam => Notificação de Receita B (azul) Lista B1 (Portaria 344)
+tramadol => Receita de controle especial (2 vias) ou Notificação A Lista A2 (Portaria 344)Dose até 100 mg por unidade: controle especial. Acima disso: Notificação de Receita A (amarela).
+amoxicilina => Receita de antimicrobiano (2 vias, com retenção) IN 360/2025Retém receitaValidade: 10 dias.
+dipirona => Receita simples (sem retenção) 
+errors []

@@ -1,0 +1,9 @@
+LDL 124mg/dLMartin/HopkinsMétodo recomendado pela SBC 2025 para todos.Não-HDL-c150Martin/Hopkins124 (fator 5,7)Sampson123Friedewald120
+MELD 21MELDMortalidade em 3 meses na faixa: 19,6% (Wiesner 2003). Brasil: conferir na regra vigente do SNT qual versão do MELD a lista usa.MELD21MELD-Na (OPTN/EUA)25MELD 3.0 (OPTN/EUA)26
+GRACE 163pontosRisco AltoMorte intra-hospitalar estimada ≈ 5,4%.Idade75FC15PAS43Creatinina10Killip20
+LUND 23,5% SCQAcima do limiarLimiar de reposição do ATLS: 10% SCQ (criança).Faixa da tabela1 a 4 anosFator (≤ 13 anos)3 mL/kg/%SCQTaxa inicial RL66 mL/hDiurese alvo15 mL/h (1 mL/kg/h)Criança ≤ 30 kg+ manutenção com glicose
+CID 0 undefined
+CID J18 6
+home has recentes? false Especialidades? false
+historico? true
+errors []

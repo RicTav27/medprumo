@@ -1,0 +1,23 @@
+news2      9pontosRisco AltoResposta de emergência. Monitorização contínua.FR0SpO
+blatch     18pontosAlto risco≥ 6: risco > 50% de precisar de intervenção.Ureia17,
+abcd2      5/ 7Risco ModeradoRisco de AVC em 2 dias: 4,1%.
+cchr       Alto riscoRisco de intervenção neurocirúrgica.
+nexus      NEXUS positivoA regra não classifica como baixo risco de lesão cervica
+pecarn     Alto riscoRisco de TCE clinicamente importante 4,4%.
+rass       +4RASSAgitaçãoSeguir com CAM-ICU para rastrear delirium.
+camicu     Marque os erros no teste das letras, ou Nenhum erro.
+braden     12/ 23Risco altoQuanto menor, maior o risco.
+morse      100/ 125Risco alto
+padua      11/ 20Alto riscoRisco de TEV em paciente clínico internado.
+caprini    39pontosRisco Alto
+ciwa       10/ 67Abstinência Moderada
+agualivre  Alvo inválidoNa alvo deve ser menor que o atual.
+silverman  5/ 10Moderado a graveAo contrário do Apgar: maior = pior. Avaliar a te
+capurro    33s 1dPré-termoSoma 28 + 204 = 232 dias.
+rcri       3/ 6Risco AltoClassificação SBC 2024 (semiquantitativa). Cirurgia vasc
+asa        ASA IEEstado físicoClassificação final é decisão do anestesiologista.
+apfel      2/ 4Risco ≈ 39%Risco de NVPO em 24 h.
+sofa2      6/ 24SOFA-2Pior valor de cada sistema em 24 h.
+vanco      Níveis inválidosO nível 2 deve ser menor que o nível 1.
+problems [ [ 'ig', 'Preencha os dados para calcular.' ] ]
+theme dark nolimit [] errors []

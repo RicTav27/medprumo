@@ -1,0 +1,10 @@
+pbf       8/ 10Normal
+pbf       8/ 8NormalSem cardiotocografia: escore sobre 8.
+ila       4,5cmILA: Oligoidrâmnio
+ila       25,0cmILA: PolidrâmnioMaior bolsão9,0 cm: polidrâmnio
+gpg       7,0 a 9,0kgSobrepesoGanho total recomendado até 40 semanas.IMC pré-gestacional27,3 kg/m²Ganho até agora6,0 kg
+hadlock   2.959gPeso fetal estimadoEstimativa ultrassonográfica, com margem de erro.
+amsel     3/ 4Vaginose bacterianaDiagnóstico com 3 ou mais dos 4 critérios.
+rotterdam 2/ 3Critérios de SOP preenchidosSOP exige 2 de 3 critérios e exclusão de outras causas.
+ferriman  9/ 36HirsutismoCorte clássico ≥ 8. O corte varia com a etnia.
+errors []

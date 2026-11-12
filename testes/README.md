@@ -21,35 +21,29 @@ Roda `tools/version.py` (versão e hash do cache em `sw.js`), gera o bundle, rod
 - Itens intencionais ficam em `LINT_OK` e `CORES_OK` no `checar.py`. `node limpeza.js` roda só a parte de código morto (saída JSON).
 - Não pega ícone cujo nome também é usado como texto em outro lugar (ex.: rota).
 
-## Rodar (de dentro de testes/)
+## O que cada modo roda
+| Modo | Testes | Para quê |
+|---|---|---|
+| rápido | `audit`, `allpages`, `fuzz`, `numero`, `nenhum`, `dom19`, `dom20`, `ref`, lint, `limpeza` | lógica das ferramentas, páginas, código morto |
+| `--completo` | + `telas`, `antigos`, `temas`, `cores`, `cron17`, `seguranca`, `pwatest`, `pwa2` | o que se exige antes de enviar |
+| `--tudo` | + `telas --todos` (45 aparelhos), `macaco` | antes de versão grande |
+
+## Testes de interface
 | Comando | O que testa |
 |---|---|
-| `node fuzz.js` | todas as ferramentas com entradas aleatórias |
-| `node audit.js` | ids repetidos e textos de interpretação |
-| `node allpages.js` | todas as páginas abrem sem erro |
-| `node nenhum.js` | botão "Nenhum se aplica" |
-| `node ref.js` | valores esperados de referência |
-| `node numero.js` | leitura dos números digitados (vírgula, ponto, milhar como 1.000, texto inválido) |
-| `node rev.js`, `node fmt2.js`, `node formato.js` | formatação de resultados |
-| `node meem.js` | Mini-Mental |
-| `node medchk.js [nomes]` | base de medicamentos |
-| `node dom3.js` a `node dom17.js` | casos específicos de ferramentas |
-| `node dom19.js` | Dosagem (Dose por peso, Gotas, Diluição, Ampolas de eletrólitos) contra valores calculados à mão |
-| `node dom20.js` | índices de busca montados em fatias dão o mesmo resultado |
-| `python3 pwa2.py` | título da aba, cor da barra do sistema, aviso de versão nova, abertura com rede lenta, relógio dos cronômetros parado fora de uso |
-| `node cron.js "$PWD/medcalc.html"` (e cron2 a cron16) | cronômetros; cron4 pede uma pasta de saída como 2º argumento |
-| `node temas.js "$PWD/medcalc.html" shoot.py` | layout igual entre temas claro e escuro |
-| `node disp.js "$PWD/medcalc.html" shoot.py` | 6 celulares simulados |
-| `python3 aparelhos.py` | 55 aparelhos e 33 larguras |
-| `python3 mobile.py`, `bordas.py`, `colors.py`, `busca.py`, `kb.py`, `novos.py` | celular, bordas, cores, busca, teclado, ferramentas novas |
-| `python3 pwatest.py` | funcionamento offline |
-| `python3 seguranca.py` | segurança no site servido localmente: CSP, endereços e dados salvos maliciosos ou corrompidos, buscas, service worker sem internet |
-| `python3 macaco.py [ações] [semente]` | ações aleatórias em celular simulado (padrão 3.000) |
-| `python3 fmtaudit.py "$PWD/medcalc.html" shoot.py` | auditoria de formatação |
-| `node dump.js` | exporta textos das ferramentas para `rev/` (revisão) |
-| `./lint.sh` | ESLint (1 aviso intencional de atribuição em condição) |
-| `node limpeza.js` | código morto e listas inconsistentes (JSON) |
-| `python3 checar.py` | todos acima juntos, com relatório |
+| `python3 telas.py` | 19 telas (celular, deitado, tablet, computador): tela inicial cabe e não vaza; todas as páginas em 11 larguras (uma de cada lado de cada ponto de quebra do CSS): vazamento lateral, texto cortado, campo com fonte < 16 px, alvo de toque < 32 px; contraste do texto nos dois temas (WCAG). `--todos`: 45 aparelhos. `--fotos`: capturas em `telas_shots/` |
+| `python3 antigos.py` | roda `dom3` a `dom18`, `rev`, `fmt2`, `formato`, `meem` e `busca` e compara a saída com `golden/`. Só mostra o que mudou. `--aceitar` grava a nova referência |
+| `node temas.js "$PWD/medcalc.html" shoot.py` | layout igual entre tema claro e escuro |
+| `python3 colors.py` | cores fora dos tokens |
+| `python3 pwa2.py`, `pwatest.py`, `seguranca.py` | PWA, offline e segurança |
+| `python3 macaco.py [ações] [semente]` | ações aleatórias em celular simulado |
+
+## Só à mão
+| Comando | Quando |
+|---|---|
+| `node cron.js "$PWD/medcalc.html"` (e `cron2` a `cron16`) | mexeu no cronômetro; a saída varia em 1 s, comparar a olho. O `cron17` é o que roda no `checar.py` |
+| `python3 fmtaudit.py "$PWD/medcalc.html" shoot.py` | auditoria de formatação (saída longa) |
+| `node dump.js`, `node medchk.js [nomes]` | exportar textos para revisão; consultar a base de medicamentos |
 
 ## Cuidado
-- `cssclean.js` grava o CSS limpo no arquivo passado como argumento. Nunca passar `medcalc.html` nem `app.css`.
+- Não regravar `medcalc.html` enquanto o `checar.py` roda.

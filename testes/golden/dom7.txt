@@ -1,0 +1,7 @@
+chapters 22
+chap9 cats 77 Capítulo IXDoenças do aparelho circulatório
+I21 subs 7 I21Infarto agudo do miocárdio
+search 55 []
+code 6
+home cid11? false
+errors []

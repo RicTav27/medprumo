@@ -1,0 +1,16 @@
+mrc vazio: Preencha os dados para calcular.
+mrc todos 5: 60/ 60Sem fraqueza pelo corteCorte: < 48.
+mrc um 0: 55/ 60Sem fraqueza pelo corteCorte: < 48.
+mrc parcial: Faltam itensPreencha: Abdução do ombro Esquerdo, Flexão do cotovelo Direito, Flexão do cotovelo Esquerdo, Extensão do pu
+cam f1 rass0 sem letras: Marque os erros no teste das letras, ou Nenhum erro.
+2 erros: NegativoSem deliriumDesatenção ausente (≤ 2 erros).
+3 erros: Marque os erros no pensamento, ou Nenhum erro.
+pens nenhum: NegativoSem deliriumPensamento organizado (≤ 1 erro).
+pens 2 erros: PositivoDeliriumCaracterísticas 1 + 2 + 4.
+letras nenhum (limpa): NegativoSem deliriumDesatenção ausente (≤ 2 erros). pressed 1
+rass+2 3 erros: PositivoDeliriumCaracterísticas 1 + 2 + 3 (RASS ≠ 0).
+gcs pupila marcada? false
+gcs sem pupila: 15/ 15TCE LeveO4 V5 M6.
+gcs pupila 2: 15/ 15TCE LeveO4 V5 M6, ECG-P 13.
+gcs não avaliada: 15/ 15TCE LeveO4 V5 M6.
+erros []

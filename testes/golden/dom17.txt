@@ -1,0 +1,10 @@
+OK   16mg/dLAbaixo do limite de fototerapia48 h de vida, sem fator de risco de neurotoxicidade.Limite de fototerapia17 mg/dLDistância até a fototerapia1 mg/dL abaixoLimite de exsanguineotransfusão24 mg/dL
+OK   17mg/dLNo limite de fototerapia ou acima48 h de vida, sem fator de risco de neurotoxicidade.Limite de fototerapia17 mg/dLDistância até a fototerapiano limiteLimite de exsanguineotransfusão24 mg/dL
+OK   10mg/dLNo limite de fototerapia ou acima24 h de vida, com fator de risco de neurotoxicidade.Limite de fototerapia10 mg/dLDistância até a fototerapiano limiteLimite de exsanguineotransfusão17,2 mg/dL
+OK   18mg/dLAbaixo do limite de fototerapia96 h de vida, com fator de risco de neurotoxicidade.Limite de fototerapia18,2 mg/dLDistância até a fototerapia0,2 mg/dL abaixoLimite de exsanguineotransfusão23,5 
+OK   23mg/dLNo limite de exsanguineotransfusão ou acima72 h de vida, sem fator de risco de neurotoxicidade.Limite de fototerapia16,8 mg/dLDistância até a fototerapia6,2 mg/dL acimaLimite de exsanguineotran
+OK   21mg/dLAté 2 mg/dL abaixo do limite de exsanguineotransfusão72 h de vida, sem fator de risco de neurotoxicidade.Limite de fototerapia16,8 mg/dLDistância até a fototerapia4,2 mg/dL acimaLimite de exsan
+OK   10mg/dLAbaixo do limite de fototerapia200 h de vida, sem fator de risco de neurotoxicidade.Limite de fototerapia21,8 mg/dLDistância até a fototerapia11,8 mg/dL abaixoLimite de exsanguineotransfusão27 
+OK   As tabelas da AAP começam na 1ª hora de vida.
+OK   10mg/dLAbaixo do limite de fototerapia380 h de vida, sem fator de risco de neurotoxicidade. Depois de 14 dias, vale o último valor da tabela.Limite de fototerapia20,4 mg/dLDistância até a fototerapia1
+errors [] fail 0

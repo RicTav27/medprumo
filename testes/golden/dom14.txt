@@ -1,0 +1,50 @@
+OK   ottawat   Regra positiva: PéA regra não exclui fratura.TornozelonegativaPépositiva
+OK   ottawat   Regra positiva: Tornozelo e péA regra não exclui fratura.TornozelopositivaPépositiva
+OK   ottawaj   Regra positivaA regra não exclui fratura.
+OK   cspine    Regra positivaFator de alto risco presente.
+OK   cspine    Avaliar rotaçãoHá fator de baixo risco. Falta a rotação ativa do pescoço.
+OK   cspine    Regra negativaBaixo risco e rotação de 45° para os dois lados: baixo risco de lesão pela regra.
+OK   cspine    Regra positivaNão consegue rodar 45° para os dois lados.
+OK   cspine    Regra positivaNenhum fator de baixo risco. A rotação não pode ser testada com segurança.
+OK   rockall   4/ 7Mortalidade 24,6%Escore pré-endoscopia, coorte original.
+OK   rockall   Faltam itensPreencha: Diagnóstico endoscópico, Sinal de sangramento recente.
+OK   rockall   7/ 11Mortalidade 27%Coorte original de derivação.Ressan­gramento43,8%Mortalidade27%
+OK   rockall   11/ 11Mortalidade 41,1%Coorte original de derivação.Ressan­gramento41,8%Mortalidade41,1%
+OK   aims65    0/ 5Mortalidade 0,3%Mortalidade hospitalar no estudo original.
+OK   aims65    5/ 5Mortalidade 31,8%Mortalidade hospitalar no estudo original.
+OK   maddrey   41,8Hepatite alcoólica graveCorte: ≥ 32.
+OK   lille     0,31Resposta (< 0,45)Sobrevida em 6 meses de 85% no estudo original.
+OK   lille     0,36Resposta (< 0,45)Sobrevida em 6 meses de 85% no estudo original.
+OK   four      15/ 16FOUR 15Menor pontuação, maior gravidade.Ocular (E)4Motor (M)3Tronco (B)4Respiração (R)4
+OK   aspects   7/ 10ASPECTS ≤ 7No estudo original, ≤ 7 se associou a mais dependência ou morte em 3 meses.
+OK   aspects   10/ 10TC normal no território da ACM
+OK   cpis      11/ 12Sugere pneumoniaCorte: > 6.
+OK   cpis      5/ 12Não sugere pneumoniaCorte: > 6.
+OK   sic       4/ 6SIC presenteEscore ≥ 4 com INR + plaquetas > 2.INR + plaquetas3
+OK   sic       4/ 6Não preenche SICCritério: escore ≥ 4 com INR + plaquetas > 2.INR + plaquetas2
+OK   candida   3/ 5Alto riscoEscore ≥ 3: maior risco de candidíase invasiva.
+OK   candida   2/ 5Baixo riscoEscore < 3: candidíase invasiva em 2,3% na validação.
+OK   rodwell   4/ 8Sepse possívelQuanto maior o escore, maior a chance de sepse.
+OK   rodwell   0/ 8Sepse improvável≤ 2: ausência de sepse em 99% no estudo original.
+OK   finnegan  12pontosEscore ≥ 8Sinais de abstinência. Interpretar com as pontuações seriadas.
+OK   finnegan  0pontosEscore < 8Interpretar com as pontuações seriadas.
+OK   rnclass   AIGAdequado para a IG (P10 a P90)Termo completo, peso adequado.Idade gestacional40s 0d: Termo completoPeso3.380 g: Peso adequadoP10 a P90 para a IG2.880 a 3.940 g
+OK   rnclass   PIGPequeno para a IG (< P10)Termo completo, peso adequado.Idade gestacional40s 0d: Termo completoPeso2.800 g: Peso adequadoP10 a P90 para a IG2.880 a 3.940 g
+OK   rnclass   GIGGrande para a IG (> P90)Termo completo, macrossomia.Idade gestacional40s 0d: Termo completoPeso4.100 g: MacrossomiaP10 a P90 para a IG2.780 a 3.800 g
+OK   rnclass   AIGAdequado para a IG (P10 a P90)Muito pré-termo, muito baixo peso.Idade gestacional30s 3d: Muito pré-termoPeso1.200 g: Muito baixo pesoP10 a P90 para a IG1.070 a 1.750 g
+OK   rnclass   Pré-termo extremoExtremo baixo peso.Idade gestacional23s 0d: Pré-termo extremoPeso500 g: Extremo baixo pesoAdequaçãofora da faixa da curva (24s0d a 42s6d)
+OK   aldrete   9/ 10Atinge o critério (≥ 9)Critério de alta da sala de recuperação: ≥ 9.
+OK   aldrete   7/ 10Abaixo do critério (< 9)Critério de alta da sala de recuperação: ≥ 9.
+OK   prevent   9,2%Risco intermediário pelo escoreDCV aterosclerótica em 10 anos. A categoria final da diretriz considera também outras condições clínicas.DCV total14,7%DCV aterosclerót
+OK   crusade   56pontosRisco muito altoSangramento maior intra-hospitalar: 19,5%.Hematócrito3ClCr28FC6PAS5
+OK   crusade   1pontoRisco muito baixoSangramento maior intra-hospitalar: 3,1%.Hematócrito0ClCr0FC0PAS1
+OK   peps4     −3pontosProbabilidade muito baixaProbabilidade clínica de TEP: < 2%.
+OK   peps4     12pontosProbabilidade moderadaProbabilidade clínica de TEP: 20 a 65%.
+OK   peps4     13pontosProbabilidade altaProbabilidade clínica de TEP: > 65%.
+OK   hama      28/ 56Ansiedade grave
+OK   hama      0/ 56Sem ansiedade ou mínima
+OK   hamd      17/ 52Depressão moderada
+OK   hamd      0/ 52Sem depressão
+OK   meld      26MELDMortalidade em 3 meses na faixa: 19,6% (Wiesner 2003). Brasil: conferir na regra vigente do SNT qual versão do MELD a lista usa.MELD26MELD-Na (OPTN/EUA)29MELD 3.0in
+OK   meld      6MELDMortalidade em 3 meses na faixa: 1,9% (Wiesner 2003). Brasil: conferir na regra vigente do SNT qual versão do MELD a lista usa.MELD6MELD-Na (OPTN/EUA)6MELD 3.0inform
+errors [] fail 0

@@ -1,0 +1,29 @@
+got       21gotas/minMacrogotas500 mL em 8 h.Microgotas63 microgotas/minBomba de infusão62,5 mL/hGotas exatas20,8 gotas/min
+   pts: 
+holl      1.600mL/diaManutençãoVolume de manutenção em 24 h.Por hora (4-2-1)65 mL/hPor dia ÷ 2466,7 mL/h
+   pts: 
+cort      40,0mgPrednisona equivalenteHidrocortisona160,0 mgPrednisona40,0 mgPrednisolona40,0 mgMetilprednisolona32,0 mgDexametasona6,00 mg
+   pts: ||
+pam       93mmHg≥ 65Pressão de pulso 40 mmHg.
+   pts: 
+pid       70,6kgPeso idealPeso real ≥ 120% do ideal.Peso ajustado86,3 kgPeso real / ideal156%
+   pts: 
+cl24      100mL/minClearance medidoConfirmar coleta completa de 24 h.Creatinina excretada1.440 mg/24 h
+   pts: 
+rac       60mg/gA2Moderadamente aumentada.
+   pts: 
+homa      2,47HOMA-IRPonto de corte varia com população e método.HOMA-β97%
+   pts: 
+ganz      1.508mgFerro elementar totalDividir conforme dose máxima do produto.Hemoglobina1.008 mgEstoque500 mg
+   pts: 
+phq9      27/ 27GraveItem 9 positivo (pensamentos de morte ou autolesão). ≥ 10: rastreio positivo pelo corte original. 
+   pts: 0|+1|+2
+gad7      14/ 21Moderada≥ 10: rastreio positivo para ansiedade.
+   pts: 0|+1|+2
+fager     7/ 10ElevadaDependência alta: maior chance de abstinência intensa.
+   pts: +3|+2|+1
+findrisc  22/ 26Muito altoRisco de DM2 em 10 anos: cerca de 1 em 2.IMC31,1 kg/m²
+   pts: 0|+2|0
+meem      0/ 30Abaixo da referênciaMediana para a escolaridade: 29.Orientação temporal0 / 5Orientação espacial0 / 5Registro0 / 3Cálculo0 / 5Evocação0 
+   pts: 
+errors []

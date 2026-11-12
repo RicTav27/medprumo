@@ -1,0 +1,14 @@
+OK   12mg/dLAbaixo do limite de fototerapiaLinha de 48 h da tabela.Fototerapia, 48 h13 mg/dLExsanguineotransfusão, 48 h21 mg/dL
+OK   13mg/dLNo limite de fototerapia ou acimaLinha de 48 h da tabela.Fototerapia, 48 h13 mg/dLExsanguineotransfusão, 48 h21 mg/dL
+OK   11mg/dLNo limite de fototerapia ou acimaLinha de 48 h da tabela. Limite de fototerapia já reduzido em 2 mg/dL.Fototerapia, 48 h9 mg/dLExsanguineotransfusão, 48 h17 mg/dL
+OK   10,5mg/dLEntre os limites de fototerapia das duas horasEntre as linhas de 24 h e 36 h da tabela.Fototerapia, 24 h10 mg/dLExsanguineotransfusão, 24 h18 mg/dLFototerapia, 36 h11,5 mg/dLExsangu
+OK   22mg/dLEntre os limites de exsanguineotransfusão das duas horasEntre as linhas de 72 h e 96 h da tabela.Fototerapia, 72 h15 mg/dLExsanguineotransfusão, 72 h22 mg/dLFototerapia, 96 h16 mg/dLE
+OK   16mg/dLAbaixo do limite de fototerapiaLinha de 5 a 7 dias da tabela.Fototerapia, 5 a 7 dias17 mg/dLExsanguineotransfusão, 5 a 7 dias24 mg/dL
+OK   16mg/dLEntre os limites de fototerapia das duas horasEntre as linhas de 96 h e 5 a 7 dias da tabela.Fototerapia, 96 h16 mg/dLExsanguineotransfusão, 96 h23 mg/dLFototerapia, 5 a 7 dias17 mg/d
+OK   Antes de 24 hA tabela da SBP começa em 24 horas de vida.
+OK   Depois de 7 diasA tabela da SBP vai até 7 dias de vida.
+OK   7mg/dLNa faixa de fototerapia ou acimaIG corrigida 28 a 29s6d.Fototerapia6 a 8 mg/dLExsanguineotransfusão12 a 14 mg/dL
+OK   4mg/dLAbaixo da faixa de fototerapiaIG corrigida < 28 s.Fototerapia5 a 6 mg/dLExsanguineotransfusão11 a 14 mg/dL
+OK   16mg/dLNa faixa de exsanguineotransfusão ou acimaIG corrigida 32 a 33s6d.Fototerapia10 a 12 mg/dLExsanguineotransfusão15 a 18 mg/dL
+OK   IG corrigida ≥ 35 semanas: use a tabela de 35 semanas ou mais.
+errors [] fail 0

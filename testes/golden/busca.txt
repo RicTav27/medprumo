@@ -1,0 +1,4 @@
+pré-operatório → rcri,asa,apfel,vsg,aub,stopbang,mfi5
+perioperatório → rcri,asa,apfel,vsg,aub,stopbang,mfi5
+Pré-op → rcri,asa,apfel,vsg,aub,stopbang,mfi5
+cirurgia → alvarado,rcri,asa,apfel,air,vsg,aub,stopbang,mfi5,aldrete

@@ -1,0 +1,2 @@
+nihss sample Faltam itensPreencha: 1b. Perguntas (mês, idade),  | pts label: +2
+bad [] errors []

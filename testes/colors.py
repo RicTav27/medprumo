@@ -20,6 +20,7 @@ with sync_playwright() as p:
         for x in v: allused[k].add(h+'|'+x)
     print('=====',th,pg.evaluate("document.documentElement.dataset.theme||getComputedStyle(document.body).backgroundColor"))
     for k,v in sorted(allused.items(),key=lambda kv:-len(kv[1])):
+      if k not in tok and (' / ' in k or all(x.endswith(('fill','stroke')) for x in v)): continue  # mistura com transparência dos tokens e desenhos (logo, SVG)
       print(k,'TOKEN '+','.join(tok.get(k,[]))[:60] if k in tok else 'NAO-TOKEN',len(v),sorted(v)[:4])
     ctx.close()
   b.close()

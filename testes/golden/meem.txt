@@ -1,0 +1,8 @@
+itens 30
+vazio: Preencha os dados para calcular.
+todos, sem escolaridade: Faltam itensPreencha: Escolaridade.
+todos, >11: 30/ 30Dentro da referênciaMediana para a escolaridade: 29.Orientação temporal5 / 5Orientação espacial5 / 5Registro3 / 3Cálculo5 / 5Evocação3 / 3Linguagem9 / 9
+28, >11: 28/ 30Abaixo da referênciaMediana para a escolaridade: 29.Orientação temporal5 / 5Orientação espacial5 / 5Registro3 / 3Cálculo5 / 5Evocação3 / 3Linguagem7 / 9
+28, analfabeto: 28/ 30Dentro da referênciaMediana para a escolaridade: 20.Orientação temporal5 / 5Orientação espacial5 / 5Registro3 / 3Cálculo5 / 5Evocação3 / 3Linguagem7 / 9
+1 por domínio, analfabeto: 6/ 30Abaixo da referênciaMediana para a escolaridade: 20.Orientação temporal1 / 5Orientação espacial1 / 5Registro1 / 3Cálculo1 / 5Evocação1 / 3Linguagem1 / 9
+erros []

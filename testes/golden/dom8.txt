@@ -1,0 +1,23 @@
+results 29
+  DipironaCafilisador, Aberalgina, Aspdip, Atroveran Dip, Belspan Dip, Difebril, Dipbe, Dipidor, Dipifarma, Dipi
+  Dipirona monoidratadaNovalgina, Anador, Aspdip, Atroveran Dip, Dipimed, Dipirona Sodica, Dodoy, Dorageo, Doral
+  Cafeína anidra + dipironaDorona Cafi›
+  Dipirona + dipirona monoidratadaGenéricos›
+  Cafeína anidra + dipirona monoidratadaNovalgina Flash, Doril Dc 500›
+  Butilbrometo de escopolamina + dipirona monoidratadaBuscopan Composto, Atrovex, Belspan, Buscoplex Composto, B
+  Cafeína anidra + citrato de orfenadrina + dipirona monoidratadaDorflex, Lisador Muscular, Neosaldina Muscular 
+  Dipirona + maleato de clorfeniramina + ácido ascórbicoApracur›
+dorflex -> Cafeína anidra + citrato de orfenadrina + dipirona monoidratadaDorflex, Lisador Muscular, Neosaldina
+detail Losartana potássicaBloqueadores do receptor de angiotensina II (BRA)
+pres [
+  '25 mg, comprimido revestido',
+  '50 mg, comprimido revestido',
+  '100 mg, comprimido revestido'
+]
+prods 25 [
+  'CorusReferência›',
+  'CozaarReferência›',
+  'AradoisSimilar›',
+  'ArartanSimilar›'
+]
+errors []

@@ -7,5 +7,5 @@ set(true);addEventListener('resize',()=>set(false));addEventListener('orientatio
 if(t==='light'||t==='dark')d.dataset.theme=t;else if(window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches)d.dataset.theme='light'})();
 /* Cor da barra do sistema acompanha o tema escolhido no app (sem escolha, segue o sistema pelas duas meta do HTML) */
 window.themeMeta=function(){const t=document.documentElement.dataset.theme;if(t!=='light'&&t!=='dark')return;
-document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{m.removeAttribute('media');m.setAttribute('content',t==='dark'?'#090f12':'#f3f6f7')})};
+document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{m.removeAttribute('media');m.setAttribute('content',t==='dark'?'#0e0f11':'#f2f4f8')})};
 window.themeMeta();

@@ -1,0 +1,19 @@
+{"id":"meld","name":"MELD","nums":["Bilirrubina (mg/dL)","Creatinina (mg/dL)","INR","Na⁺ para MELD-Na e 3.0 (mEq/L)","Albumina para MELD 3.0 (g/dL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"pecarnfi","name":"PECARN: lactente febril","nums":["Neutrófilos (/µL)","Procalcitonina (ng/mL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"lrinec","name":"LRINEC","nums":["PCR (mg/L)","Leucócitos (/µL)","Hemoglobina (g/dL)","Sódio (mEq/L)","Creatinina (mg/dL)","Glicose (mg/dL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"light","name":"Critérios de Light","nums":["Proteína pleural (g/dL)","Proteína sérica (g/dL)","LDH pleural (U/L)","LDH sérica (U/L)","LSN da LDH sérica (U/L)"],"pre":[],"prp":[],"selv":[]}
+{"id":"psi","name":"PSI / PORT","nums":["Idade (anos)"],"pre":[],"prp":[],"selv":[]}
+{"id":"fib4","name":"FIB-4","nums":["Idade (anos)","AST (U/L)","ALT (U/L)","Plaquetas (×10³/µL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"tug","name":"Timed Up and Go (TUG)","nums":["Tempo (s)"],"pre":[],"prp":[],"selv":[]}
+{"id":"news2","name":"NEWS2","nums":["FR (irpm)","SpO₂ (%)","PAS (mmHg)","FC (bpm)","Temperatura (°C)"],"pre":[],"prp":[],"selv":[]}
+{"id":"blatch","name":"Glasgow-Blatchford","nums":["Ureia (mg/dL)","Hemoglobina (g/dL)","PAS (mmHg)"],"pre":[],"prp":[],"selv":[]}
+{"id":"grace","name":"GRACE","nums":["Idade (anos)","FC (bpm)","PAS (mmHg)","Creatinina (mg/dL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"air","name":"AIR","nums":["Leucócitos (×10³/µL)","Neutrófilos (%)","PCR (mg/L)"],"pre":[],"prp":[],"selv":[]}
+{"id":"findrisc","name":"FINDRISC","nums":["Idade (anos)","Peso (kg)","Altura (cm)","Cintura (cm)"],"pre":[],"prp":[],"selv":[]}
+{"id":"phoenix","name":"Phoenix","nums":["PaO₂ (mmHg)","SpO₂ se sem gasometria (%)","FiO₂ (%)","Lactato (mmol/L)","PAM (mmHg)"],"pre":[],"prp":[],"selv":[]}
+{"id":"gold","name":"GOLD (DPOC)","nums":["VEF₁ pós-BD (% do previsto)","Eosinófilos opcional (/µL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"apache2","name":"APACHE II","nums":["Temperatura (°C)","PAM (mmHg)","FC (bpm)","FR (irpm)","FiO₂ (%)","PaO₂ se FiO₂ < 50% (mmHg)","Gradiente A-a se FiO₂ ≥ 50% (mmHg)","pH arterial","Sódio (mEq/L)","Potássio (mEq/L)","Creatinina (mg/dL)","Hematócrito (%)","Leucócitos (×10³/µL)","Glasgow","Idade (anos)"],"pre":[],"prp":[],"selv":[]}
+{"id":"saps3","name":"SAPS 3","nums":["Glasgow (menor)","PAS (mmHg, menor)","FC (bpm, maior)","Temperatura (°C, maior)","Creatinina (mg/dL)","Bilirrubina total (mg/dL)","Leucócitos (×10³/µL)","Plaquetas (×10³/µL)","pH (menor)"],"pre":[],"prp":[],"selv":[]}
+{"id":"irrs","name":"IRRS (Tobin)","nums":["FR (irpm)","Volume corrente (mL)"],"pre":[],"prp":[],"selv":[]}
+{"id":"crusade","name":"CRUSADE","nums":["Hematócrito basal (%)","ClCr Cockcroft-Gault (mL/min)","FC na admissão (bpm)","PAS na admissão (mmHg)"],"pre":[],"prp":[],"selv":[]}
+total 148

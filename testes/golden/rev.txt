@@ -1,0 +1,11 @@
+IG 33s: 31s 4dManter DUMDiscrepância ≤ 21 dias: manter DUM. DPP 08/10/2026. USG ≥ 28 semanas tem a menor precisão de datação.IG pela DUM31s 4dDPP pela DUM08/10/2026IG p
+IG 34s: 35s 2dRedatar pelo USGDiscrepância > 21 dias para a IG do exame: usar USG. DPP 12/09/2026. USG ≥ 28 semanas tem a menor precisão de datação.IG pela DUM31s 4dDPP
+gaso: 7,50pHAlcalose metabólicaAlcalose metabólica compensada.pCO₂ esperada38,8 a 48,8
+psi lab: 60pontosClasse IMortalidade em 30 dias 0,1%.
+psi PAS: 80pontosClasse IIIMortalidade em 30 dias 0,9%.
+capurro max: 42s 4dPós-termoSoma 94 + 204 = 298 dias.
+lund 21%: 21,0% SCQAcima do limiarLimiar de reposição do ATLS: 20% SCQ (adulto).Faixa da tabelaAdulto
+lund 20%: 20,0% SCQAcima do limiarLimiar de reposição do ATLS: 20% SCQ (adulto).Faixa da tabelaAdulto
+mott how ok: true
+ims: 5/ 10IMS 50 = só exercícios passivos. 10 = anda sozinho sem dispositivo.
+erros []

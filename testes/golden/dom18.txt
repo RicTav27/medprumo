@@ -1,0 +1,19 @@
+OK   Preencha os dados para calcular.
+OK   Ainda não indicadoIniciar aos 6 meses. Se usa leite de vaca, a diretriz admite iniciar aos 4 meses.Dose10 a 12,5 mg/dia de ferro elementar, dose fixa1º ciclo6 a 9 mesesPausa9 a 12 meses2º ciclo12 a 15 meses
+OK   10 a 12,5mg/dia1º ciclo (6 a 9 meses)Uso diário por 3 meses. Ferro elementar, dose fixa independente do peso.Pausa9 a 12 meses2º ciclo12 a 15 meses
+OK   Pausa (9 a 12 meses)Sem suplementar por 3 meses. O 2º ciclo começa aos 12 meses.Próximo ciclo12 a 15 meses, 10 a 12,5 mg/dia
+OK   10 a 12,5mg/dia2º ciclo (12 a 15 meses)Uso diário por 3 meses. Ferro elementar, dose fixa independente do peso.
+OK   Dois ciclos previstos concluídosDois ciclos de 3 meses, iniciados aos 6 e aos 12 meses.
+OK   Fora da faixaA suplementação profilática vai dos 6 aos 24 meses.1º ciclo6 a 9 mesesPausa9 a 12 meses2º ciclo12 a 15 meses
+OK   12,0mg/dia3 mg/kg/dia1º ano, a partir de 30 dias. Com fórmula infantil, descontar o ferro da dieta no cálculo.Dose por kg3 mg/kg/diaPeso usado4,00 kg (atual)
+OK   16,0mg/dia4 mg/kg/dia1º ano, a partir de 30 dias. Com fórmula infantil, descontar o ferro da dieta no cálculo.Dose por kg4 mg/kg/diaPeso usado4,00 kg (atual)
+OK   Limite não definidoA SBP usa 1.500 g nas duas faixas. Individualizar entre 2 e 3 mg/kg/dia.2 mg/kg/dia8,0 mg/dia3 mg/kg/dia12,0 mg/dia
+OK   8,0mg/dia2 mg/kg/dia1º ano, a partir de 30 dias. Com fórmula infantil, descontar o ferro da dieta no cálculo.Dose por kg2 mg/kg/diaPeso usado4,00 kg (atual)
+OK   9,0mg/dia1 mg/kg/dia12 a 24 meses, contínuo. Com fórmula infantil, descontar o ferro da dieta no cálculo.Dose por kg1 mg/kg/diaPeso usado9,00 kg (atual)
+OK   9,0mg/dia1 mg/kg/dia12 a 24 meses, contínuo. Com fórmula infantil, descontar o ferro da dieta no cálculo.Dose por kg1 mg/kg/diaPeso usado9,00 kg (atual)
+OK   Ainda não indicadoIniciar aos 30 dias de vida.
+OK   Fora da tabelaA diretriz só define dose para peso ao nascer < 2.500 g. Individualizar.
+OK   30 a 60mg/dia3 a 6 mg/kg/diaFerro elementar. A diretriz não define dose máxima.EsquemaDose única ou fracionadaDuração3 a 6 meses, até normalizar Hb e estoquesHemograma30 a 45 dias após o inícioResposta esperadaHb ≥ 1,0 g/dL acima 
+OK   30mg/dia3 mg/kg/diaDesnutrição grave: iniciar com 3 mg/kg/dia de ferro elementar na fase de reabilitação.EsquemaDose única ou fracionadaDuração3 a 6 meses, até normalizar Hb e estoquesHemograma30 a 45 dias após o inícioResposta es
+OK   Informe o peso atual.
+errors [] fail 0

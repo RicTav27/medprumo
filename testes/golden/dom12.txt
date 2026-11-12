@@ -1,0 +1,11 @@
+tkcole    Diagnóstico definitivoGrau II (moderado).
+tkcolang  Suspeita diagnósticaGrau II (moderado).
+tkcolang  Suspeita diagnósticaGrau III (grave).
+pf        133mmHgP/F: SDRA moderada (Berlim)100 < P/F ≤ 200. Exige também opacidades bilaterais e causa não cardiogênica.S/F153
+pf        238S/FS/F ≤ 315: critério de oxigenação da definição global de SDRA.
+bps       8/ 12Dor presenteBPS > 5 indica dor.
+wfns      IIIWFNS III
+wfns      Não classificávelGlasgow 15 com déficit motor não tem grau definido na escala.
+fisher    3/ 4Grau 3Vasoespasmo sintomático no estudo original: 33%.
+phoenix   7pontosChoque sépticoSepse: infecção + escore ≥ 2. Choque séptico: sepse + cardiovascular ≥ 1.Respiratório2Cardiovascular3Coagulação1Neurológico1
+errors []
