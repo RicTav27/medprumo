@@ -1,7 +1,7 @@
 # Changelog
 
 Formato de notas de versão (Keep a Changelog + SemVer), em lista única por versão: primeiro o que é novo, depois melhorias, por fim correções (com "Corrigido:").
-Itens curtos (uma linha, sem detalhes), no máximo 8 por versão, só o que muda para quem usa o app.
+Itens curtos (uma linha, sem detalhes), no máximo 12 por versão, só o que muda para quem usa o app.
 
 ## 0.14.0 Beta (12/11/2026)
 - Tela Instalar refeita: passo a passo com desenhos, aberta já no aparelho em uso

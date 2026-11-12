@@ -29,7 +29,7 @@
 
 **Android (Chrome)**
 1. Abra o link no Chrome
-2. Menu ⋮ > Instalar app
+2. Menu ⋮ > Adicionar à tela inicial > Instalar app
 3. Confirme em Instalar
 
 **Computador**
@@ -42,6 +42,7 @@
 ## Funcionalidades
 
 - **205 ferramentas** (escores, calculadoras, condutas, regras de decisão e classificações), organizadas em 24 especialidades, com busca e filtros
+- **Dosagem:** dose por peso, gotas, diluição, eletrólitos e infusão
 - **Medicamentos:** busca por princípio ativo ou marca, com apresentações, fabricantes, tipo de receita e classe farmacológica
 - **CID-10:** busca por código ou termo, navegação por capítulos
 - **Cronômetros:** modo simples, RCP e dinâmica uterina
