@@ -3079,9 +3079,8 @@ const IG=()=>{
   const url=(x,y,w)=>`<rect class="g-sf" x="${x}" y="${y}" width="${w}" height="32" rx="16"/><text class="g-mt" x="${x+16}" y="${y+20.5}">rictav27.github.io</text>`;
   const ph=(x,y,w)=>`<rect class="g-ph" x="${x}" y="${y}" width="${w}" height="8" rx="4"/>`;
   const sheet=(x,y,w,h)=>`<rect class="g-sf" x="${x}" y="${y}" width="${w}" height="${h}" rx="14"/>`;
-  const home=svg(108,[0,1,2,3].map(i=>{const x=25+i*70;return i===1?logo(x,14,46)+ring(x+23,37,31)+`<text class="g-tx g-sm" x="${x+23}" y="80" text-anchor="middle">MedPrumo</text>`:`<rect class="g-sf" x="${x}" y="14" width="46" height="46" rx="11"/>`+ph(x+5,72,36)}).join(''));
   const dlg=svg(112,sheet(20,8,260,96)+logo(36,22,34)+`<text class="g-tx g-b" x="80" y="37">MedPrumo</text><text class="g-mt g-sm" x="80" y="52">rictav27.github.io</text><text class="g-mt" x="130" y="85">Cancelar</text><rect class="g-ac" x="196" y="66" width="72" height="30" rx="15"/><text class="g-on g-b" x="232" y="85.5" text-anchor="middle">Instalar</text>`+ringR(191,61,82,40));
-  return {home,dlg,
+  return {dlg,
     /* Safari com barra compacta (iOS 26): ••• e depois Compartilhar */
     iosMore:svg(124,sheet(118,8,172,66)+`<rect class="g-hl" x="123" y="13" width="162" height="28" rx="9"/>`+share(141,27)+`<text class="g-tx g-b" x="160" y="31.5">Compartilhar</text>`+ph(134,54,96)+ringR(121,11,166,32)+
       `<circle class="g-sf" cx="28" cy="100" r="16"/><path class="g-ln" d="M31 93l-7 7 7 7"/>`+url(52,84,196)+`<circle class="g-sf" cx="272" cy="100" r="16"/><circle class="g-dot" cx="265" cy="100" r="2"/><circle class="g-dot" cx="272" cy="100" r="2"/><circle class="g-dot" cx="279" cy="100" r="2"/>`+ring(272,100,20)),
@@ -3098,7 +3097,7 @@ const IG=()=>{
     /* Computador: ícone de instalar na barra de endereço */
     pcBar:svg(64,url(14,16,272)+`<rect class="g-as" x="252" y="24" width="20" height="13" rx="3"/><path class="g-as" d="M257 41h10M262 27v6M259 31l3 3 3-3"/>`+ring(262,32,19))};
 };
-function instalar(){bar('Instalar o app','','Fica na tela inicial e abre sem internet');
+function instalar(){bar('Instalar o app','');
   const ua=navigator.userAgent,ipad=/iPad/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),ios=/iPhone|iPod/.test(ua)||ipad,and=/Android/.test(ua);
   const dev=ios?'ios':and?'and':'pc',tab=INST_TAB||dev,mine=tab===dev,installed=isInstalled();
   const inapp=/Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|LinkedInApp|Snapchat|Line\/|GSA\/|; wv\)/.test(ua);
@@ -3107,31 +3106,25 @@ function instalar(){bar('Instalar o app','','Fica na tela inicial e abre sem int
   const br=!mine?'':ios?(/CriOS/.test(ua)?'chrome':/FxiOS|EdgiOS|OPT\/|DuckDuckGo/.test(ua)?'outro':'safari'):and?(/SamsungBrowser/.test(ua)?'samsung':/Firefox\//.test(ua)?'firefox':/EdgA/.test(ua)?'edge':/OPR\//.test(ua)?'outro':'chrome'):(/Firefox\//.test(ua)?'firefox':/^((?!chrome|android|crios|edg).)*safari/i.test(ua)?'safari':'chrome');
   const IGS=IG();
   const steps=l=>`<ol class="isteps">${l.map((s,i)=>`<li><div class="ist"><b class="inum" aria-hidden="true">${i+1}</b><p>${s[0]}${s[2]?`<small>${s[2]}</small>`:''}</p></div>${s[1]||''}</li>`).join('')}</ol>`;
-  const done=['Pronto. Abra o MedPrumo pelo <b>ícone na tela inicial</b>',IGS.home,'Funciona sem internet depois da primeira abertura'];
-  const addIos=['Toque em <b>Adicionar à Tela de Início</b>',IGS.iosSheet,'Não apareceu? Role a lista para baixo ou toque em Mais'];
   const T={
     ios:()=>{
-      if(br==='chrome')return steps([['No Chrome, toque em <b>Compartilhar</b>, na barra de endereço',IGS.iosChrome,'Não achou? Toque em ••• e procure Compartilhar'],addIos,['Toque em <b>Adicionar</b>',IGS.iosAdd(false)],done])+'<p class="inote">No Safari o caminho é o mesmo: Compartilhar → Adicionar à Tela de Início.</p>';
-      if(br==='outro')return steps([['Toque em <b>Compartilhar</b> (quadrado com seta) ou no menu <b>•••</b>',null,'Se não achar, abra o link no Safari'],addIos.slice(0,1).concat([null,addIos[2]]),['Toque em <b>Adicionar</b>'],done]);
-      const pad=ipad&&mine,first=pad?['No Safari, toque em <b>Compartilhar</b>, na barra de cima',IGS.iosChrome,'É o quadrado com a seta para cima']:old?['No Safari, toque em <b>Compartilhar</b>, na barra de baixo',IGS.iosBar,'É o quadrado com a seta para cima']:['No Safari, toque em <b>•••</b> e depois em <b>Compartilhar</b>',IGS.iosMore,'Se o botão Compartilhar (quadrado com seta) já estiver na barra, toque direto nele'];
-      return steps([first,addIos,[old?'Toque em <b>Adicionar</b>':'Deixe <b>Abrir como app web</b> ligado e toque em <b>Adicionar</b>',IGS.iosAdd(!old)],done])+'<p class="inote">No Chrome do iPhone, o botão Compartilhar fica na barra de endereço, no alto. O resto é igual.</p>'},
+      const chrome=br==='chrome',outro=br==='outro',web=!old&&!chrome&&!outro;
+      const first=chrome?['Toque em <b>Compartilhar</b>, na barra de endereço',IGS.iosChrome]:outro?['Toque em <b>Compartilhar</b> ou em <b>•••</b>']:ipad&&mine?['Toque em <b>Compartilhar</b>, na barra de cima',IGS.iosChrome]:old?['Toque em <b>Compartilhar</b>, na barra de baixo',IGS.iosBar]:['Toque em <b>•••</b> e depois em <b>Compartilhar</b>',IGS.iosMore];
+      return steps([first,['Toque em <b>Adicionar à Tela de Início</b>',IGS.iosSheet,'Não aparece? Role a lista ou toque em Mais'],[web?'Deixe <b>Abrir como app web</b> ligado e toque em <b>Adicionar</b>':'Toque em <b>Adicionar</b>',IGS.iosAdd(web)]])+(outro?'<p class="inote">Não achou? Abra o link no Safari.</p>':'')},
     and:()=>{
-      if(br==='samsung')return steps([['No Samsung Internet, toque no menu <b>≡</b>, no canto de baixo'],['Toque em <b>Adicionar página a</b> e depois em <b>Tela inicial</b>'],['Toque em <b>Adicionar</b>'],done])+'<p class="inote">Se houver um ícone de instalar na barra de endereço, toque nele.</p>';
-      if(br==='firefox')return steps([['No Firefox, toque no menu <b>⋮</b>'],['Toque em <b>Instalar</b> ou <b>Adicionar à tela inicial</b>'],['Confirme em <b>Adicionar</b>'],done]);
-      if(br==='edge')return steps([['No Edge, toque no menu <b>⋯</b>, na barra de baixo'],['Deslize os ícones e toque em <b>Adicionar ao telefone</b>'],['Confirme em <b>Adicionar</b>'],done]);
-      if(br==='outro')return steps([['Abra o menu do navegador'],['Toque em <b>Adicionar à tela inicial</b> ou <b>Instalar</b>'],['Confirme em <b>Adicionar</b>'],done])+'<p class="inote">Se não achar, abra o link no Chrome.</p>';
-      return steps([['No Chrome, toque no menu <b>⋮</b>, no canto de cima',IGS.andBar],['Toque em <b>Adicionar à tela inicial</b>',IGS.andMenu,'Em alguns aparelhos o item já aparece como Instalar app'],['Toque em <b>Instalar app</b>',IGS.andOpt,'Criar atalho só salva o site, sem instalar o app'],['Confirme em <b>Instalar</b>',IGS.dlg],done])+'<p class="inote">Samsung Internet, Firefox ou Edge: abra o menu do navegador e procure Adicionar à tela inicial ou Instalar.</p>'},
-    pc:()=>`<div class="iqr">${QR_SVG}<p><b>Para usar no celular</b>Aponte a câmera do celular para o código. O MedPrumo abre no navegador, pronto para instalar.</p></div>`+(br==='firefox'?'<p class="inote">O Firefox no computador não instala apps. Use o Chrome ou o Edge.</p>':`<p class="sec">Neste computador</p>`+steps([['No Chrome ou no Edge, clique no ícone de <b>instalar</b>, no fim da barra de endereço',IGS.pcBar,'Sem o ícone? Abra o menu ⋮ e procure Instalar MedPrumo'],['Confirme em <b>Instalar</b>',IGS.dlg]])+'<p class="inote">Safari no Mac: menu Arquivo → Adicionar ao Dock.</p>')};
+      if(br==='samsung')return steps([['Toque no menu <b>≡</b>'],['Toque em <b>Adicionar página a</b> e depois em <b>Tela inicial</b>'],['Confirme em <b>Adicionar</b>']]);
+      if(br==='firefox')return steps([['Toque no menu <b>⋮</b>'],['Toque em <b>Instalar</b> ou <b>Adicionar à tela inicial</b>'],['Confirme em <b>Adicionar</b>']]);
+      if(br==='edge')return steps([['Toque no menu <b>⋯</b>'],['Toque em <b>Adicionar ao telefone</b>'],['Confirme em <b>Adicionar</b>']]);
+      if(br==='outro')return steps([['Abra o menu do navegador'],['Toque em <b>Adicionar à tela inicial</b> ou <b>Instalar</b>']])+'<p class="inote">Não achou? Abra o link no Chrome.</p>';
+      return steps([['Toque no menu <b>⋮</b>, no canto de cima',IGS.andBar],['Toque em <b>Adicionar à tela inicial</b>',IGS.andMenu],['Toque em <b>Instalar app</b> e confirme em <b>Instalar</b>',IGS.andOpt,'Criar atalho não instala o app']])},
+    pc:()=>`<div class="iqr">${QR_SVG}<p><b>Para usar no celular</b>Aponte a câmera para o código</p></div>`+(br==='firefox'?'<p class="inote">O Firefox no computador não instala apps. Use o Chrome ou o Edge.</p>':`<p class="sec">Neste computador</p>`+steps([['Clique no ícone de <b>instalar</b>, no fim da barra de endereço',IGS.pcBar,'Sem o ícone? Menu ⋮ → Instalar MedPrumo'],['Confirme em <b>Instalar</b>',IGS.dlg]]))};
   const tabs=[['ios','iPhone'],['and','Android'],['pc','Computador']];
   $('app').innerHTML=`${installed?'<div class="rx instok"><b>O app já está instalado neste aparelho.</b></div>':''}
-  ${inapp&&!installed?`<div class="rx iwarn"><b>Abra primeiro no ${ios?'Safari':'Chrome'}</b><span>Você está no navegador de outro app, que não instala. Toque no menu (••• ou ⋮) e escolha abrir no navegador, ou copie o link e cole no ${ios?'Safari':'Chrome'}.</span><button type="button" class="cpy" id="icpy">Copiar link</button></div>`:''}
-  ${INSTALL_EVT&&!installed?'<div class="inow"><button type="button" class="ibtn" id="ibtn">Instalar agora</button><p class="note">Um toque e o app vai para a tela inicial. Se preferir, siga o passo a passo abaixo.</p></div>':''}
+  ${inapp&&!installed?`<div class="rx iwarn"><b>Abra primeiro no ${ios?'Safari':'Chrome'}</b><span>Este navegador não instala. Copie o link e abra no ${ios?'Safari':'Chrome'}.</span><button type="button" class="cpy" id="icpy">Copiar link</button></div>`:''}
+  ${INSTALL_EVT&&!installed?'<div class="inow"><button type="button" class="ibtn" id="ibtn">Instalar agora</button><p class="note">Um toque e o app vai para a tela inicial</p></div>':''}
   ${installed?'':`<div class="itabs" role="group" aria-label="Aparelho">${tabs.map(t=>`<button type="button" data-t="${t[0]}" aria-pressed="${t[0]===tab}">${t[1]}</button>`).join('')}</div>
   ${T[tab]()}`}
-  <div class="slinks">${shareRow()}</div>
-  <details class="srcs safe"><summary>É seguro?</summary><ul>${SAFE}</ul></details>
-  <details class="srcs"><summary>Uso offline e atualizações</summary><ul><li>Abra uma vez com internet. Depois funciona sem internet</li><li>Atualiza sozinho ao abrir com internet</li><li>Não atualizou? Feche e abra de novo</li><li>Ainda não? Remova o app, abra o link e instale de novo</li><li>O app instalado ocupa cerca de 3,3 MB</li></ul></details>`;
-  $('shbt').onclick=()=>shareBox($('shbt'));
+  <details class="srcs safe"><summary>É seguro?</summary><ul>${SAFE}</ul></details>`;
   document.querySelectorAll('.itabs button').forEach(b=>b.onclick=()=>{INST_TAB=b.dataset.t;instalar();document.querySelector('.itabs [aria-pressed="true"]')?.focus()});
   const c=$('icpy');if(c)c.onclick=()=>{try{navigator.clipboard.writeText(SITE).then(()=>toast('Link copiado'),()=>toast('Não foi possível copiar'))}catch(e){toast('Não foi possível copiar')}};
   const b=$('ibtn');if(b)b.onclick=async()=>{const e=INSTALL_EVT;if(!e)return;e.prompt();await e.userChoice.catch(()=>{});INSTALL_EVT=null;instalar()};
