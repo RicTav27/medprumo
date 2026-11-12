@@ -10,6 +10,9 @@ Itens curtos (uma linha, sem detalhes), no máximo 12 por versão, só o que mud
 - Queimaduras: regra dos 9 da criança ajustada por ano de idade
 - Silverman-Andersen: faixas pelo Ministério da Saúde
 - Cortes e textos conferidos nas fontes originais: PECARN, Canadian CT Head, AIMS65, FIB-4, Ranson e Ventilação mecânica
+- Dosagem mais simples: botões e campos lado a lado em Dose por peso, Gotas, Ampolas de eletrólitos e Infusão contínua
+- Infusão contínua: dose e vazão na mesma tela
+- Gotas: aviso de que o tamanho da gota muda com o tipo de líquido
 
 ## 0.13.0 Beta (11/11/2026)
 - Seção Dosagem: dose por peso, gotas, diluição, ampolas de eletrólitos, gotejamento e infusão contínua
