@@ -33,11 +33,13 @@ function out(state,big,unit,pill,note,rows){
   const el=$('out');el.style.setProperty('--state',S[state]);el.dataset.state=state;
   el.innerHTML=`${big===''?'':`<div class="big">${big}<small>${unit||''}</small></div>`}${pill?`<span class="pill">${pill}</span>`:''}${note?`<p class="note">${note}</p>`:''}${rows?`<div class="rows">${rows.map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>`:''}`;
 }
-const unitLab=l=>'<span>'+String(l).replace(/\(([^()]*)\)$/,'<span class="u">($1)</span>')+'</span>';
+const unitLab=l=>'<span>'+String(l).replace(/\(([^()]*)\)( \[opcional\])?$/,'<span class="u">($1)</span>$2')+'</span>';
 /* Campos numéricos como texto: no iPhone o teclado decimal usa vírgula, e type=number do Safari rejeita vírgula */
 const numIn=id=>`<input id="${id}" class="num" type="text" inputmode="${(LIM[id]&&LIM[id][0]<0)?'text':'decimal'}" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" value="">`;
 const field=(id,lab,val,extra='')=>`<label>${unitLab(lab)}${numIn(id)}</label>`;
 const seg=(id,opts,full=true)=>`<div class="${full?'full':''}"><label>Sexo</label><div class="seg" id="${id}">${opts.map((o,i)=>`<button type="button" data-v="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div></div>`;
+let IFL='x',MQL='e';document.addEventListener('input',e=>{const i=e.target.id,G=[['ifx','ifr'],['mqe','mql','mqg']].find(g=>g.includes(i));if(!G)return;if(G[0]==='ifx')IFL=i==='ifx'?'x':'r';else MQL={mqe:'e',mql:'v',mqg:'m'}[i];if(e.target.value!=='')G.forEach(o=>{const f=document.getElementById(o);if(o!==i&&f){f.value='';f.classList.remove('bad')}})},true);
+const segd=(id,lab,opts,def=-1,cls='')=>`<div class="full"><label>${lab}</label><div class="seg${cls?' '+cls:''}" id="${id}">${opts.map((o,i)=>`<button type="button" data-v="${o[0]}" aria-pressed="${i===def}">${o[1]}</button>`).join('')}</div></div>`;
 const segVal=id=>document.querySelector(`#${id} [aria-pressed="true"]`)?.dataset.v;
 /* Marcar erros item a item: NaN até marcar algum erro ou 'Nenhum erro' */
 const errs=(id,items)=>`<div class="errs" id="${id}">${items.map(t=>`<button type="button" aria-pressed="false">${t}</button>`).join('')}<button type="button" data-none aria-pressed="false">Nenhum erro</button></div>`;
@@ -224,7 +226,7 @@ const TOOLS=[
   ${withNote(radios('o','Abertura ocular',[['4','Espontânea'],['3','Ao som'],['2','À pressão'],['1','Ausente'],['NT','Não testável']],'4'),'Observe antes de estimular. Depois, som: fale ou grite. Depois, pressão na ponta do dedo, no trapézio ou na incisura supraorbitária.')}
   ${withNote(radios('v','Resposta verbal',[['5','Orientada'],['4','Confusa'],['3','Palavras'],['2','Sons'],['1','Ausente'],['NT','Não testável']],'4'),'Orientada: diz o nome, o local e o mês ou o ano. Confusa: conversa, mas erra. Palavras: soltas, sem frase. Sons: gemidos.')}
   ${withNote(radios('m','Resposta motora',[['6','Obedece comandos'],['5','Localiza estímulo'],['4','Flexão normal'],['3','Flexão anormal (decorticação)'],['2','Extensão (descerebração)'],['1','Ausente'],['NT','Não testável']],'6'),'Peça um comando de 2 etapas. Sem resposta, pressione o trapézio ou a incisura supraorbitária. Localiza: a mão passa acima da clavícula. Flexão normal: rápida, afasta o braço. Anormal: lenta e estereotipada.')}
-  ${radios('p','Pupilas (opcional)',[['X','Não avaliada',''],['0','Ambas reagem'],['1','Uma não reage'],['2','Nenhuma reage']]).replace('<fieldset>','<fieldset data-opt="1">').replace('</legend>','</legend><p class="note">Reflexo fotomotor de cada olho. O escore pupilar é subtraído do Glasgow (ECG-P).</p>')}</div>`,
+  ${radios('p','Pupilas [opcional]',[['X','Não avaliada',''],['0','Ambas reagem'],['1','Uma não reage'],['2','Nenhuma reage']]).replace('<fieldset>','<fieldset data-opt="1">').replace('</legend>','</legend><p class="note">Reflexo fotomotor de cada olho. O escore pupilar é subtraído do Glasgow (ECG-P).</p>')}</div>`,
  calc(){
   const v=n=>document.querySelector(`input[name="${n}"]:checked`).value;
   const O=v('o'),V=v('v'),M=v('m'),P=document.querySelector('input[name="p"]:checked')?.value||'X',comp=`O${O} V${V} M${M}`;
@@ -345,7 +347,7 @@ const TOOLS=[
 {id:'ig',cat:'Obstetrícia',name:'IG e DPP',sub:'Idade gestacional e data provável do parto',
  src:'ACOG Committee Opinion 700 (2017), Practice Bulletin 175',
  form:()=>{const t=new Date();return `<div class="form">${dateField('dum','DUM','')}${dateField('dref','Data de referência',isoDay(t))}</div>
-  <fieldset><legend>USG (opcional)</legend><div class="form">${dateField('dus','Data do USG','')}<div></div>${field('usw','IG no USG: semanas','7','min="4" max="42"')}${field('usd','IG no USG: dias','3','min="0" max="6"')}</div></fieldset>`},
+  <fieldset><legend>USG [opcional]</legend><div class="form">${dateField('dus','Data do USG','')}<div></div>${field('usw','IG no USG: semanas','7','min="4" max="42"')}${field('usd','IG no USG: dias','3','min="0" max="6"')}</div></fieldset>`},
  calc(){
   const dum=parseDay($('dum').value),ref=parseDay($('dref').value);
   if(!dum||!ref)return out('acc','','','','Informe DUM e data de referência.');
@@ -580,7 +582,7 @@ const TOOLS=[
 
 {id:'osm',cat:'Laboratório',name:'Osmolaridade sérica',sub:'Osmolaridade e gap osmolar (álcoois tóxicos)',
  src:'Fórmula clássica com ureia (mg/dL)',
- form:()=>`<div class="form">${field('osn','Na⁺ (mEq/L)','140')}${field('osg','Glicose (mg/dL)','100')}${field('osu','Ureia (mg/dL)','30')}${field('osmm','Osm medida opcional (mOsm/kg)','')}</div>`,
+ form:()=>`<div class="form">${field('osn','Na⁺ (mEq/L)','140')}${field('osg','Glicose (mg/dL)','100')}${field('osu','Ureia (mg/dL)','30')}${field('osmm','Osm medida (mOsm/kg) [opcional]','')}</div>`,
  calc(){const n=num('osn'),g=num('osg'),u=num('osu'),m=num('osmm');if(!(n>0&&g>0&&u>=0))return out('acc','','','','Informe Na, glicose e ureia.');
   const c=2*n+g/18+u/6,rows=[['Calculada',fmt(c,0)]];if(m>0)rows.push(['Gap osmolar',fmt(m-c,0)]);
   out('acc',fmt(c,0),'mOsm/kg','Calculada',m>0?(m-c>10?'Gap &gt; 10: sugere osmóis não medidos (álcoois tóxicos, manitol).':'Gap até 10: sem sinal de osmóis não medidos.'):'',rows)},
@@ -680,7 +682,7 @@ const TOOLS=[
 
 {id:'gaso',cat:'Laboratório',name:'Gasometria',sub:'Interpretação do distúrbio ácido-base',
  src:'Regras de Boston, fórmula de Winter, Deranged Physiology, LITFL',
- form:()=>`<div class="form">${field('gph','pH','7.28')}${field('gpc','pCO₂ (mmHg)','30')}${field('ghc','HCO₃⁻ (mEq/L)','14')}${field('gna','Na⁺ opcional (mEq/L)','138')}${field('gcl','Cl⁻ opcional (mEq/L)','104')}${field('gal','Albumina opcional (g/dL)','4')}</div>`,
+ form:()=>`<div class="form">${field('gph','pH','7.28')}${field('gpc','pCO₂ (mmHg)','30')}${field('ghc','HCO₃⁻ (mEq/L)','14')}${field('gna','Na⁺ (mEq/L) [opcional]','138')}${field('gcl','Cl⁻ (mEq/L) [opcional]','104')}${field('gal','Albumina (g/dL) [opcional]','4')}</div>`,
  calc(){
   const ph=num('gph'),pc=num('gpc'),hc=num('ghc'),na=num('gna'),cl=num('gcl'),al=num('gal');
   if(!(ph>6.5&&pc>0&&hc>0))return out('acc','','','','Informe pH, pCO₂ e HCO₃⁻.');
@@ -715,23 +717,24 @@ const TOOLS=[
 {id:'infusao',cat:'Terapia intensiva',name:'Infusão contínua',sub:'Vazão ou dose de drogas em infusão',
  src:'Cálculo de concentração (sem diluições pré-definidas)',
  form:()=>{const b=(v,t)=>`<button type="button" data-v="${v}" aria-pressed="false">${t}</button>`;
-  return `<div class="full"><label>1. O que você quer calcular?</label><div class="seg" id="ifmode">${b('v','Vazão (mL/h)')}${b('d','Dose')}</div></div>
-  <p class="sec">2. Solução</p><div class="form">${field('ifm','Droga na solução (mg)','')}${field('ifv','Volume total (mL)','')}</div>
-  <p class="sec">3. Dose</p><div class="full"><label>Unidade da dose</label><div class="seg" id="ifu">${b('ugkgmin','µg/kg/min')}${b('ugmin','µg/min')}${b('mgkgh','mg/kg/h')}${b('mgh','mg/h')}</div></div>
-  <div class="form"><label id="ifwl">${unitLab('Peso (kg)')}${numIn('ifw')}</label><label><span id="ifxl">Dose desejada</span>${numIn('ifx')}</label></div>`},
+  return `<p class="sec">1. Solução</p><div class="form">${field('ifm','Quantidade da droga (mg)','')}${field('ifv','Volume total (mL)','')}</div>
+  <p class="sec">2. Dose e vazão</p><div class="full"><label>Unidade da dose</label><div class="seg" id="ifu">${b('ugkgmin','µg/kg/min')}${b('ugmin','µg/min')}${b('mgkgh','mg/kg/h')}${b('mgh','mg/h')}</div></div>
+  <div class="form"><label id="ifwl">${unitLab('Peso (kg)')}${numIn('ifw')}</label><label><span id="ifxl">Dose</span>${numIn('ifx')}</label>${field('ifr','Vazão (mL/h)','')}</div>
+  <p class="note">Preencha a dose para achar a vazão, ou a vazão para achar a dose. Ao digitar em um campo, o outro é apagado.</p>`},
  calc(){
-  const mode=segVal('ifmode'),u=segVal('ifu'),kg=!!u&&u.includes('kg');
+  const u=segVal('ifu'),kg=!!u&&u.includes('kg');
   const U={ugkgmin:'µg/kg/min',ugmin:'µg/min',mgkgh:'mg/kg/h',mgh:'mg/h'}[u]||'';
-  $('ifxl').innerHTML=unitLab(mode==='d'?'Vazão atual (mL/h)':`Dose desejada${U?' ('+U+')':''}`);$('ifwl').style.display=kg||!u?'':'none';
-  const mg=num('ifm'),ml=num('ifv'),w=num('ifw'),x=num('ifx');
+  $('ifxl').innerHTML=unitLab(`Dose${U?' ('+U+')':''}`);$('ifwl').style.display=kg?'':'none';
+  const mg=num('ifm'),ml=num('ifv'),w=num('ifw'),x=num('ifx'),q=num('ifr');
   if(!(mg>0&&ml>0))return out('acc','','','','Informe a droga e o volume da solução.');
   const c=mg/ml,rows=[['Concentração',`${fmt(c*1000,1)} µg/mL (${fmt(c,3)} mg/mL)`]];
   if(kg&&!(w>0))return out('acc','','','','Informe o peso.',rows);
-  if(!(x>0))return out('acc','','','',mode==='d'?'Informe a vazão atual.':'Informe a dose desejada.',rows);
+  const dose=!(q>0)||(IFL==='x'&&x>0);
+  if(dose&&!(x>0))return out('acc','','','','Informe a dose ou a vazão.',rows);
   const toMgH={ugkgmin:d=>d*w*60/1000,ugmin:d=>d*60/1000,mgkgh:d=>d*w,mgh:d=>d}[u];
   const fromMgH={ugkgmin:m=>m*1000/(60*w),ugmin:m=>m*1000/60,mgkgh:m=>m/w,mgh:m=>m}[u];
-  if(mode==='v'){const r=toMgH(x)/c;out('acc',fmt(r,1),'mL/h','Vazão',`Para ${x.toLocaleString('pt-BR',{maximumFractionDigits:3})} ${U}.`,rows)}
-  else{const d=fromMgH(x*c);out('acc',fmt(d,d<1?3:2),U,'Dose',`Com ${x.toLocaleString('pt-BR',{maximumFractionDigits:2})} mL/h.`,rows)}
+  if(dose){const r=toMgH(x)/c;out('acc',fmt(r,1),'mL/h','Vazão',`Para ${x.toLocaleString('pt-BR',{maximumFractionDigits:3})} ${U}.`,rows)}
+  else{const d=fromMgH(q*c);out('acc',fmt(d,d<1?3:2),U,'Dose',`Com ${q.toLocaleString('pt-BR',{maximumFractionDigits:2})} mL/h.`,rows)}
  },
  how:()=>`<p><code>Concentração = mg da droga ÷ volume total (mL)</code></p><p><code>mL/h = dose (em mg/h) ÷ concentração (mg/mL)</code></p><p>De µg/kg/min para mg/h: × peso × 60 ÷ 1000.</p><p>Noradrenalina: conferir se o rótulo expressa sal ou base.</p>`},
 
@@ -1139,15 +1142,15 @@ const TOOLS=[
   out('acc',fmt(g,0),'gotas/min','Macrogotas',`${fmt(v,0)} mL em ${fmt(t,t%1?1:0)} h.`,[['Microgotas',fmt(m,0)+' microgotas/min'],['Bomba de infusão',fmt(m,1)+' mL/h'],['Gotas exatas',fmt(g,1)+' gotas/min']])},
  how:()=>`<p><code>Gotas/min = V ÷ (T × 3)</code><br><code>Microgotas/min = V ÷ T</code><br><code>mL/h = V ÷ T</code></p><p>V em mL, T em horas. Microgotas por minuto têm o mesmo número que mL/h.</p>`},
 
-{id:'dosekg',cat:'Farmacologia',name:'Dose por peso',sub:'Dose total ou por tomada a partir do peso',
+{id:'dosekg',cat:'Farmacologia',name:'Dose por peso',sub:'Dose em mg e mL a partir do peso',
  src:'Cálculo aritmético (dose = peso × dose por kg). Não sugere dose',
- form:()=>`<div class="stack">${sel('dkb','A dose por kg é',[['_d','Por dose'],['_p','Por dia (dividir em doses)']])}<div id="dkwf" hidden>${sel('dkf','Dividir em',[['_1','1 dose ao dia (24/24 h)'],['_2','2 doses (12/12 h)'],['_3','3 doses (8/8 h)'],['_4','4 doses (6/6 h)'],['_6','6 doses (4/4 h)']])}</div></div><div class="form">${field('dkw','Peso (kg)','')}${field('dkd','Dose (mg/kg)','')}${field('dkc','Concentração, opcional (mg/mL)','')}</div>`,
- sync(){$('dkwf').hidden=$('dkb').value!=='_p';const u=document.querySelector('#dkd')?.closest('label')?.querySelector('.u');if(u)u.textContent=$('dkb').value==='_p'?'(mg/kg/dia)':'(mg/kg)'},
- calc(){const w=num('dkw'),d=num('dkd'),c=num('dkc'),b=$('dkb').value,f=b==='_p'?+String($('dkf').value).slice(1):1;
-  if(!b||(b==='_p'&&!f))return out('acc','','','','Escolha se a dose é por dose ou por dia.');
+ form:()=>`${segd('dkb','A dose da bula é',[['d','mg/kg por dose'],['p','mg/kg por dia']])}<div id="dkwf" hidden>${segd('dkf','Doses por dia',[['1','1'],['2','2'],['3','3'],['4','4'],['6','6']],-1,'g5')}</div><div class="form">${field('dkw','Peso (kg)','')}${field('dkd','Dose (mg/kg)','')}${field('dkc','Concentração do produto (mg/mL) [opcional]','')}</div>`,
+ sync(){const b=segVal('dkb');$('dkwf').hidden=b!=='p';const u=document.querySelector('#dkd')?.closest('label')?.querySelector('.u');if(u)u.textContent=b==='p'?'(mg/kg/dia)':b==='d'?'(mg/kg/dose)':'(mg/kg)'},
+ calc(){const w=num('dkw'),d=num('dkd'),c=num('dkc'),b=segVal('dkb'),f=b==='p'?+segVal('dkf'):1;
+  if(!b||(b==='p'&&!f))return out('acc','','','','Escolha se a dose da bula é por dose ou por dia.');
   if(!(w>0&&d>0))return out('acc','','','','Informe peso e dose por kg.');
   const t=w*d,pd=t/f,r=[];const W=fmt(w,w%1?1:0),D=fmt(d,d%1?2:0);
-  if(b==='_p'){r.push(['Total por dia',fmt(t,t<10?2:1)+' mg'],['Intervalo',`${24/f} em ${24/f} h`]);if(c>0)r.push(['Volume por dose a '+fmt(c,c%1?2:0)+' mg/mL',fmt(pd/c,2)+' mL']);
+  if(b==='p'){r.push(['Total por dia',fmt(t,t<10?2:1)+' mg'],['Intervalo',`${24/f} em ${24/f} h`]);if(c>0)r.push(['Volume por dose a '+fmt(c,c%1?2:0)+' mg/mL',fmt(pd/c,2)+' mL']);
    return out('acc',fmt(pd,pd<10?2:1),'mg','Por dose',`${D} mg/kg/dia × ${W} kg = ${fmt(t,t<10?2:1)} mg/dia, em ${f} ${f>1?'doses':'dose'}.`,r)}
   if(c>0)r.push(['Volume a '+fmt(c,c%1?2:0)+' mg/mL',fmt(t/c,2)+' mL']);
   out('acc',fmt(t,t<10?2:1),'mg','Dose total',`${D} mg/kg × ${W} kg.`,r.length?r:null)},
@@ -1155,12 +1158,11 @@ const TOOLS=[
 
 {id:'gotas',cat:'Farmacologia',name:'Gotas',sub:'Dose em gotas pelo rótulo do produto',
  src:'Cálculo aritmético com os dados do rótulo (gotas por mL declaradas pelo fabricante). Não sugere dose',
- form:()=>`<div class="stack">${sel('gou','Unidade da dose',[['_mg','mg'],['_ui','UI']])}${sel('gop','Tipo do líquido, opcional',[['_a','Aquosa'],['_o','Oleosa'],['_l','Alcoólica'],['_s','Suspensão']]).replace('<select ','<select data-opt="1" ')}<p class="note" id="gopn" hidden></p>${sel('gob','O rótulo informa',[['_c','Concentração por mL e gotas por mL'],['_g','Quantidade por gota']])}<div id="gow1" hidden><div class="form">${field('goc','Concentração (mg/mL)','')}${field('gon','Gotas por mL do rótulo (gotas/mL)','')}</div></div><div id="gow2" hidden><div class="form">${field('gog','Quantidade por gota (mg/gota)','')}</div></div></div><div class="form">${field('god','Dose (mg)','')}</div>`,
- sync(){const b=$('gob').value,U=$('gou').value==='_ui'?'UI':'mg';$('gow1').hidden=b!=='_c';$('gow2').hidden=b!=='_g';
-  const GP={_a:'Usar as gotas por mL do rótulo. Não assumir 20 gotas por mL.',_o:'Líquido viscoso: a gota costuma ser maior. Usar as gotas por mL do rótulo.',_l:'Usar as gotas por mL do rótulo. Outro frasco ou gotejador muda o tamanho da gota.',_s:'Agitar bem antes de cada uso. Usar as gotas por mL do rótulo.'},gp=GP[$('gop').value];$('gopn').hidden=!gp;$('gopn').textContent=gp||'';
+ form:()=>`<p class="note">O tamanho da gota muda com o tipo de líquido (aquosa, oleosa, alcoólica, suspensão) e com o frasco. Usar as gotas por mL do rótulo.</p>${segd('gou','Unidade da dose',[['mg','mg'],['ui','UI']],0)}${segd('gob','O rótulo informa',[['c','mg por mL'],['g','mg por gota']],0)}<div id="gow1"><div class="form">${field('goc','Concentração (mg/mL)','')}${field('gon','Gotas por mL','')}</div></div><div id="gow2" hidden><div class="form">${field('gog','Quantidade por gota (mg/gota)','')}</div></div><div class="form">${field('god','Dose desejada (mg)','')}</div>`,
+ sync(){const b=segVal('gob'),U=segVal('gou')==='ui'?'UI':'mg';$('gow1').hidden=b!=='c';$('gow2').hidden=b!=='g';document.querySelectorAll('#gob button').forEach(x=>{x.textContent=U+(x.dataset.v==='c'?' por mL':' por gota')});
   [['goc','('+U+'/mL)'],['gog','('+U+'/gota)'],['god','('+U+')']].forEach(([id,t])=>{const e=document.querySelector('#'+id)?.closest('label')?.querySelector('.u');if(e)e.textContent=t})},
- calc(){const U=$('gou').value==='_ui'?'UI':'mg',b=$('gob').value,x=num('god');if(!b||!$('gou').value)return out('acc','','','','Escolha a unidade e o que o rótulo informa.');
-  let pg,vg;if(b==='_c'){const c=num('goc'),n=num('gon');if(!(c>0&&n>0))return out('acc','','','','Informe a concentração e as gotas por mL do rótulo.');pg=c/n;vg=1/n}
+ calc(){const U=segVal('gou')==='ui'?'UI':'mg',b=segVal('gob'),x=num('god');if(!b||!segVal('gou'))return out('acc','','','','Escolha a unidade e o que o rótulo informa.');
+  let pg,vg;if(b==='c'){const c=num('goc'),n=num('gon');if(!(c>0&&n>0))return out('acc','','','','Informe a concentração e as gotas por mL.');pg=c/n;vg=1/n}
   else{pg=num('gog');if(!(pg>0))return out('acc','','','','Informe a quantidade por gota do rótulo.')}
   if(!(x>0))return out('acc','','','','Informe a dose.');
   const g=x/pg,gi=Math.round(g),Q=v=>fmt(v,v>=100?0:v>=10?1:2),r=[['Conta exata',fmt(g,g<1?2:1)+' gotas'],['Cada gota',Q(pg)+' '+U]];
@@ -1172,7 +1174,7 @@ const TOOLS=[
 
 {id:'dil',cat:'Farmacologia',name:'Diluição',sub:'Concentração final e volume a aspirar',
  src:'Cálculo aritmético (concentração = quantidade ÷ volume final). Não sugere dose',
- form:()=>`<div class="form">${field('dlq','Quantidade do fármaco (mg)','')}${field('dlv','Volume final (mL)','')}${field('dld','Dose desejada, opcional (mg)','')}</div>`,
+ form:()=>`<div class="form">${field('dlq','Quantidade total do fármaco (mg)','')}${field('dlv','Volume final (mL)','')}${field('dld','Dose a aspirar (mg) [opcional]','')}</div>`,
  calc(){const q=num('dlq'),v=num('dlv'),d=num('dld');if(!(q>0&&v>0))return out('acc','','','','Informe a quantidade e o volume final.');
   const c=q/v,u=c*1000,r=[c<1?['Em mg/mL',fmt(c,4).replace(/0+$/,'')+' mg/mL']:['Em µg/mL',fmt(u,u<10?2:0)+' µg/mL'],['Em mg por 100 mL',fmt(c*100,2)+' mg']];
   if(d>0)r.push(['Volume para '+fmt(d,d%1?2:0)+' mg',d>q?'Maior que o total diluído':fmt(d/c,2)+' mL']);
@@ -1181,18 +1183,17 @@ const TOOLS=[
 
 {id:'meq',cat:'Farmacologia',name:'Ampolas de eletrólitos',sub:'mEq, mL e mg por apresentação',
  src:'Apresentações registradas na CMED/ANVISA; rótulos (gliconato de cálcio: Fresenius Kabi e Isofarma 0,465 mEq/mL; Blau 0,496 mEq/mL); massa molar (IUPAC). Não sugere dose',
- form:()=>`<div class="stack">${sel('mqs','Eletrólito',AMPG.map((g,i)=>['_'+i,g[0]]))}${AMPG.map((g,i)=>g[1].length>1?`<div id="mqw${i}" hidden>${sel('mqp'+i,'Concentração',g[1].map(k=>['_'+k,AMP[k][0].split(' ').pop()]))}</div>`:'').join('')}<div id="mqw" hidden><div class="form">${field('mqc','Concentração do rótulo (mEq/mL)','')}</div></div>${sel('mqd','Converter a partir de',[['_e','Dose em mEq'],['_v','Volume em mL'],['_m','Massa do sal em mg']])}</div><div class="form">${field('mqv','Valor','')}</div>`,
- sync(){const v=$('mqs').value,gi=v?+v.slice(1):-1;AMPG.forEach((g,i)=>{const w=$('mqw'+i);if(w)w.hidden=i!==gi});$('mqw').hidden=!(gi>=0&&AMPG[gi][1][0]===AMP.length-1);const l=$('mqv')?.closest('label');const d=$('mqd').value;if(l)l.firstChild.textContent=d==='_e'?'Dose (mEq)':d==='_v'?'Volume (mL)':d==='_m'?'Massa do sal (mg)':'Valor'},
- calc(){const v=$('mqs').value,g=v?AMPG[+v.slice(1)]:null,d=$('mqd').value,x=num('mqv');
-  const pv=g&&g[1].length>1?$('mqp'+v.slice(1)).value:'',a=!g?null:g[1].length>1?(pv?AMP[+pv.slice(1)]:null):AMP[g[1][0]];
-  if(!a||!d)return out('acc','','','','Escolha o eletrólito, a concentração e o ponto de partida.');
+ form:()=>`${segd('mqs','Eletrólito',AMPG.map((g,i)=>[i,g[0].replace(/ \(.*| [\d,]+%$/,'').replace('Outra concentração','Outra')]))}${AMPG.map((g,i)=>g[1].length>1?`<div id="mqw${i}" hidden>${segd('mqp'+i,'Concentração',g[1].map(k=>[k,AMP[k][0].split(' ').pop()]),-1,g[1].length>2?'g3':'')}</div>`:'').join('')}<div id="mqw" hidden><div class="form">${field('mqc','Concentração do rótulo (mEq/mL)','')}</div></div><div class="form">${field('mqe','Dose (mEq)','')}${field('mql','Volume (mL)','')}<label id="mqgl">${unitLab('Massa do sal (mg)')}${numIn('mqg')}</label></div><p class="note">Preencha um dos valores para ver os outros. Ao digitar em um campo, os outros são apagados.</p>`,
+ sync(){const v=segVal('mqs'),gi=v!=null?+v:-1;AMPG.forEach((g,i)=>{const w=$('mqw'+i);if(w)w.hidden=i!==gi});$('mqw').hidden=!(gi>=0&&AMPG[gi][1][0]===AMP.length-1);const a=mqPick(),nm=!!a&&!a[2];$('mqgl').style.display=nm?'none':'';if(nm)$('mqg').value=''},
+ calc(){const a=mqPick();if(!a)return out('acc','','','','Escolha o eletrólito e a concentração.');
   const k=a[1]??num('mqc');if(!(k>0))return out('acc','','','','Informe a concentração do rótulo em mEq/mL.');
-  if(!(x>0))return out('acc','','','','Informe o valor.');
-  if(d==='_m'&&!a[2])return out('warn','','','Sem massa no rótulo','Esta apresentação é rotulada em mEq/mL. Use a dose em mEq ou o volume em mL.');
-  const ml=d==='_e'?x/k:d==='_v'?x:x/a[2],eq=ml*k,r=[['Concentração',fmt(k,k<1?3:2)+' mEq/mL'+(a[3]?' de '+a[3]:'')]];
+  const V={e:num('mqe'),v:num('mql'),m:a[2]?num('mqg'):NaN},ok=Object.keys(V).filter(q=>V[q]>0);
+  if(!ok.length)return out('acc','','','',a[2]?'Informe a dose, o volume ou a massa do sal.':'Informe a dose ou o volume.');
+  const d=ok.includes(MQL)?MQL:ok[0],x=V[d];
+  const ml=d==='e'?x/k:d==='v'?x:x/a[2],eq=ml*k,r=[['Concentração',fmt(k,k<1?3:2)+' mEq/mL'+(a[3]?' de '+a[3]:'')]];
   if(a[2])r.push(['Massa do sal',fmt(ml*a[2],ml*a[2]>=100?0:1)+' mg']);
   if(a[4])r.push([a[4][0],fmt(ml*a[4][1],2)+' '+a[4][2]]);
-  const nm=a[0];const nt2=a[5]?' '+a[5]:'';d==='_e'?out('acc',fmt(ml,ml<1?3:ml<10?2:1),'mL',nm,`Volume com ${fmt(x,x%1?1:0)} mEq${a[3]?' de '+a[3]:''}.`+nt2,r):out('acc',fmt(eq,eq<1?3:eq<10?2:1),'mEq',nm,`${a[3]||'Eletrólito'} em ${fmt(ml,ml%1?2:0)} mL.`+nt2,d==='_m'?[['Volume',fmt(ml,2)+' mL']].concat(r):r)},
+  const nm=a[0];const nt2=a[5]?' '+a[5]:'';d==='e'?out('acc',fmt(ml,ml<1?3:ml<10?2:1),'mL',nm,`Volume com ${fmt(x,x%1?1:0)} mEq${a[3]?' de '+a[3]:''}.`+nt2,r):out('acc',fmt(eq,eq<1?3:eq<10?2:1),'mEq',nm,`${a[3]||'Eletrólito'} em ${fmt(ml,ml%1?2:0)} mL.`+nt2,d==='m'?[['Volume',fmt(ml,2)+' mL']].concat(r):r)},
  how:()=>`<p><code>Volume (mL) = dose (mEq) ÷ concentração (mEq/mL)</code><br><code>mEq/mL = mg/mL × valência ÷ massa molar</code><br><code>Solução a X% = X × 10 mg/mL</code></p>${table(['Apresentação','mEq/mL','Origem'],AMP.slice(0,-1).map(a=>[a[0],fmt(a[1],a[1]<1?3:2)+' de '+a[3],a[6]]))}<p>Conferir sempre o rótulo do produto em uso. A ferramenta só calcula: não sugere dose, diluição nem velocidade de infusão.</p>`},
 
 {id:'holl',cat:'Pediatria',name:'Holliday-Segar',sub:'Hidratação venosa de manutenção',
@@ -1553,7 +1554,7 @@ const TOOLS=[
 
 {id:'pf',cat:'Terapia intensiva',name:'Relação P/F e S/F',sub:'Oxigenação e gravidade da SDRA',
  src:'ARDS Definition Task Force, JAMA 2012 (Berlim), Matthay et al., AJRCCM 2024 (definição global)',
- form:()=>`<div class="form">${field('pfp','PaO₂ (mmHg)','')}${field('pff','FiO₂ (%)','')}${field('pfs','SpO₂ opcional (%)','')}${field('pfe','PEEP opcional (cmH₂O)','')}</div>`,
+ form:()=>`<div class="form">${field('pfp','PaO₂ (mmHg)','')}${field('pff','FiO₂ (%)','')}${field('pfs','SpO₂ (%) [opcional]','')}${field('pfe','PEEP (cmH₂O) [opcional]','')}</div>`,
  calc(){const pa=num('pfp'),fi=num('pff'),sp=num('pfs'),pe=num('pfe');if(!(fi>0))return out('acc','','','','Informe a FiO₂.');
   const f=fi/100,rows=[];
   if(!(pa>0)&&!(sp>0))return out('acc','','','','Informe PaO₂ ou SpO₂.');
@@ -1630,7 +1631,7 @@ const TOOLS=[
 
 {id:'ila',cat:'Obstetrícia',name:'Líquido amniótico (ILA)',sub:'Volume de líquido amniótico',
  src:'Phelan et al. 1987, FEBRASGO (oligoidrâmnio), SMFM 2018 (polidrâmnio)',
- form:()=>`<div class="form">${field('il1','Quadrante 1 (cm)','')}${field('il2','Quadrante 2 (cm)','')}${field('il3','Quadrante 3 (cm)','')}${field('il4','Quadrante 4 (cm)','')}${field('ilb','Maior bolsão vertical opcional (cm)','')}</div>`,
+ form:()=>`<div class="form">${field('il1','Quadrante 1 (cm)','')}${field('il2','Quadrante 2 (cm)','')}${field('il3','Quadrante 3 (cm)','')}${field('il4','Quadrante 4 (cm)','')}${field('ilb','Maior bolsão vertical (cm) [opcional]','')}</div>`,
  calc(){const q=['il1','il2','il3','il4'].map(num),b=num('ilb');
   if(q.some(isNaN)&&isNaN(b))return out('acc','','','','Informe os 4 quadrantes ou o maior bolsão.');
   const rows=[];if(!isNaN(b))rows.push(['Maior bolsão',fmt(b,1)+' cm: '+(b<2?'oligoidrâmnio':b>=8?'polidrâmnio':'normal')]);
@@ -1641,7 +1642,7 @@ const TOOLS=[
 
 {id:'gpg',cat:'Obstetrícia',name:'Ganho de peso gestacional',sub:'Meta de ganho de peso na gestação',
  src:'Kac et al., PLoS One 2021, Ministério da Saúde (Caderneta da Gestante), FEBRASGO 2023',
- form:()=>`<div class="form">${field('gwp','Peso pré-gestacional (kg)','')}${field('gwh','Altura (cm)','')}${field('gwa','Peso atual opcional (kg)','')}</div>`,
+ form:()=>`<div class="form">${field('gwp','Peso pré-gestacional (kg)','')}${field('gwh','Altura (cm)','')}${field('gwa','Peso atual (kg) [opcional]','')}</div>`,
  calc(){const w=num('gwp'),h=num('gwh')/100,a=num('gwa');if(!(w>0&&h>0))return out('acc','','','','Informe peso pré-gestacional e altura.');
   const b=w/(h*h);const c=b<18.5?['Baixo peso','9,7 a 12,2']:b<25?['Eutrofia','8,0 a 12,0']:b<30?['Sobrepeso','7,0 a 9,0']:['Obesidade','5,0 a 7,2'];
   const rows=[['IMC pré-gestacional',fmt(b,1)+' kg/m²']];if(a>0)rows.push(['Ganho até agora',fmt(a-w,1)+' kg']);
@@ -1793,7 +1794,7 @@ const TOOLS=[
 
 {id:'gold',cat:'Pneumologia',name:'GOLD (DPOC)',sub:'Gravidade da DPOC e tratamento inicial',
  src:'GOLD 2026 (Global Initiative for Chronic Obstructive Lung Disease)',
- form:()=>`<div class="form">${field('gdv','VEF₁ pós-BD (% do previsto)','')}${field('gdeo','Eosinófilos opcional (/µL)','')}</div><fieldset><legend>Confirmação</legend>${chk0('gdr','VEF₁/CVF pós-broncodilatador &lt; 0,70')}</fieldset>
+ form:()=>`<div class="form">${field('gdv','VEF₁ pós-BD (% do previsto)','')}${field('gdeo','Eosinófilos (/µL) [opcional]','')}</div><fieldset><legend>Confirmação</legend>${chk0('gdr','VEF₁/CVF pós-broncodilatador &lt; 0,70')}</fieldset>
   <div class="stack">${sel('gde','Exacerbações no último ano',[['_0','Nenhuma moderada ou grave'],['_1','≥ 1 moderada ou grave']])}${sel('gds','Sintomas',[['_0','mMRC 0 a 1 ou CAT &lt; 10'],['_1','mMRC ≥ 2 ou CAT ≥ 10']])}</div>`,
  calc(){const v=num('gdv');if(!$('gdr').checked)return out('acc','','','Sem obstrução confirmada','O diagnóstico exige VEF₁/CVF pós-broncodilatador &lt; 0,70.');if(isNaN(v))return out('acc','','','','Informe o VEF₁.');
   const g=v>=80?1:v>=50?2:v>=30?3:4,e=+$('gde').value.slice(1),s=+$('gds').value.slice(1),grp=e?'E':s?'B':'A';
@@ -1926,7 +1927,7 @@ const TOOLS=[
 
 {id:'mecvent',cat:'Fisioterapia',name:'Mecânica ventilatória',sub:'Mecânica pulmonar e ventilação protetora',
  src:'Fórmulas clássicas de mecânica respiratória, driving pressure: Amato et al., N Engl J Med 2015',
- form:()=>`<p class="note">Em modo controlado a volume, com pausa inspiratória.</p><div class="form">${field('mv1','Volume corrente (mL)','')}${field('mv2','PEEP (cmH₂O)','')}${field('mv3','Pressão de platô (cmH₂O)','')}${field('mv4','Pressão de pico opcional (cmH₂O)','')}${field('mv5','Fluxo opcional (L/min)','')}</div>`,
+ form:()=>`<p class="note">Em modo controlado a volume, com pausa inspiratória.</p><div class="form">${field('mv1','Volume corrente (mL)','')}${field('mv2','PEEP (cmH₂O)','')}${field('mv3','Pressão de platô (cmH₂O)','')}${field('mv4','Pressão de pico (cmH₂O) [opcional]','')}${field('mv5','Fluxo (L/min) [opcional]','')}</div>`,
  calc(){const vt=num('mv1'),pe=num('mv2'),pl=num('mv3'),pk=num('mv4'),fl=num('mv5');
   if([vt,pe,pl].some(isNaN))return out('acc','','','','Informe volume corrente, PEEP e platô.');if(pl<=pe)return out('bad','','','Valores incoerentes','O platô deve ser maior que a PEEP.');
   const dp=pl-pe,rows=[['Complacência estática',fmt(vt/dp,0)+' mL/cmH₂O']];
@@ -3150,6 +3151,7 @@ const AMP=[AMPM('Cloreto de potássio 10%',10,74.55,1,'K⁺'),AMPM('Cloreto de p
  ['Outra concentração',null,null,'',null,'','']];
 /* Grupos da tela: [nome, índices em AMP] */
 const AMPG=[['Cloreto de potássio',[0,1,2]],['Cloreto de sódio',[3,4,5]],['Bicarbonato de sódio',[6,7]],['Sulfato de magnésio',[8,9]],['Cloreto de cálcio 10%',[10]],['Gliconato de cálcio 10%',[11]],['Glicerofosfato de sódio 21,6%',[12]],['Fosfato de potássio (2 mEq/mL)',[13]],['Acetato de sódio (2 mEq/mL)',[14]],['Outra concentração',[15]]];
+function mqPick(){const v=segVal('mqs'),g=v!=null?AMPG[+v]:null;if(!g)return null;if(g[1].length>1){const pv=segVal('mqp'+v);return pv!=null?AMP[+pv]:null}return AMP[g[1][0]]}
 /* Dosagem: atalhos para os cálculos de preparo e administração */
 const DOSES=['dosekg','gotas','dil','meq','got','infusao'];
 function dosesView(){bar('Dosagem','','Dose, gotas, diluição, eletrólitos e infusão');$('app').innerHTML=`<div class="stack">${DOSES.map(id=>toolRow(TOOLS.find(t=>t.id===id))).join('')}</div>`}
@@ -3304,15 +3306,15 @@ function missing(){const m=[],lab=el=>((p=>{if(!p)return '';const c=p.cloneNode(
   $('app').querySelectorAll('#app select:not([data-cfg]):not([data-opt])').forEach(s=>{if(s.value===''&&!s.parentElement.closest('[hidden]'))m.push(lab(s))});
   const names=new Set();$('app').querySelectorAll('input[type=radio]').forEach(r=>names.add(r.name));
   names.forEach(n=>{if(document.querySelector(`input[name="${n}"]`).closest('fieldset[data-opt]'))return;if(!document.querySelector(`input[name="${n}"]:checked`))m.push(document.querySelector(`input[name="${n}"]`).closest('fieldset').querySelector('legend').textContent)});
-  $('app').querySelectorAll('.seg').forEach(s=>{if(!s.querySelector('[aria-pressed="true"]'))m.push(s.parentElement.querySelector('label')?.textContent||'Seleção')});
+  $('app').querySelectorAll('.seg').forEach(s=>{if(!s.closest('[hidden]')&&!s.querySelector('[aria-pressed="true"]'))m.push(s.parentElement.querySelector('label')?.textContent||'Seleção')});
   return m}
 /* Limites de digitação (plausibilidade física, não são valores de referência clínica) */
-const LIM={goc:[.001,100000],gon:[1,100],gog:[.0001,100000],god:[.0001,100000],mqv:[.001,100000],mqc:[.001,20],dlq:[.001,100000],dlv:[.1,5000],dld:[.001,100000],dkw:[.3,400],dkd:[.001,10000],dkc:[.001,1000],fri:[0,60],frp:[.3,60],frn:[300,6000],lr1:[0,1000],lr2:[0,200000],lr3:[1,25],lr4:[90,200],lr5:[0.1,20],lr6:[10,2000],pf2:[0,100000],pf3:[0,500],itbbd:[30,300],itbbe:[30,300],itbtd:[0,350],itbpd:[0,350],itbte:[0,350],itbpe:[0,350],tugs:[1,300],tmw:[20,400],tmh:[100,250],tma:[18,120],iab:[0,40],iah:[0,400],icb:[0,40],ich:[0,336],icc:[22,40],rxs:[50,100],rxf:[21,100],rxr:[1,80],mdp:[5,200],mdc:[5,60],mdb:[.1,80],lia:[18,120],lial:[.5,7],lib0:[.1,80],lib7:[.1,80],lipt:[5,200],rcs:[22,45],rcd:[0,6],rcw:[200,7000],pva:[30,79],pvtc:[130,320],pvhd:[20,100],pvsb:[90,180],pvim:[18.5,39.9],pvtf:[15,140],crh:[10,70],crc:[1,250],crf:[20,300],crp:[40,300],ap1:[20,45],ap2:[10,250],ap3:[0,300],ap4:[0,80],ap5:[21,100],ap6:[20,700],ap7:[0,700],ap8:[6.5,8],ap9:[90,200],ap10:[1,10],ap11:[.1,20],ap12:[5,80],ap13:[0,200],ap14:[3,15],ap15:[14,120],s3g:[3,15],s3sb:[0,300],s3hr:[0,300],s3tp:[20,45],s3cr:[.1,30],s3b:[.1,80],s3w:[0,500],s3p:[0,2000],s3ph:[6.5,8],gdv:[5,150],ir1:[1,100],ir2:[10,3000],mv1:[10,3000],mv2:[0,40],mv3:[1,80],mv4:[1,100],mv5:[1,200],am1:[1,200],am2:[1,90],gdeo:[0,5000],il1:[0,30],il2:[0,30],il3:[0,30],il4:[0,30],ilb:[0,30],gwp:[25,250],gwh:[120,210],gwa:[25,250],hdb:[10,120],hdc:[50,400],hda:[40,450],hdf:[5,90],pfp:[20,700],pff:[21,100],pfs:[50,100],pfe:[0,30],pxp:[20,700],pxs:[50,100],pxf:[21,100],pxl:[0,30],pxm:[5,200],icg:[22,42],icd:[0,6],icw:[0,260],gtv:[1,10000],gtt:[.1,72],hsw:[.5,200],cdd:[.01,5000],pms:[40,300],pmd:[10,250],pih:[100,250],piw:[20,400],cuc:[1,1000],cuv:[50,10000],cpc:[.1,20],raa:[0,20000],rac2:[1,1000],hog:[20,1000],hoi:[.1,1000],gzw:[1,300],gza:[1,25],gzt:[5,20],fda:[18,120],fdw:[20,400],fdh:[100,250],fdc:[40,250],cr:[.1,20],age:[0,120],na:[100,200],cl:[50,160],hco3:[1,70],alb:[.5,7],cat:[2,20],alb2:[.5,7],na2:[100,200],gli:[20,3000],
+const LIM={goc:[.001,100000],gon:[1,100],gog:[.0001,100000],god:[.0001,100000],mqe:[.001,100000],mql:[.001,5000],mqg:[.001,1000000],mqc:[.001,20],dlq:[.001,100000],dlv:[.1,5000],dld:[.001,100000],dkw:[.3,400],dkd:[.001,10000],dkc:[.001,1000],fri:[0,60],frp:[.3,60],frn:[300,6000],lr1:[0,1000],lr2:[0,200000],lr3:[1,25],lr4:[90,200],lr5:[0.1,20],lr6:[10,2000],pf2:[0,100000],pf3:[0,500],itbbd:[30,300],itbbe:[30,300],itbtd:[0,350],itbpd:[0,350],itbte:[0,350],itbpe:[0,350],tugs:[1,300],tmw:[20,400],tmh:[100,250],tma:[18,120],iab:[0,40],iah:[0,400],icb:[0,40],ich:[0,336],icc:[22,40],rxs:[50,100],rxf:[21,100],rxr:[1,80],mdp:[5,200],mdc:[5,60],mdb:[.1,80],lia:[18,120],lial:[.5,7],lib0:[.1,80],lib7:[.1,80],lipt:[5,200],rcs:[22,45],rcd:[0,6],rcw:[200,7000],pva:[30,79],pvtc:[130,320],pvhd:[20,100],pvsb:[90,180],pvim:[18.5,39.9],pvtf:[15,140],crh:[10,70],crc:[1,250],crf:[20,300],crp:[40,300],ap1:[20,45],ap2:[10,250],ap3:[0,300],ap4:[0,80],ap5:[21,100],ap6:[20,700],ap7:[0,700],ap8:[6.5,8],ap9:[90,200],ap10:[1,10],ap11:[.1,20],ap12:[5,80],ap13:[0,200],ap14:[3,15],ap15:[14,120],s3g:[3,15],s3sb:[0,300],s3hr:[0,300],s3tp:[20,45],s3cr:[.1,30],s3b:[.1,80],s3w:[0,500],s3p:[0,2000],s3ph:[6.5,8],gdv:[5,150],ir1:[1,100],ir2:[10,3000],mv1:[10,3000],mv2:[0,40],mv3:[1,80],mv4:[1,100],mv5:[1,200],am1:[1,200],am2:[1,90],gdeo:[0,5000],il1:[0,30],il2:[0,30],il3:[0,30],il4:[0,30],ilb:[0,30],gwp:[25,250],gwh:[120,210],gwa:[25,250],hdb:[10,120],hdc:[50,400],hda:[40,450],hdf:[5,90],pfp:[20,700],pff:[21,100],pfs:[50,100],pfe:[0,30],pxp:[20,700],pxs:[50,100],pxf:[21,100],pxl:[0,30],pxm:[5,200],icg:[22,42],icd:[0,6],icw:[0,260],gtv:[1,10000],gtt:[.1,72],hsw:[.5,200],cdd:[.01,5000],pms:[40,300],pmd:[10,250],pih:[100,250],piw:[20,400],cuc:[1,1000],cuv:[50,10000],cpc:[.1,20],raa:[0,20000],rac2:[1,1000],hog:[20,1000],hoi:[.1,1000],gzw:[1,300],gza:[1,25],gzt:[5,20],fda:[18,120],fdw:[20,400],fdh:[100,250],fdc:[40,250],cr:[.1,20],age:[0,120],na:[100,200],cl:[50,160],hco3:[1,70],alb:[.5,7],cat:[2,20],alb2:[.5,7],na2:[100,200],gli:[20,3000],
  ct:[30,1500],hdl:[5,250],tg:[10,10000],qt:[150,800],fc:[20,300],d1:[-50,50],avf:[-50,50],wt:[.3,400],ht:[25,250],
  bil:[.1,80],crm:[.1,20],inr:[.5,20],nam:[100,200],albm:[.5,7],usw:[4,42],usd:[0,6],pa:[0,17],pm:[0,11],pw:[.3,200],
  owt:[.3,250],oht:[35,230],ohc:[20,70],scw:[.3,400],sch:[25,250],qw:[.3,400],qa:[0,120],cga:[18,120],cgw:[20,400],cgc:[.1,20],
  osn:[100,200],osg:[20,3000],osu:[1,700],osmm:[150,500],adn:[90,200],adw:[2,400],adk:[0,100],adt:[0,20],
- gph:[6.5,8],gpc:[5,200],ghc:[1,70],gna:[100,200],gcl:[50,160],gal:[.5,7],ifm:[.001,100000],ifv:[1,2000],ifw:[.3,400],ifx:[.0001,10000],
+ gph:[6.5,8],gpc:[5,200],ghc:[1,70],gna:[100,200],gcl:[50,160],gal:[.5,7],ifm:[.001,100000],ifv:[1,2000],ifw:[.3,400],ifx:[.0001,10000],ifr:[.01,10000],
  vmh:[100,250],lrb:[.1,20],lra:[.1,30],lrd:[0,20],lrh:[0,168],feu:[0,3000],fep:[.1,3000],feuc:[1,1000],fepc:[.1,30],
  tku:[0,300],tkp:[1,15],tkuo:[20,1500],tkpo:[200,450],tkna:[0,400],lpp:[0,10],lps:[1,15],llp:[1,20000],lls:[10,10000],lln:[50,1000],
  psa:[18,120],gage:[18,120],ghr:[20,300],gsbp:[40,300],gcr:[.1,20],ai5:[.1,200],ai6:[0,100],ai7:[0,1000],lwa:[0,120],lww:[.3,400],nfr:[1,80],nsp:[50,100],npa:[30,300],nfc:[20,250],nt:[25,45],bur:[1,700],bhb:[1,25],bpa:[30,300],awn:[100,200],awt:[100,200],aww:[.3,400],vti:[.25,6],vtau:[4,72],vc1:[.1,200],vt1:[0,24],vc2:[.1,200],vdt:[.25,48],fba:[18,120],fbs:[1,10000],fbl:[1,10000],fbp:[1,2000]};

@@ -517,6 +517,9 @@ body.nobar .hcard:not(.half) .hic svg{width:clamp(25px,calc(var(--h1,1vh)*4.35),
 @media (max-width:350px){.mrow{grid-template-columns:1fr;gap:4px}}
 .seg.g6{grid-template-columns:repeat(6,1fr);gap:4px}
 .seg.g6 button{padding:10px 0}
+.seg.g3{grid-template-columns:repeat(3,1fr)}
+.seg.g5{grid-template-columns:repeat(5,1fr);gap:4px}
+.seg.g5 button{padding:10px 0}
 /* CAM-ICU: tocar em cada erro */
 .errs{display:flex;flex-wrap:wrap;gap:6px}
 .errs button{flex:1 1 auto;min-width:40px;font:700 .95rem var(--body);padding:10px 12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:var(--r-sm);cursor:pointer;text-align:center}
